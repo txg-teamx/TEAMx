@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#000000">
+    <title>TEAMxGaming | Terminal</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
+    <style>
+        /* =========================================
+           GLOBAL & BASE STYLES
+           ========================================= */
+        :root { --neon: #ff003c; --neon-glow: rgba(255, 0, 60, 0.6); --glass-bg: rgba(20, 20, 20, 0.35); --glass-border: rgba(255, 255, 255, 0.08); --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5); user-select: none; }
+        * { margin: 0; padding: 0; box-sizing: border-box; text-transform: uppercase; -webkit-tap-highlight-color: transparent; }
+        body { background: #000; color: #fff; font-family: 'Rajdhani', sans-serif; overflow: hidden; height: 100dvh; touch-action: none; }
+        #canvas-container { position: fixed; top: 0%; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none;}
+
+        @keyframes glassEntry { 0% { opacity: 0; transform: translateY(15px); } 100% { opacity: 1; transform: translateY(0); } }
+        .glass-panel { background: var(--glass-bg); border: 1px solid var(--glass-border); box-shadow: var(--glass-shadow); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-radius: 15px; position: relative; overflow: hidden; transition: box-shadow 0.3s ease; animation: glassEntry 0.5s ease-out forwards; }
+        .glass-particle-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
+        .g-particle { position: absolute; border-radius: 50%; background: #00f2ff; box-shadow: 0 0 8px #00f2ff; opacity: 0; animation: floatGlass 4s infinite linear; }
+        @keyframes floatGlass { 0% { transform: translateY(0) scale(0.5); opacity: 0; } 20% { opacity: 0.6; } 80% { opacity: 0.6; } 100% { transform: translateY(-30px) scale(1.2); opacity: 0; } }
+
+        #hud-alert { position: fixed; top: env(safe-area-inset-top, 20px); left: 50%; transform: translateX(-50%) translateY(-200%); width: 90%; max-width: 350px; border-top: 2px solid var(--neon); padding: 15px; z-index: 9999; transition: transform 0.6s cubic-bezier(0.2, 1, 0.2, 1); background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); }
+        #alert-title { color: var(--neon); font-family: 'Orbitron'; font-size: 0.7rem; } #alert-body { font-size: 0.7rem; margin-top: 2px; }
+        .selector-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 5500; display: none; justify-content: center; align-items: center; backdrop-filter: blur(10px); opacity: 0; transition: opacity 0.3s ease; } .selector-overlay.active-overlay { display: flex; opacity: 1; }
+        .modal-box { padding: 30px; width: 90%; max-width: 350px; text-align: center; position: relative; transform: scale(0.8); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 2; max-height: 90vh; overflow-y: auto; } .selector-overlay.active-overlay .modal-box { transform: scale(1); }
+        .modal-box h3 { font-family: 'Orbitron'; font-size: 0.9rem; margin-bottom: 20px; color: var(--neon); letter-spacing: 2px;} .close-modal { position: absolute; top: 15px; right: 15px; font-size: 1.2rem; cursor: pointer; color: #888; transition: 0.3s; z-index: 10;} .close-modal:hover { color: var(--neon); transform: rotate(90deg) scale(1.2); }
+        
+        .opt-grid { display: grid; gap: 10px; position: relative; z-index: 2;} .opt-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); padding: 15px; color: #fff; font-family: 'Orbitron'; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; display:flex; align-items:center; justify-content:center; gap:8px;} .opt-btn:hover { border-color: var(--neon); background: rgba(255,0,60,0.1); transform: translateY(-3px) scale(1.02); box-shadow: 0 5px 15px var(--neon-glow); }
+        .camera-viewport { width: 100%; aspect-ratio: 9/16; background: #111; border-radius: 8px; border: 1px solid var(--glass-border); position: relative; overflow: hidden; margin-bottom: 15px; display: flex; justify-content: center; align-items: center; } .camera-viewport i { font-size: 3rem; color: #333; z-index: 1;}
+        .rec-indicator { position: absolute; top: 10px; left: 10px; color: var(--neon); font-size: 0.8rem; font-family: 'Orbitron'; display: flex; align-items: center; gap: 5px; animation: blink 1s infinite; z-index: 2;} .rec-indicator span { display: inline-block; width: 8px; height: 8px; background: var(--neon); border-radius: 50%; } @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+        .date-inputs { display: flex; gap: 8px; margin-bottom: 20px; position: relative; z-index: 2; } .date-inputs input { text-align: center; padding: 12px 0; font-size: 1rem; width: 100%; }
+        
+        .portal-ui { position: relative; z-index: 10; display: flex; justify-content: center; align-items: center; height: 100dvh; padding: 20px; } #portal-ui-size { width: 100%; max-width: 400px; padding: 40px 30px; } h1 { font-family: 'Orbitron'; font-size: 1.8rem; text-align: center; letter-spacing: 8px; position: relative; z-index: 2;} h1 span { color: var(--neon); text-shadow: 0 0 10px var(--neon); } .sub { text-align: center; font-size: 0.6rem; color: #888; margin-bottom: 30px; letter-spacing: 4px; position: relative; z-index: 2;}
+        #register-window, #login-window { position: relative; z-index: 2; } #register-window { max-height: 60vh; overflow-y: auto; padding-right: 5px; } .input-wrap { margin-bottom: 15px; text-align: left;} .input-row { display: flex; gap: 10px; } label { font-size: 0.6rem; color: #aaa; margin-bottom: 5px; display: block; letter-spacing: 1px;} input, .trigger-input, textarea, select { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 12px; color: #fff; font-family: 'Orbitron'; font-size: 0.7rem; border-radius: 8px; text-transform: uppercase; transition: all 0.3s ease; } input:focus, textarea:focus, select:focus { outline: none; border-color: var(--neon); background: rgba(0,0,0,0.5); box-shadow: 0 0 10px rgba(255,0,60,0.3); transform: scale(1.02);}
+        .pass-container { position: relative; width: 100%; } .pass-toggle { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #aaa; font-size: 1.2rem; cursor: pointer; transition: 0.3s; } .pass-toggle:hover { color: var(--neon); transform: translateY(-50%) scale(1.2);} .pass-input { padding-right: 40px; }
+        .btn { width: 100%; padding: 15px; background: var(--neon); color: #fff; border: none; font-family: 'Orbitron'; font-weight: 900; cursor: pointer; border-radius: 8px; margin-top: 10px; transition: all 0.3s ease; text-transform: uppercase; position: relative; overflow: hidden; z-index: 2; } .btn:hover { filter: brightness(1.2); box-shadow: 0 0 20px var(--neon-glow); transform: translateY(-2px); } .btn-outline { background: transparent; border: 1px solid var(--glass-border); color: #fff; } .btn-outline:hover { background: rgba(255,255,255,0.1); box-shadow: 0 0 15px rgba(255,255,255,0.2); border-color: #fff; }
+        .switch-text { text-align: center; margin-top: 20px; font-size: 0.7rem; color: #888; cursor: pointer; transition: 0.3s; position: relative; z-index: 2;} .switch-text:hover { color: #fff; } .switch-text span { color: var(--neon); font-weight: bold; }
+        #black-void { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; justify-content: center; align-items: center; }
+
+        /* =========================================
+           APP VIEWS & NAVIGATION
+           ========================================= */
+        header { position: fixed; top: 0; left: 0; width: 100%; height: calc(60px + env(safe-area-inset-top)); padding-top: env(safe-area-inset-top); z-index: 100; background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent); pointer-events: none; } .page-logo { font-family: 'Orbitron'; font-size: 1.4rem; letter-spacing: 8px; position: absolute; bottom: 15px; left: 20px; pointer-events: auto; text-shadow: 0 2px 10px rgba(0,0,0,0.8); } .page-logo span { color: var(--neon); text-shadow: 0 0 10px var(--neon); } .profile-global-actions { position: absolute; bottom: 15px; right: 20px; display: none; gap: 20px; font-size: 1.6rem; color: #fff; z-index: 105; pointer-events: auto; } .profile-global-actions i { cursor: pointer; transition: all 0.3s; } .profile-global-actions i:hover { color: var(--neon); filter: drop-shadow(0 0 8px var(--neon)); transform: scale(1.3) rotate(5deg); }
+
+        .floating-nav { position: fixed; bottom: max(30px, env(safe-area-inset-bottom)); left: 12%; transform: translateX(-50%); width: 90%; max-width: 400px; display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; border-radius: 50px; z-index: 100; } 
+        .nav-item { color: #888; font-size: 1.8rem; text-decoration: none; display: flex; flex-direction: column; align-items: center; transition: transform 0.1s cubic-bezier(0.2, 1, 0.2, 1), color 0.1s; position: relative; pointer-events: auto; } 
+        .nav-item:active { transform: scale(0.85); color: var(--neon); } 
+        .nav-item.active { color: var(--neon); filter: drop-shadow(0 0 8px var(--neon)); transform: translateY(-5px) scale(1.1); } 
+        .nav-item.active::after { content: ''; position: absolute; bottom: -8px; width: 5px; height: 5px; background: var(--neon); border-radius: 50%; box-shadow: 0 0 10px var(--neon); }
+
+        .home-content { position: relative; z-index: 10; padding: calc(100px + env(safe-area-inset-top)) 20px calc(120px + env(safe-area-inset-bottom)) 20px; height: 100dvh; overflow-y: auto; pointer-events: none; scroll-behavior: smooth; } .home-content::-webkit-scrollbar { display: none; }
+        .btn-chats { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; background-color: transparent; color: #999; border: none; text-decoration: none; font-weight: 500; position: absolute; bottom: 15px; right: 20px; transition: all 0.3s ease; pointer-events: auto; text-transform: uppercase; font-family: 'Orbitron'; font-size: 0.7rem; } .btn-chats:hover { color: #00f2ff; text-shadow: 0 0 8px #00f2ff; transform: scale(1.05);} .icon-outline { width: 20px; height: 20px; }
+        .view-section { display: none; pointer-events: auto; opacity: 0; transform: translateY(20px); } .view-section.active-view { display: block; opacity: 1; transform: translateY(0); transition: all 0.5s; }
+
+        @keyframes bannerPulse { 0% { box-shadow: 0 8px 32px 0 rgba(255, 0, 60, 0.1); border-color: rgba(255, 0, 60, 0.3); } 100% { box-shadow: 0 8px 32px 0 rgba(255, 0, 60, 0.4); border-color: rgba(255, 0, 60, 0.8); transform: scale(1.01); } }
+        .welcome-banner { position: relative; padding: 40px 20px; margin-bottom: 25px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 280px; border-left: 4px solid var(--neon); border-right: 4px solid var(--neon); text-align: center; pointer-events: auto; cursor: pointer; user-select: none; animation: bannerPulse 4s infinite alternate ease-in-out; } 
+        .banner-video-bg video { position: absolute; top: 50%; left: 50%; min-width: 100%; min-height: 100%; width: auto; height: auto; z-index: -100; transform: translateX(-50%) translateY(-50%); object-fit: cover; } .banner-video-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; z-index: 0; filter: brightness(0.5) contrast(1.2); } .banner-content { position: relative; z-index: 2; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; transition: opacity 0.3s ease; } .welcome-banner:hover .banner-content, .welcome-banner:active .banner-content { opacity: 0 !important; } .animated-text { font-family: 'Orbitron'; font-size: 1.6rem; animation: textGlitch 3s infinite; margin-top: 10px; } .neon-text { color: var(--neon); text-shadow: 0 0 10px var(--neon); } .sub-text { font-size: 0.7rem; color: #ccc; margin: 10px 0 15px 0; letter-spacing: 2px; } .btn-small { padding: 10px 30px; font-size: 0.8rem; width: auto; display: inline-block; pointer-events: auto; } @keyframes textGlitch { 0%, 100% { text-shadow: 2px 0 var(--neon), -2px 0 #00f2ff; } 50% { text-shadow: -2px 0 var(--neon), 2px 0 #00f2ff; } }
+        .audio-hud-control { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); background: rgba(0, 0, 0, 0.5); border: 1px solid var(--glass-border); border-radius: 30px; padding: 15px 8px; display: flex; flex-direction: column; align-items: center; gap: 15px; backdrop-filter: blur(8px); z-index: 5; pointer-events: auto; } .visualizer-bars { display: flex; align-items: flex-end; gap: 2px; height: 20px; } .bar { width: 3px; background: var(--neon); animation: bounce 0.5s ease-in-out infinite alternate; } .bar:nth-child(2) { animation-delay: 0.1s; height: 60%; } .bar:nth-child(3) { animation-delay: 0.2s; height: 80%; } .bar:nth-child(4) { animation-delay: 0.3s; height: 40%; } @keyframes bounce { from { height: 20%; } to { height: 100%; } } .vol-slider-wrap { height: 100px; display: flex; align-items: center; } #vol-control { writing-mode: bt-lr; -webkit-appearance: slider-vertical; width: 8px; height: 100%; accent-color: var(--neon); cursor: pointer; } .mute-toggle { color: #fff; font-size: 1.2rem; cursor: pointer; transition: 0.3s; } .mute-toggle:hover { color: var(--neon); transform: scale(1.2);}
+
+        .search-wrap { display: flex; flex-direction: column; gap: 15px; max-width: 400px; margin: 0 auto;} .search-tabs { display: flex; gap: 10px; justify-content: center; margin-bottom: 10px; pointer-events: auto;} .search-tab { padding: 8px 20px; border-radius: 20px; font-size: 0.7rem; font-family: 'Orbitron'; background: rgba(255,255,255,0.05); color: #888; cursor: pointer; transition: 0.3s; border: 1px solid transparent;} .search-tab.active { background: rgba(0,242,255,0.1); color: #00f2ff; border-color: #00f2ff; } .search-bar { display: flex; align-items: center; background: rgba(0,0,0,0.4); padding: 10px 15px; border-radius: 8px; border: 1px solid var(--glass-border); backdrop-filter: blur(10px); position: relative; z-index: 2;} .search-bar i { color: #888; margin-right: 10px; font-size: 1.2rem; } .search-bar input { border: none; background: transparent; padding: 0; font-size: 0.8rem; outline: none; text-transform: uppercase;} .search-result-item { display: flex; align-items: center; gap: 15px; padding: 15px; border: 1px solid var(--glass-border); border-radius: 10px; cursor: pointer; transition: all 0.3s ease; margin-bottom: 10px; position: relative; z-index: 2;} .search-result-item:hover { border-color: var(--neon); transform: translateX(10px) scale(1.02); background: rgba(255, 0, 60, 0.1); box-shadow: 0 5px 15px rgba(255,0,60,0.2);} .search-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 1px solid var(--neon);} .search-info h4 { font-size: 0.9rem; margin-bottom: 2px; font-family: 'Orbitron'; color: var(--neon); } .search-info p { font-size: 0.7rem; color: #888; text-transform: uppercase;} #search-media-results { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+
+        .ig-profile-wrap { max-width: 500px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; padding: 25px 20px; position: relative;} .ig-header { display: flex; align-items: center; gap: 25px; padding: 0 10px; margin-top: 10px; position: relative; z-index: 2;} .ig-avatar-ring { width: 90px; height: 90px; border-radius: 50%; background: conic-gradient(from 45deg, var(--neon), #00f2ff, var(--neon)); padding: 3px; position: relative; display: flex; align-items: center; justify-content: center; animation: spinRing 4s linear infinite; box-shadow: 0 0 15px rgba(0, 242, 255, 0.4); } @keyframes spinRing { 100% { transform: rotate(360deg); } } .ig-avatar-ring img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 3px solid #000; animation: counterSpinRing 4s linear infinite; } @keyframes counterSpinRing { 100% { transform: rotate(-360deg); } } .ig-stats-container { display: flex; flex: 1; justify-content: space-around; } .ig-stat { display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.3s;} .ig-stat:hover { transform: scale(1.1) translateY(-5px); color: var(--neon);} .ig-stat h3 { font-family: 'Orbitron'; font-size: 1.2rem; margin-bottom: 2px; text-shadow: 0 0 5px rgba(255,255,255,0.5); } .ig-stat span { font-size: 0.6rem; color: #aaa; letter-spacing: 1px; } .ig-bio-section { padding: 0 10px; position: relative; z-index: 2;} .ig-bio-name { font-family: 'Orbitron'; font-size: 1.1rem; color: #fff; display: flex; align-items: center; gap: 5px; } .ig-bio-username { font-size: 0.7rem; color: #00f2ff; margin-bottom: 8px; text-transform: uppercase; } .ig-bio-text { font-size: 0.8rem; color: #ccc; line-height: 1.4; text-transform: uppercase;} .profile-links-container { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 8px; } .profile-link { display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; background: rgba(0, 242, 255, 0.1); border: 1px solid #00f2ff; color: #00f2ff; border-radius: 4px; font-size: 0.65rem; text-decoration: none; transition: 0.3s; font-family: 'Orbitron'; } .profile-link:hover { background: #00f2ff; color: #000; box-shadow: 0 0 10px #00f2ff; transform: translateY(-2px); } .ig-actions { display: flex; gap: 10px; padding: 0 10px; position: relative; z-index: 2;} .ig-actions .btn { padding: 10px; font-size: 0.7rem; margin-top: 0; } .ig-actions .btn-follow.following { background: transparent; border: 1px solid var(--glass-border); color: #fff; } .ig-tabs { display: flex; border-top: 1px solid var(--glass-border); margin-top: 10px; position: relative; z-index: 2;} .ig-tab { flex: 1; display: flex; justify-content: center; align-items: center; padding: 15px 0; color: #555; font-size: 1.4rem; cursor: pointer; transition: 0.3s; border-top: 2px solid transparent; margin-top: -1px; } .ig-tab:hover { color: #fff; } .ig-tab.active { color: var(--neon); border-top-color: var(--neon); text-shadow: 0 0 10px rgba(255,0,60,0.5); transform: translateY(-2px);} .ig-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; padding-bottom: 20px; position: relative; z-index: 2;} .ig-grid-item { aspect-ratio: 1 / 1; background: #111; position: relative; overflow: hidden; cursor: pointer; border-radius: 6px; } .ig-grid-item img, .ig-grid-item video { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease, filter 0.4s ease; filter: grayscale(40%) contrast(1.1); } .ig-grid-item:hover img, .ig-grid-item:hover video { transform: scale(1.1); filter: grayscale(0%) contrast(1.2); } .ig-grid-item .view-icon { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 2rem; color: #fff; opacity: 0; transition: 0.3s; text-shadow: 0 2px 10px rgba(0,0,0,0.8); } .ig-grid-item:hover .view-icon { opacity: 1; color: var(--neon); } .clip-views { position: absolute; bottom: 5px; left: 5px; font-size: 0.6rem; background: rgba(0,0,0,0.6); padding: 2px 5px; border-radius: 4px; display: flex; align-items: center; gap: 3px; z-index: 5;} .edit-avatar-wrap { width: 100px; height: 100px; border-radius: 50%; margin: 0 auto 20px auto; position: relative; cursor: pointer; overflow: hidden; border: 2px solid var(--neon); box-shadow: 0 0 20px rgba(255, 0, 60, 0.4); transition: 0.3s; z-index: 2;} .edit-avatar-wrap:hover { transform: scale(1.05) rotate(5deg); box-shadow: 0 0 30px var(--neon);} .edit-avatar-wrap img { width: 100%; height: 100%; object-fit: cover; } .edit-avatar-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; opacity: 0; transition: 0.3s; } .edit-avatar-wrap:hover .edit-avatar-overlay { opacity: 1; } .dynamic-link-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; } .dynamic-link-row input { flex: 1; margin: 0; } .remove-link-btn { background: rgba(255,0,60,0.1); border: 1px solid var(--neon); color: var(--neon); width: 40px; height: 40px; border-radius: 8px; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: 0.3s; } .remove-link-btn:hover { background: var(--neon); color: #fff; transform: scale(1.05); }
+
+        #view-watch { padding: 0 !important; overflow: hidden; } .watch-feed { height: 100dvh; width: 100%; overflow-y: scroll; scroll-snap-type: y mandatory; scroll-behavior: smooth; display: flex; flex-direction: column; -ms-overflow-style: none; scrollbar-width: none; } .watch-feed::-webkit-scrollbar { display: none; } .watch-clip-container { width: 100vw; height: 100dvh; background: #000; position: relative; scroll-snap-align: start; scroll-snap-stop: always; flex-shrink: 0; display: flex; justify-content: center; align-items: center; } .watch-clip-container video, .watch-clip-container img.feed-media { width: 100%; height: 100%; object-fit: cover; display: block; background: #000; } .media-overlay-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'Orbitron'; font-size: 2rem; color: #fff; text-shadow: 0 0 15px var(--neon), 2px 2px 5px #000; pointer-events: none; z-index: 10; text-align: center; width: 90%; } .heart-animation { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); font-size: 8rem; color: var(--neon); z-index: 10; opacity: 0; pointer-events: none; filter: drop-shadow(0 0 20px var(--neon)); } .watch-clip-info { padding: 20px; padding-bottom: 110px; position: absolute; bottom: 0; left: 0; width: 100%; background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 60%, transparent 100%); pointer-events: none; z-index: 2; display: flex; flex-direction: column; gap: 5px; } .clip-location { font-size: 0.7rem; color: #00f2ff; font-family: 'Orbitron'; display: flex; align-items: center; gap: 5px; margin-bottom: 5px; text-shadow: 0 2px 5px rgba(0,0,0,0.8); } .clip-author-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; pointer-events: auto; } .clip-author-row img { width: 35px; height: 35px; border-radius: 50%; border: 2px solid var(--neon); object-fit: cover; } .watch-clip-actions { position: absolute; right: 15px; bottom: 120px; display: flex; flex-direction: column; gap: 25px; z-index: 3; pointer-events: auto; } .action-btn { display: flex; flex-direction: column; align-items: center; color: #fff; font-size: 0.7rem; font-family: 'Orbitron'; gap: 5px; cursor: pointer; transition: 0.3s; text-shadow: 0 2px 5px rgba(0,0,0,0.8); position: relative; } .action-btn i { font-size: 2.2rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); } .action-btn:hover i { color: var(--neon); transform: scale(1.15); filter: drop-shadow(0 0 10px var(--neon)); } .feed-options-dropdown { position: absolute; right: 40px; bottom: 0; background: rgba(0,0,0,0.9); border: 1px solid var(--glass-border); border-radius: 8px; padding: 5px; display: none; flex-direction: column; gap: 5px; backdrop-filter: blur(10px); min-width: 120px; } .feed-options-dropdown.show { display: flex; animation: fadeIn 0.2s; } .feed-opt-item { padding: 10px; font-size: 0.7rem; color: #fff; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 8px; transition: 0.3s; border-radius: 4px;} .feed-opt-item:hover { background: rgba(255,255,255,0.1); color: var(--neon); }
+
+        .stream-dashboard { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 20px; position: relative; z-index: 2;} @media(min-width: 900px) { .stream-dashboard { grid-template-columns: 2.5fr 1fr; } } .stream-player-container { display: flex; flex-direction: column; gap: 15px; } .stream-video-box { width: 100%; aspect-ratio: 16/9; background: #0a0a0a; border: 1px solid var(--neon); border-radius: 10px; position: relative; overflow: hidden; display: flex; justify-content: center; align-items: center; box-shadow: 0 0 20px rgba(255,0,60,0.2); transition: 0.3s;} .stream-live-badge { position: absolute; top: 15px; left: 15px; z-index: 2; background: #333; color: #fff; padding: 5px 10px; font-family: 'Orbitron'; font-size: 0.7rem; border-radius: 4px; display: flex; align-items: center; gap: 5px; transition: 0.3s ease;} .stream-live-badge i { font-size: 1rem; } @keyframes pulseBadge { 0%, 100% { filter: brightness(1); box-shadow: 0 0 10px var(--neon);} 50% { filter: brightness(0.7); box-shadow: none;} } .stream-meta { padding: 15px; } .stream-title { font-family: 'Orbitron'; font-size: 1.2rem; color: #fff; margin-bottom: 5px; } .stream-category { color: #00f2ff; font-size: 0.8rem; margin-bottom: 15px; } .stream-toolbar { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--glass-border); padding-top: 15px; flex-wrap: wrap; gap: 10px;} .st-metrics { display: flex; gap: 15px; font-size: 0.8rem; color: #aaa; } .st-metrics span { display: flex; align-items: center; gap: 5px; } .st-metrics i { color: var(--neon); } .st-controls { display: flex; gap: 10px; } .st-btn { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: #fff; display: flex; justify-content: center; align-items: center; font-size: 1.2rem; cursor: pointer; transition: 0.3s;} .st-btn:hover { background: var(--neon); border-color: var(--neon); transform: scale(1.1); box-shadow: 0 0 10px var(--neon);} .st-btn.active-st { background: #fff; color: #000; border-color: #fff;} .st-btn-danger:hover { background: #ffaa00; border-color: #ffaa00; box-shadow: 0 0 10px #ffaa00; color: #000; } .st-btn-pip:hover { background: #00f2ff; border-color: #00f2ff; box-shadow: 0 0 10px #00f2ff; color: #000; } .stream-chat-container { display: flex; flex-direction: column; height: 500px; } .chat-header { padding: 15px; border-bottom: 1px solid var(--glass-border); font-family: 'Orbitron'; font-size: 0.9rem; color: var(--neon); text-align: center; letter-spacing: 2px;} .chat-messages { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; } .chat-messages::-webkit-scrollbar { width: 4px; } .chat-messages::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 10px; } .msg { font-size: 0.8rem; line-height: 1.4; background: rgba(0,0,0,0.4); padding: 8px 10px; border-radius: 8px; border-left: 2px solid #555;} .msg.sys { border-left-color: #00f2ff; color: #00f2ff; font-family: 'Orbitron'; font-size: 0.7rem; text-align: center; background: transparent;} .msg.sub { border-left-color: var(--neon); } .msg span.user { font-weight: bold; color: #fff; margin-right: 5px; }
+
+        .chat-layout { display: flex; height: calc(100dvh - 200px); overflow: hidden; margin-top: 10px; } .chat-sidebar { width: 100%; border-right: 1px solid var(--glass-border); display: flex; flex-direction: column; transition: 0.3s; position: relative;} .chat-header-title { padding: 15px; font-family: 'Orbitron'; font-size: 1rem; color: var(--neon); border-bottom: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center; } .chat-header-title i { cursor: pointer; transition: 0.3s; } .chat-header-title i:hover { transform: scale(1.2); text-shadow: 0 0 10px var(--neon);} .chat-list { flex: 1; overflow-y: auto; } .chat-list-item { display: flex; align-items: center; gap: 15px; padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: 0.3s; } .chat-list-item:hover { background: rgba(0, 242, 255, 0.1); border-left: 3px solid #00f2ff; } .chat-list-item img { width: 45px; height: 45px; border-radius: 50%; border: 1px solid #00f2ff; object-fit: cover; } .chat-list-item .info h5 { font-family: 'Orbitron'; font-size: 0.8rem; color: #fff; margin-bottom: 3px; } .chat-list-item .info p { font-size: 0.7rem; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px; } .chat-window { flex: 1; display: flex; flex-direction: column; width: 100%; background: rgba(0,0,0,0.5); } .chat-window-header { padding: 15px; display: flex; align-items: center; gap: 15px; border-bottom: 1px solid var(--glass-border); background: rgba(255,255,255,0.02); flex-shrink: 0; position: relative;} .chat-window-header img { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; } .chat-window-header h4 { font-family: 'Orbitron'; font-size: 1rem; color: #fff; flex: 1;} .chat-header-actions { display: flex; gap: 15px; font-size: 1.4rem; color: #aaa; } .chat-header-actions i { cursor: pointer; transition: 0.3s; } .chat-header-actions i:hover { color: var(--neon); } .chat-options-dropdown { position: absolute; right: 15px; top: 60px; background: rgba(0,0,0,0.95); border: 1px solid var(--glass-border); border-radius: 8px; display: none; flex-direction: column; z-index: 100; min-width: 150px; backdrop-filter: blur(10px);} .chat-options-dropdown.show { display: flex; animation: fadeIn 0.2s; } .chat-opt-item { padding: 12px 15px; color: #fff; font-size: 0.75rem; cursor: pointer; font-family: 'Orbitron'; display: flex; align-items: center; gap: 10px; transition: 0.3s; justify-content: space-between;} .chat-opt-item:hover { background: rgba(255,255,255,0.1); color: var(--neon); } .flag-menu { display: none; flex-direction: column; padding-left: 10px; background: rgba(0,0,0,0.5); } .flag-menu.show { display: flex; } .chat-messages-area { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; } .chat-bubble { max-width: 75%; padding: 10px 15px; border-radius: 15px; font-size: 0.8rem; line-height: 1.4; word-wrap: break-word; position: relative; } .chat-bubble.them { align-self: flex-start; background: rgba(255,255,255,0.1); border-bottom-left-radius: 2px; border: 1px solid var(--glass-border); color: #ddd; } .chat-bubble.me { align-self: flex-end; background: rgba(0, 242, 255, 0.15); border-bottom-right-radius: 2px; border: 1px solid #00f2ff; color: #fff; } .chat-bubble img, .chat-bubble video { max-width: 100%; border-radius: 8px; margin-top: 5px; } .chat-bubble audio { width: 100%; height: 30px; margin-top: 5px; outline: none;} .chat-bubble-map { font-size: 2rem; color: #ffaa00; text-align: center; } .chat-input-wrapper { padding: 15px; border-top: 1px solid var(--glass-border); display: flex; align-items: center; gap: 10px; flex-shrink: 0; background: rgba(0,0,0,0.9); padding-bottom: max(15px, env(safe-area-inset-bottom)); position: relative;} .chat-attach-btn { font-size: 1.5rem; color: #888; cursor: pointer; transition: 0.3s; } .chat-attach-btn:hover { color: var(--neon); transform: rotate(90deg); } .chat-input-wrapper input[type="text"] { flex: 1; border-radius: 20px; } .attachment-menu { position: absolute; left: 15px; bottom: 70px; background: rgba(0,0,0,0.95); border: 1px solid var(--glass-border); border-radius: 8px; display: none; flex-direction: column; gap: 5px; padding: 10px; z-index: 100; backdrop-filter: blur(10px); } .attachment-menu.show { display: flex; animation: fadeIn 0.2s; } .attach-item { display: flex; align-items: center; gap: 10px; padding: 8px 15px; color: #fff; font-size: 0.75rem; cursor: pointer; transition: 0.3s; border-radius: 4px;} .attach-item:hover { background: rgba(255,255,255,0.1); color: var(--neon); } .attach-item i { font-size: 1.2rem; }
+
+        body.in-conversation #main-nav, body.in-capture #main-nav { display: none !important; } 
+        body.in-conversation header, body.in-capture header { display: none !important; } 
+        body.in-conversation .home-content, body.in-capture .home-content { padding: 0 !important; height: 100dvh !important; } 
+
+        body.in-conversation .chat-layout { margin: 0 !important; height: 100dvh !important; border-radius: 0; border: none; } 
+        body.in-conversation .chat-sidebar { display: none !important; } 
+        body.in-conversation .chat-window { position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100dvh !important; z-index: 9999 !important; background: rgba(0,0,0,0.95) !important; backdrop-filter: blur(20px) !important; border-radius: 0 !important; border: none !important; margin: 0 !important; display: flex !important; flex-direction: column !important; }
+
+        @media(max-width: 768px) { .chat-sidebar.hidden { display: none; } .chat-window { display: none; } .chat-window.active { display: flex; } } @keyframes fadeIn { from {opacity: 0; transform: translateY(10px);} to {opacity: 1; transform: translateY(0);} }
+    </style>
+</head>
+<body>
+    <div id="canvas-container"></div>
+    <div id="hud-alert"><div id="alert-title">SYSTEM</div><div id="alert-body">STATUS: READY</div></div>
+    <div id="black-void"><h2 style="font-family:'Orbitron'; color:var(--neon); animation: pulseDrop 1s infinite alternate;">INITIALIZING...</h2></div>
+    <audio id="feed-global-audio" loop style="display: none;"></audio>
+
+    <div class="selector-overlay" id="call-overlay" data-overlay="call-overlay">
+    <div class="modal-box glass-panel" style="width: 100vw; height: 100dvh; max-width: none; border-radius: 0; display:flex; flex-direction:column; justify-content:center; align-items:center; background: rgba(0,0,0,0.95);">
+        <h2 id="call-status-text" style="color:var(--neon); font-family:Orbitron; letter-spacing:4px; z-index: 2;">CALLING...</h2>
+        <video id="local-video-feed" autoplay muted playsinline style="width:150px; height:200px; position:absolute; bottom:140px; right:20px; border:2px solid var(--neon); border-radius:10px; display:none; z-index: 3; object-fit:cover;"></video>
+        <video id="remote-video-feed" autoplay playsinline style="width:100%; height:100%; object-fit:cover; position:absolute; top:0; left:0; z-index:1; display:none;"></video>
+        
+        <div style="z-index:4; position:absolute; bottom: 40px; display:flex; gap:15px; align-items: center; background: rgba(0,0,0,0.5); padding: 15px; border-radius: 30px; backdrop-filter: blur(10px);">
+            <button class="btn btn-outline" style="border-radius:50%; width:50px; height:50px; padding:0;" data-action="toggle-call-mic" id="btn-call-mic"><i class="ph-fill ph-microphone"></i></button>
+            <button class="btn btn-outline" style="border-radius:50%; width:50px; height:50px; padding:0;" data-action="toggle-call-speaker" id="btn-call-speaker"><i class="ph-fill ph-speaker-high"></i></button>
+            <button class="btn btn-outline" style="border-radius:50%; width:70px; height:70px; padding:0; background: rgba(255,0,60,0.2); border-color: var(--neon);" data-action="end-call"><i class="ph-fill ph-phone-slash" style="color:var(--neon); font-size:1.8rem;"></i></button>
+            <button class="btn btn-outline" style="border-radius:50%; width:50px; height:50px; padding:0;" data-action="call-text-reply"><i class="ph-fill ph-chat-text"></i></button>
+            </div>
+        </div>
+    </div>
+
+    
+    <div class="selector-overlay" id="otp-overlay" data-overlay="otp-overlay">
+        <div class="modal-box glass-panel">
+            <i class="ph ph-x close-modal" data-action="close-overlay" data-target="otp-overlay"></i>
+            <h3>VERIFY GMAIL</h3>
+            <p style="font-size:0.7rem; color:#aaa; margin-bottom:15px;">ENTER THE 4-DIGIT OTP SENT TO YOUR GMAIL.</p>
+            <div class="input-wrap"><input type="number" id="otp-input" placeholder="0000" style="text-align:center; font-size:1.5rem; letter-spacing:10px;"></div>
+            <button class="btn" data-action="confirm-registration-otp">VERIFY & ENLIST</button>
+        </div>
+    </div>
+    
+    <div class="selector-overlay" id="comments-overlay" data-overlay="comments-overlay">
+        <div class="modal-box glass-panel" style="max-height: 80vh; display: flex; flex-direction: column;">
+            <i class="ph ph-x close-modal" data-action="close-overlay" data-target="comments-overlay"></i>
+            <h3>COMMENTS</h3>
+            <div id="comments-list" style="overflow-y: auto; flex: 1; margin-bottom: 10px; text-align: left;"></div>
+            <div class="chat-input-area" style="padding: 0; border: none; flex-shrink: 0;">
+                <input type="text" id="new-comment-input" placeholder="ADD A COMMENT...">
+                <button class="btn" data-action="post-comment" style="margin: 0;"><i class="ph ph-paper-plane-right"></i></button>
+                <input type="hidden" id="active-comment-clip-id"><input type="hidden" id="active-comment-author-id">
+            </div>
+        </div>
+    </div>
+    
+    <div class="selector-overlay" id="new-chat-overlay" data-overlay="new-chat-overlay">
+        <div class="modal-box glass-panel" style="max-height: 80vh; display: flex; flex-direction: column;">
+            <i class="ph ph-x close-modal" data-action="close-overlay" data-target="new-chat-overlay"></i>
+            <h3>NEW CONVERSATION</h3>
+            <div class="input-wrap" style="margin-bottom: 10px;"><input type="text" id="new-chat-search" placeholder="SEARCH ALIAS..." style="border-radius: 20px;"></div>
+            <div class="opt-btn" style="margin-bottom: 10px; border-color: var(--neon); color: var(--neon);" data-action="initiate-group-chat"><i class="ph ph-users-three"></i> CREATE GROUP CHAT</div>
+            <div id="new-chat-results" style="overflow-y: auto; flex: 1; text-align: left;"></div>
+        </div>
+    </div>
+    
+    <div class="selector-overlay" id="gender-overlay" data-overlay="gender-overlay">
+        <div class="modal-box glass-panel">
+            <i class="ph ph-x close-modal" data-action="close-overlay" data-target="gender-overlay"></i>
+            <h3>SELECT GENDER</h3>
+            <div class="opt-grid"><div class="opt-btn" data-action="apply-gender" data-value="MALE">MALE</div><div class="opt-btn" data-action="apply-gender" data-value="FEMALE">FEMALE</div><div class="opt-btn" data-action="apply-gender" data-value="OTHER">OTHER</div></div>
+        </div>
+    </div>
+    
+    <div class="selector-overlay" id="dob-overlay" data-overlay="dob-overlay">
+        <div class="modal-box glass-panel">
+            <i class="ph ph-x close-modal" data-action="close-overlay" data-target="dob-overlay"></i>
+            <h3>SET DATE OF BIRTH</h3>
+            <div class="date-inputs"><input type="number" id="day-in" placeholder="DD" max="31"><input type="number" id="month-in" placeholder="MM" max="12"><input type="number" id="year-in" placeholder="YYYY" max="2026"></div>
+            <button class="btn" data-action="apply-dob">CONFIRM</button>
+        </div>
+    </div>
+    
+    <div class="selector-overlay" id="edit-profile-overlay" data-overlay="edit-profile-overlay">
+        <div class="modal-box glass-panel" style="max-height: 85vh; overflow-y: auto; padding-right: 15px;">
+            <i class="ph ph-x close-modal" data-action="close-overlay" data-target="edit-profile-overlay"></i>
+            <h3>UPDATE CREDENTIALS</h3>
+            <input type="file" id="avatar-upload" accept="image/*" style="display: none;">
+            <div class="edit-avatar-wrap" data-action="trigger-avatar-upload">
+                <img id="edit-avatar-preview" src="">
+                <div class="edit-avatar-overlay"><i class="ph ph-camera" style="font-size: 2rem;"></i></div>
+            </div>
+            <div class="input-row"><div class="input-wrap"><label>FIRST NAME</label><input type="text" id="edit-name" placeholder="FIRST"></div><div class="input-wrap"><label>LAST NAME</label><input type="text" id="edit-surname" placeholder="LAST"></div></div>
+            <div class="input-wrap"><label>USERNAME</label><input type="text" id="edit-username" placeholder="ALIAS"></div>
+            <div class="input-wrap"><label>BIO</label><textarea id="edit-bio" placeholder="SHORT BIO" rows="2"></textarea></div>
+            <div class="input-wrap"><label>GMAIL <span style="color:#00f2ff; float:right; cursor:pointer;" data-action="verify-edit-gmail">VERIFY</span></label><input type="email" id="edit-gmail" placeholder="USER@GMAIL.COM"></div>
+            <div class="input-wrap"><label>TXG MAIL (ID)</label><input type="text" id="edit-txg" readonly style="color:#888;"></div>
+            <div class="input-wrap" id="edit-links-container"><label>SOCIAL LINKS</label><div id="dynamic-links-list"></div><button type="button" class="btn btn-outline" style="padding: 8px; font-size: 0.7rem; margin-top: 5px;" data-action="add-link-input">+ ADD LINK</button></div>
+            <div class="input-wrap"><label>PROFILE MUSIC</label><div style="display: flex; gap: 10px; align-items: center; margin-bottom: 8px;"><label for="edit-music-file" class="btn btn-outline" style="margin: 0; padding: 10px; width: auto; flex-shrink: 0; cursor: pointer;"><i class="ph ph-music-notes"></i> BROWSE</label><div id="music-file-name" style="font-size: 0.7rem; color: #00f2ff; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">NO FILE SELECTED</div></div><input type="file" id="edit-music-file" accept="audio/*" style="display: none;"><input type="text" id="edit-music-url" placeholder="OR PASTE URL: https://audio-file.mp3"></div>
+            <button class="btn" data-action="save-profile">SAVE CHANGES</button>
+        </div>
+    </div>
+    
+    <div class="selector-overlay" id="create-overlay" data-overlay="create-overlay">
+        <div class="modal-box glass-panel">
+            <i class="ph ph-x close-modal" data-action="close-overlay" data-target="create-overlay"></i>
+            <h3>INITIATE TRANSMISSION</h3>
+            <div class="opt-grid">
+                <div class="opt-btn" data-action="open-upload-clip"><i class="ph ph-upload-simple"></i> UPLOAD MEDIA</div>
+                <div class="opt-btn" data-action="open-capture-reel"><i class="ph ph-camera"></i> CAPTURE REEL</div>
+                <div class="opt-btn" data-action="go-live-studio"><i class="ph ph-broadcast"></i> GO LIVE (STUDIO)</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="selector-overlay" id="upload-clip-overlay" data-overlay="upload-clip-overlay">
+        <div class="modal-box glass-panel" style="max-height: 85vh; overflow-y: auto; padding-right: 10px;">
+            <i class="ph ph-x close-modal" data-action="close-overlay" data-target="upload-clip-overlay"></i>
+            <h3 id="upload-modal-title">UPLOAD MEDIA</h3>
+            <input type="hidden" id="edit-clip-mode-id">
+            <div class="input-wrap" id="upload-file-picker-wrap" style="text-align:center;">
+                <label for="clip-file-input" style="cursor:pointer; display:inline-block; padding: 20px; border: 2px dashed var(--neon); border-radius: 8px; width: 100%;"><i class="ph ph-file-video" style="font-size: 2rem; color: var(--neon); margin-bottom: 10px;"></i><br>BROWSE MEDIA</label>
+                <input type="file" id="clip-file-input" accept="video/*, image/*" style="display:none;"><p id="clip-file-name-display" style="font-size: 0.7rem; color: #00f2ff; margin-top: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></p>
+            </div>
+            <div class="input-wrap" id="thumbnail-section" style="display: none; text-align: center; margin-top: 10px; margin-bottom: 15px;">
+                <label style="color: #aaa; font-size: 0.6rem; letter-spacing: 1px; margin-bottom: 5px;">THUMBNAIL PREVIEW</label>
+                <div style="position: relative; width: 100%; aspect-ratio: 9/16; max-height: 180px; background: #000; border-radius: 8px; overflow: hidden; margin-bottom: 10px; border: 1px solid var(--glass-border);"><img id="clip-thumbnail-preview" src="" style="width: 100%; height: 100%; object-fit: cover;"></div>
+                <label for="custom-thumb-input" class="btn btn-outline" style="padding: 8px 15px; font-size: 0.7rem; cursor: pointer; display: inline-block; width: auto; margin: 0;">CHANGE</label><input type="file" id="custom-thumb-input" accept="image/*" style="display: none;">
+            </div>
+            <div class="input-row"><div class="input-wrap"><input type="text" id="clip-location-input" placeholder="LOCATION"></div><div class="input-wrap"><input type="text" id="clip-overlay-text" placeholder="OVERLAY TEXT"></div></div>
+            <div class="input-wrap" id="audio-picker-wrap"><label style="text-align: left;">EXTERNAL AUDIO</label><div style="display: flex; gap: 10px; align-items: center; margin-bottom: 8px;"><label for="clip-audio-input" class="btn btn-outline" style="margin: 0; padding: 10px; width: auto; flex-shrink: 0; cursor: pointer;"><i class="ph ph-music-notes"></i> BROWSE</label><div id="clip-audio-name-display" style="font-size: 0.7rem; color: #00f2ff; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">NO AUDIO</div></div><input type="file" id="clip-audio-input" accept="audio/*" style="display:none;"></div>
+            <div class="input-wrap"><input type="text" id="clip-title-input" placeholder="MEDIA TITLE"></div>
+            <div class="input-wrap"><textarea id="clip-desc-input" placeholder="DESCRIPTION & #TAGS" rows="2"></textarea></div>
+            <button class="btn" id="upload-modal-btn" data-action="initiate-upload">INITIATE UPLOAD</button>
+        </div>
+    </div>
+    
+    <div class="selector-overlay" id="admin-banner-overlay" data-overlay="admin-banner-overlay">
+        <div class="modal-box glass-panel">
+            <i class="ph ph-x close-modal" data-action="close-overlay" data-target="admin-banner-overlay"></i>
+            <h3>UPDATE ARENA BANNER</h3>
+            <p style="font-size:0.7rem; color:#aaa; margin-bottom:15px;">ADMIN ACCESS GRANTED.</p>
+            <div class="input-wrap" style="text-align:center;"><label for="admin-banner-file-input" style="cursor:pointer; display:inline-block; padding: 20px; border: 2px dashed var(--neon); border-radius: 8px; width: 100%;"><i class="ph ph-video-camera" style="font-size: 2rem; color: var(--neon); margin-bottom: 10px;"></i><br>BROWSE VIDEO</label><input type="file" id="admin-banner-file-input" accept="video/*" style="display:none;"><p id="admin-banner-name-display" style="font-size: 0.7rem; color: #00f2ff; margin-top: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></p></div>
+            <button class="btn" data-action="initiate-banner-upload">DEPLOY BANNER</button>
+        </div>
+    </div>
+    
+    <div class="selector-overlay" id="delete-clip-overlay" data-overlay="delete-clip-overlay">
+        <div class="modal-box glass-panel">
+            <i class="ph ph-x close-modal" data-action="close-overlay" data-target="delete-clip-overlay"></i>
+            <h3 style="color: #ffaa00;">DELETE MEDIA?</h3>
+            <input type="hidden" id="delete-clip-id">
+            <div class="opt-grid" style="grid-template-columns: 1fr 1fr;"><div class="opt-btn" data-action="close-overlay" data-target="delete-clip-overlay">CANCEL</div><div class="opt-btn" style="border-color: var(--neon); color: var(--neon);" data-action="confirm-delete-clip">DELETE</div></div>
+        </div>
+    </div>
+    
+    <div class="selector-overlay" id="menu-overlay" data-overlay="menu-overlay">
+        <div class="modal-box glass-panel">
+            <i class="ph ph-x close-modal" data-action="close-overlay" data-target="menu-overlay"></i>
+            <h3>SYSTEM SETTINGS</h3>
+            <div class="opt-grid">
+                <a href="#preferences" class="opt-btn" onclick="document.getElementById('menu-overlay').classList.remove('active-overlay')" style="text-decoration:none;"><i class="ph ph-gear"></i> PREFERENCES</a>
+                <a href="#security" class="opt-btn" onclick="document.getElementById('menu-overlay').classList.remove('active-overlay')" style="text-decoration:none;"><i class="ph ph-shield-check"></i> SECURITY</a>
+                <a href="#analytics" class="opt-btn" onclick="document.getElementById('menu-overlay').classList.remove('active-overlay')" style="text-decoration:none;"><i class="ph ph-chart-bar"></i> ANALYTICS</a>
+                <div class="opt-btn" style="border-color: var(--neon); color: var(--neon);" data-action="logout-user"><i class="ph ph-power"></i> LOGOUT</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="selector-overlay" id="user-list-overlay" data-overlay="user-list-overlay">
+        <div class="modal-box glass-panel" style="max-height: 70vh; display: flex; flex-direction: column;">
+            <i class="ph ph-x close-modal" data-action="close-overlay" data-target="user-list-overlay"></i>
+            <h3 id="user-list-title">USERS</h3>
+            <div id="user-list-container" style="overflow-y: auto; flex: 1; margin-top: 10px; display: flex; flex-direction: column; gap: 5px; padding-right: 5px;"></div>
+        </div>
+    </div>
+    
+    <div class="selector-overlay" id="incoming-call-overlay" data-overlay="incoming-call-overlay">
+    <div class="modal-box glass-panel" style="background: rgba(0,0,0,0.95); text-align: center;">
+        <h3 style="color:var(--neon); animation: pulseBadge 1s infinite;">INCOMING CALL</h3>
+        <img id="incoming-caller-avatar" src="" style="width: 80px; height: 80px; border-radius: 50%; border: 2px solid var(--neon); margin: 10px auto;">
+        <h4 id="incoming-caller-name" style="font-family: 'Orbitron'; margin-bottom: 20px;">USER</h4>
+        <div class="opt-grid" style="grid-template-columns: 1fr 1fr;">
+            <div class="opt-btn" style="border-color: #ff003c; color: #ff003c;" data-action="decline-call"><i class="ph-fill ph-phone-slash"></i> DECLINE</div>
+            <div class="opt-btn" style="border-color: #00f2ff; color: #00f2ff;" data-action="answer-call"><i class="ph-fill ph-phone"></i> ANSWER</div>
+        </div>
+    </div>
+</div>
+
+<div class="selector-overlay" id="chat-settings-overlay" data-overlay="chat-settings-overlay">
+    <div class="modal-box glass-panel">
+        <i class="ph ph-x close-modal" data-action="close-overlay" data-target="chat-settings-overlay"></i>
+        <h3>CONVERSATION SETTINGS</h3>
+        <div class="opt-grid">
+            <div class="opt-btn"><i class="ph ph-bell-slash"></i> MUTE NOTIFICATIONS</div>
+            <div class="opt-btn"><i class="ph ph-lock-key"></i> VERIFY ENCRYPTION</div>
+            <div class="opt-btn" style="border-color: var(--neon); color: var(--neon);" data-action="chat-opt-delete"><i class="ph ph-trash"></i> DELETE CONVERSATION</div>
+        </div>
+    </div>
+</div>
+
+    
+    <div id="page-access" class="portal-ui">
+        <div class="glass-panel" id="portal-ui-size">
+            <h1>TEAM<span>X</span></h1>
+            <div class="sub">@TXG.COM TERMINAL</div>
+            <div id="login-window">
+                <form id="form-login" novalidate>
+                    <div class="input-wrap"><label>MAIL ID</label><input type="text" id="login-mail" placeholder="USER@TXG.COM"></div>
+                    <div class="input-wrap"><label>PASSWORD</label><div class="pass-container"><input type="password" id="login-pass" class="pass-input" placeholder="PASSWORD"><i class="ph ph-eye pass-toggle" id="login-toggle-icon" data-action="toggle-pass" data-target-input="login-pass" data-target-icon="login-toggle-icon"></i></div></div>
+                    <button type="submit" class="btn">ENTER ARENA</button>
+                </form>
+                <div class="switch-text" data-action="toggle-auth-ui">NEW PLAYER? <span>REGISTER</span></div>
+            </div>
+            <div id="register-window" style="display: none;">
+                <form id="form-register" novalidate>
+                    <div class="input-row"><div class="input-wrap"><label>NAME</label><input type="text" id="reg-name" placeholder="FIRST"></div><div class="input-wrap"><label>SURNAME</label><input type="text" id="reg-surname" placeholder="LAST"></div></div>
+                    <div class="input-wrap"><label>USERNAME</label><input type="text" id="reg-username" placeholder="ALIAS"></div>
+                    <div class="input-row"><div class="input-wrap"><label>DOB</label><div class="trigger-input" id="dob-trigger" data-action="open-overlay" data-target="dob-overlay">DD / MM / YYYY</div></div><div class="input-wrap"><label>GENDER</label><div class="trigger-input" id="gender-trigger" data-action="open-overlay" data-target="gender-overlay">SELECT</div></div></div>
+                    <div class="input-wrap"><label>GMAIL</label><input type="email" id="reg-mail" placeholder="USER@GMAIL.COM"></div>
+                    <div class="input-wrap"><label>CREATE TXG MAIL</label><input type="email" id="txg-mail" placeholder="USER@TXG.COM"></div>
+                    <div class="input-wrap"><label>PASSWORD</label><div class="pass-container"><input type="password" id="reg-pass" class="pass-input" placeholder="SECURE PASSWORD"><i class="ph ph-eye pass-toggle" id="reg-toggle-icon" data-action="toggle-pass" data-target-input="reg-pass" data-target-icon="reg-toggle-icon"></i></div></div>
+                    <button type="submit" class="btn">PROCEED TO VERIFY</button>
+                </form>
+                <div class="switch-text" data-action="toggle-auth-ui">ENLISTED? <span>LOGIN</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="app-container" style="display: none;">
+        <header>
+            <div class="page-logo" id="dynamic-logo">TEAM<span>X</span></div>
+            <a href="#chats" class="btn-chats" id="header-chats-btn" style="display: none;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="icon-outline"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg><span>CHATS</span></a>
+            <div class="profile-global-actions" id="global-profile-actions"><i class="ph ph-plus" data-action="open-overlay" data-target="create-overlay"></i><i class="ph ph-list" data-action="open-overlay" data-target="menu-overlay"></i></div>
+        </header>
+    
+        <main id="view-home" class="home-content view-section active-view">
+            <div id="home-banner" class="welcome-banner glass-panel">
+                <div class="audio-hud-control"><div class="visualizer-bars"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div><div class="vol-slider-wrap"><input type="range" id="vol-control" min="0" max="100" value="10" step="1"></div><div class="mute-toggle" data-action="toggle-mute"><i class="ph ph-speaker-slash" id="mute-icon"></i></div></div>
+                <div class="banner-video-bg"><video id="terminal-bg-video" autoplay loop playsinline preload="auto" src="BGMI-4.2-INTRO.mp4" muted></video></div>
+                <div class="banner-content"><h2 class="animated-text">WELCOME TO <br><span>TEAM</span><span class="neon-text">X ARENA</span></h2><p class="sub-text">PREPARE FOR BATTLE.</p><a href="#stream" class="btn btn-small" style="text-decoration: none;">JOIN ARENA</a></div>
+            </div>
+        </main>
+    
+        <main id="view-search" class="home-content view-section">
+            <div class="search-wrap">
+                <div class="search-tabs"><div class="search-tab active" data-action="switch-search-tab" data-tab="users">USERS</div><div class="search-tab" data-action="switch-search-tab" data-tab="media">MEDIA</div></div>
+                <div class="search-bar glass-panel"><i class="ph ph-magnifying-glass"></i><input type="text" id="search-input" placeholder="SEARCH..."></div>
+                <div id="search-results"></div><div id="search-media-results" style="display:none;"></div>
+            </div>
+        </main>
+    
+        <main id="view-watch" class="home-content view-section"><div class="watch-feed" id="watch-feed-container"></div></main>
+        
+        <main id="view-capture" class="home-content view-section" style="padding:0;">
+            <div class="capture-layout" style="height:100dvh; width: 100vw; display:flex; flex-direction:column; position: relative; background:#000;">
+                <div style="position:absolute; top: max(20px, env(safe-area-inset-top)); left:20px; z-index:10;">
+                    <i class="ph ph-x" style="font-size:2rem; color:#fff; cursor:pointer;" data-action="close-capture"></i>
+                </div>
+                <video id="reel-video-element" autoplay muted playsinline style="width:100%; height:100%; object-fit:cover; position:absolute; z-index:0; display:none;"></video>
+                <div class="rec-indicator" style="top: max(25px, env(safe-area-inset-top)); left:50%; transform:translateX(-50%); font-size:1.2rem;"><span></span> REC 00:00</div>
+                <i class="ph ph-video-camera-slash" id="reel-placeholder-icon" style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:6rem; color:#333; z-index:1;"></i>
+                
+                <div style="position:absolute; bottom: max(40px, env(safe-area-inset-bottom)); width:100%; display:flex; justify-content:space-around; align-items:center; z-index:10; padding:0 20px;">
+                    <div class="opt-btn glass-panel" data-action="flip-camera" style="border-radius:50%; width:60px; height:60px; font-size:1.5rem;"><i class="ph ph-arrows-clockwise"></i></div>
+                    <div class="opt-btn glass-panel" data-action="record-reel" style="border-radius:50%; width:90px; height:90px; border-color:var(--neon); color:var(--neon); font-size:3rem;"><i class="ph-fill ph-record"></i></div>
+                    <div class="opt-btn glass-panel" data-action="reel-fx" style="border-radius:50%; width:60px; height:60px; font-size:1.5rem;"><i class="ph ph-faders"></i></div>
+                </div>
+            </div>
+        </main>
+    
+        <main id="view-stream" class="home-content view-section">
+            <div class="stream-dashboard">
+                <div class="stream-player-container">
+                    <div class="stream-video-box glass-panel" id="stream-video-box"><video id="stream-live-feed" autoplay muted playsinline style="width:100%; height:100%; object-fit:cover; position:absolute; z-index:1; display:none;"></video><div class="stream-live-badge" id="stream-status-badge"><i class="ph-fill ph-broadcast"></i> OFFLINE</div><i class="ph ph-plugs" id="stream-placeholder-icon" style="font-size: 4rem; color: #333; z-index: 0;"></i></div>
+                    <div class="stream-meta glass-panel">
+                        <h2 class="stream-title">TXG ARENA CHAMPIONSHIP</h2><div class="stream-category">COMPETITIVE E-SPORTS</div>
+                        <div class="stream-toolbar">
+                            <div class="st-metrics"><span><i class="ph-fill ph-users"></i> 0</span></div>
+                            <div class="st-controls">
+                                <div class="st-btn" data-action="toggle-stream-mic"><i class="ph ph-microphone"></i></div>
+                                <div class="st-btn" data-action="toggle-stream-cam"><i class="ph ph-video-camera"></i></div>
+                                <div class="st-btn" data-action="toggle-stream-screen"><i class="ph ph-screencast"></i></div>
+                                <div class="st-btn" style="border-color: var(--neon); color: var(--neon);" data-action="stop-stream"><i class="ph ph-stop"></i></div>
+                                <button class="btn" style="margin: 0; padding: 10px 20px; width: auto;" data-action="go-live-alert">GO LIVE</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="stream-chat-container glass-panel"><div class="chat-header">ARENA CHAT</div><div class="chat-messages"><div class="msg sys">CHAT ROOM INITIALIZED...</div></div><div class="chat-input-area"><input type="text" placeholder="SEND MESSAGE..."><button class="btn"><i class="ph ph-paper-plane-right"></i></button></div></div>
+            </div>
+        </main>
+        
+        <main id="view-profile" class="home-content view-section">
+            <div class="ig-profile-wrap glass-panel">
+                <audio id="profile-audio-player" loop style="display:none;"></audio>
+                <div class="ig-header">
+                    <div class="ig-avatar-ring"><img id="display-avatar" src="" alt="Avatar"></div>
+                    <div class="ig-stats-container"><div class="ig-stat"><h3 id="display-posts">0</h3><span>CLIPS</span></div><div class="ig-stat"><h3 id="display-followers">0</h3><span>FOLLOWERS</span></div><div class="ig-stat"><h3 id="display-following">0</h3><span>FOLLOWING</span></div></div>
+                </div>
+                <div class="ig-bio-section">
+                    <h2 class="ig-bio-name" id="display-name">USER <i class="ph-fill ph-check-circle" style="color:#00f2ff; font-size:1rem;"></i></h2>
+                    <div class="ig-bio-username">@<span id="display-username">ALIAS</span></div>
+                    <p class="ig-bio-text" id="display-bio">BIO DATA</p><div id="display-links" class="profile-links-container"></div>
+                </div>
+                <div class="ig-actions"><button id="profile-action-btn" class="btn btn-follow" data-action="profile-action-primary">FOLLOW</button><button id="profile-secondary-btn" class="btn btn-outline" data-action="profile-action-secondary">MESSAGE</button></div>
+                <div class="ig-tabs"><div class="ig-tab active"><i class="ph ph-squares-four"></i></div></div>
+                <div class="ig-grid" id="profile-grid-container"></div>
+            </div>
+        </main>
+
+        <main id="view-preferences" class="home-content view-section">
+            <div class="glass-panel" style="padding:20px; max-width: 600px; margin: 0 auto;">
+                <h2 style="font-family:'Orbitron'; color:var(--neon); margin-bottom: 20px;"><i class="ph ph-gear"></i> PREFERENCES</h2>
+                <div class="input-wrap"><label>APP THEME</label><select><option>DARK NEON</option><option>CYBERPUNK</option></select></div>
+                <div class="input-wrap"><label>NOTIFICATIONS</label><select><option>ENABLED</option><option>MUTED</option></select></div>
+                <button class="btn" data-action="save-preferences">SAVE PREFERENCES</button>
+            </div>
+        </main>
+        <main id="view-security" class="home-content view-section">
+            <div class="glass-panel" style="padding:20px; max-width: 600px; margin: 0 auto;">
+                <h2 style="font-family:'Orbitron'; color:var(--neon); margin-bottom: 20px;"><i class="ph ph-shield-check"></i> SECURITY</h2>
+                <div class="input-wrap"><label>CURRENT PASSWORD</label><input type="password" placeholder="*****"></div>
+                <div class="input-wrap"><label>NEW PASSWORD</label><input type="password" placeholder="*****"></div>
+                <button class="btn" data-action="save-security">UPDATE SECURITY</button>
+            </div>
+        </main>
+        <main id="view-analytics" class="home-content view-section">
+            <div class="glass-panel" style="padding:20px; max-width: 600px; margin: 0 auto; text-align:center;">
+                <h2 style="font-family:'Orbitron'; color:var(--neon); margin-bottom: 20px;"><i class="ph ph-chart-bar"></i> ANALYTICS</h2>
+                <div style="display:flex; justify-content:space-around; margin-bottom:20px;"><div><h3 style="color:#00f2ff; font-family:'Orbitron'; font-size:2rem;">0</h3><span style="font-size:0.7rem; color:#aaa;">VIEWS</span></div><div><h3 style="color:#00f2ff; font-family:'Orbitron'; font-size:2rem;">0</h3><span style="font-size:0.7rem; color:#aaa;">LIKES</span></div></div>
+            </div>
+        </main>
+    
+        <main id="view-chats" class="home-content view-section">
+            <div class="chat-layout glass-panel">
+                <div class="chat-sidebar" id="chat-sidebar"><div class="chat-header-title"><span>ENCRYPTED CHATS</span><i class="ph ph-plus" data-action="open-overlay" data-target="new-chat-overlay"></i></div><div class="chat-list" id="chat-conversation-list"></div></div>
+                <div class="chat-window" id="chat-window" style="display:none;">
+                    <div class="chat-window-header">
+                        <i class="ph ph-arrow-left" data-action="close-chat-window" style="cursor:pointer; font-size:1.5rem;"></i>
+                        <img id="active-chat-avatar" src=""><h4 id="active-chat-name">USER</h4>
+                        <div class="chat-header-actions"><i class="ph ph-phone" data-action="start-call"></i><i class="ph ph-video-camera" data-action="start-video-call"></i><i class="ph ph-dots-three-vertical" data-action="toggle-chat-options"></i></div>
+                        <div class="chat-options-dropdown" id="chat-options-dropdown">
+                            <div class="chat-opt-item flag-trigger" data-action="toggle-flag-menu"><i class="ph ph-flag"></i> FLAG ></div>
+                            <div class="flag-menu" id="flag-menu"><div class="chat-opt-item" data-action="set-flag" data-color="red">🔴 RED</div><div class="chat-opt-item" data-action="set-flag" data-color="yellow">🟡 YELLOW</div><div class="chat-opt-item" data-action="set-flag" data-color="green">🟢 GREEN</div></div>
+                            <div class="chat-opt-item" data-action="chat-opt-clear"><i class="ph ph-eraser"></i> CLEAR CHAT</div>
+                            <div class="chat-opt-item" data-action="chat-opt-delete" style="color:var(--neon);"><i class="ph ph-trash"></i> DELETE CHAT</div>
+                            <div class="chat-opt-item" data-action="chat-opt-block"><i class="ph ph-shield-slash"></i> BLOCK</div>
+                            <div class="chat-opt-item" data-action="chat-opt-settings"><i class="ph ph-gear"></i> SETTINGS</div>
+                        </div>
+                    </div>
+                    <div class="chat-messages-area" id="chat-messages-area"></div>
+                    <div class="chat-input-wrapper">
+                        <div class="chat-attach-btn" data-action="toggle-chat-attachment"><i class="ph ph-plus"></i></div>
+                        <div class="attachment-menu" id="chat-attach-menu">
+                            <label for="chat-img-input" class="attach-item"><i class="ph ph-image"></i> IMAGE</label><label for="chat-vid-input" class="attach-item"><i class="ph ph-video-camera"></i> VIDEO</label><label for="chat-aud-input" class="attach-item"><i class="ph ph-music-notes"></i> AUDIO</label><label for="chat-doc-input" class="attach-item"><i class="ph ph-file-text"></i> DOCUMENT</label><div class="attach-item" data-action="chat-attach-location"><i class="ph ph-map-pin"></i> LOCATION</div><div class="attach-item" data-action="chat-attach-contact"><i class="ph ph-user"></i> CONTACT</div>
+                        </div>
+                        <input type="file" id="chat-img-input" accept="image/*" style="display:none;" data-chat-attach="image"><input type="file" id="chat-vid-input" accept="video/*" style="display:none;" data-chat-attach="video"><input type="file" id="chat-aud-input" accept="audio/*" style="display:none;" data-chat-attach="audio"><input type="file" id="chat-doc-input" accept=".pdf,.doc,.docx,.txt" style="display:none;" data-chat-attach="document">
+                        <input type="text" id="chat-msg-input" placeholder="ENCRYPTED MESSAGE...">
+                        <button class="btn" data-action="send-chat-message" style="margin:0; width:50px; padding:0; display:flex; justify-content:center; align-items:center;"><i class="ph ph-paper-plane-right"></i></button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    
+        <nav class="floating-nav glass-panel" id="main-nav">
+            <a href="#home" class="nav-item active" data-nav="home"><i class="ph ph-house"></i></a>
+            <a href="#search" class="nav-item" data-nav="search"><i class="ph ph-magnifying-glass"></i></a>
+            <a href="#watch" class="nav-item" data-nav="watch"><i class="ph ph-monitor-play"></i></a>
+            <a href="#stream" class="nav-item" data-nav="stream"><i class="ph ph-broadcast"></i></a>
+            <a href="#profile" class="nav-item" data-nav="profile" id="nav-profile-btn"><i class="ph ph-user"></i></a>
+        </nav>
+    </div>
+
+   <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+    const CURRENT_VERSION = "v0.00.001";
+    const supabaseUrl = 'https://ekvgpdhbfdwzupwyxztj.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVrdmdwZGhiZmR3enVwd3l4enRqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3MTU3NTQsImV4cCI6MjA4OTI5MTc1NH0.9KCJ8sennmQgw-G3RH1ARQcjHnEBdsk2rgtjFeC-XMs';
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    const AppState = { currentUser: null, currentlyViewingProfile: null, activeChatUser: null, finalGender: "", finalDOB: "", takenUsernames: [], usersDB: {}, searchMode: 'users' };
+    const defaultUsers = { "TEAMX@TXG.COM": { password: "BOSSKEY07", name: "TEAMX", username: "TEAMX", bio: "OFFICIAL SYSTEM ADMINISTRATOR FOR TEAMX ARENA.", gmail: "TEAMX@GMAIL.COM", links: ["https://x.com/TeamX"], profileMusic: "", followers: [], following: [], clips: [], customBannerUrl: "", avatar: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' fill='%23000' rx='20'/%3E%3Ctext x='50%25' y='55%25' font-family='Orbitron, sans-serif' font-size='38' font-weight='900' fill='%23fff' text-anchor='middle' dominant-baseline='middle' letter-spacing='2'%3ETEAM%3Ctspan fill='%23ff003c'%3EX%3C/tspan%3E%3C/text%3E%3C/svg%3E" } };
+
+    window.pendingRegistrationData = null;
+    let DOM = {};
+    let alertTimeout;
+    let pendingAudioFile = null; let pendingThumbnailFile = null; let pendingClipFile = null; let pendingClipType = 'video'; let pendingClipAudioFile = null; let pendingAvatarFile = null; let pendingBannerFile = null; 
+    
+    // WebRTC and Call State
+    let peerConnection;
+    let callChannel; 
+    let currentCallTarget = null;
+    let isVideoCallActive = false;
+    const iceServers = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }] };
+
+    // --- Hardware Stream Managers ---
+    let captureStream = null;
+    let liveStreamData = null;
+
+    async function initHardwareStream(videoElementId, placeholderIconId, isStreamMode = false) {
+        // MUST BE HOSTED ON HTTPS OR LOCALHOST TO WORK!
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            const videoEl = document.getElementById(videoElementId);
+            videoEl.srcObject = stream;
+            videoEl.style.display = 'block';
+            document.getElementById(placeholderIconId).style.display = 'none';
+            
+            if (isStreamMode) {
+                liveStreamData = stream;
+            } else {
+                captureStream = stream;
+            }
+        } catch (err) {
+            pushAlert("HARDWARE ERROR", "MIC/CAM BLOCKED BY BROWSER SECUIRTY", false);
+        }
+    }
+
+    function stopHardwareStream(isStreamMode = false, videoElementId, placeholderIconId) {
+        let activeStream = isStreamMode ? liveStreamData : captureStream;
+        if (activeStream) {
+            activeStream.getTracks().forEach(track => track.stop());
+            if (isStreamMode) liveStreamData = null; else captureStream = null;
+        }
+        document.getElementById(videoElementId).style.display = 'none';
+        document.getElementById(placeholderIconId).style.display = 'block';
+    }
+
+    function generateChatKey(u1, u2) { return [u1, u2].sort().join('::'); }
+    function encryptMessage(text, u1, u2) { const key = generateChatKey(u1, u2); let res = ''; for(let i=0; i<text.length; i++) res += String.fromCharCode(text.charCodeAt(i) ^ key.charCodeAt(i % key.length)); return btoa(unescape(encodeURIComponent(res))); }
+    function decryptMessage(encoded, u1, u2) { try { const key = generateChatKey(u1, u2); let dec = decodeURIComponent(escape(atob(encoded))); let res = ''; for(let i=0; i<dec.length; i++) res += String.fromCharCode(dec.charCodeAt(i) ^ key.charCodeAt(i % key.length)); return res; } catch(e) { return "🔒 [ENCRYPTED DATA]"; } }
+
+    async function uploadFileToCloudStorage(file, path, prefixMsg) {
+        return new Promise(async (resolve, reject) => {
+            pushAlert(prefixMsg, `UPLOADING STARTED...`, true, false);
+            try {
+                const { data, error } = await supabase.storage.from('media').upload(path, file, { cacheControl: '3600', upsert: true });
+                if (error) throw error;
+                const { data: { publicUrl } } = supabase.storage.from('media').getPublicUrl(path);
+                pushAlert("SYSTEM", `${prefixMsg} COMPLETE`, true, true); resolve(publicUrl);
+            } catch (error) { pushAlert("UPLOAD FAILED", error.message, false, true); reject(error); }
+        });
+    }
+
+    async function initApp() {
+        if (window.emailjs) emailjs.init("9tRVwCTCF-XeYFzR8");
+        initThreeJS(); cacheDOM(); initGlassParticles(); initGlassInteractions(); setupEventListeners();
+
+        try {
+            const { data, error } = await supabase.from('users').select('*'); if (error) throw error;
+            if (!data || data.length === 0) { AppState.usersDB = defaultUsers; for (const email of Object.keys(defaultUsers)) { await supabase.from('users').insert({ id: email, data: defaultUsers[email] }); AppState.takenUsernames.push(defaultUsers[email].username); } } 
+            else { data.forEach((row) => { AppState.usersDB[row.id] = row.data; AppState.takenUsernames.push(row.data.username); }); }
+            const savedCurrentUser = localStorage.getItem('txg_device_auth'); if (savedCurrentUser && AppState.usersDB[savedCurrentUser]) { AppState.currentUser = savedCurrentUser; initRealtimeChats(); }
+            handleRoute(); pushAlert("SYSTEM", "DATABASE CONNECTED!", true, true); document.getElementById('black-void').style.display = 'none';
+        } catch (e) {
+            pushAlert("DB WARNING", "USING LOCAL CACHE.", false, false); AppState.usersDB = defaultUsers; Object.keys(defaultUsers).forEach(email => AppState.takenUsernames.push(defaultUsers[email].username));
+            handleRoute(); document.getElementById('black-void').style.display = 'none';
+        }
+    }
+
+    function cacheDOM() { DOM.alertBox = document.getElementById('hud-alert'); DOM.alertTitle = document.getElementById('alert-title'); DOM.alertBody = document.getElementById('alert-body'); DOM.pageAccess = document.getElementById('page-access'); DOM.appContainer = document.getElementById('app-container'); DOM.loginWin = document.getElementById('login-window'); DOM.regWin = document.getElementById('register-window'); DOM.dynamicLogo = document.getElementById('dynamic-logo'); DOM.headerChatsBtn = document.getElementById('header-chats-btn'); DOM.globalProfileActions = document.getElementById('global-profile-actions'); DOM.bgVideo = document.getElementById('terminal-bg-video'); DOM.volSlider = document.getElementById('vol-control'); DOM.muteIcon = document.getElementById('mute-icon'); DOM.searchInput = document.getElementById('search-input'); DOM.searchResults = document.getElementById('search-results'); DOM.searchMediaResults = document.getElementById('search-media-results'); DOM.profileGridContainer = document.getElementById('profile-grid-container'); DOM.profileAudio = document.getElementById('profile-audio-player'); }
+    function pushAlert(title, message, isSuccess = false, autoClose = true) { clearTimeout(alertTimeout); if(!DOM.alertTitle) return; DOM.alertTitle.innerText = title; DOM.alertBody.innerText = message; DOM.alertTitle.style.color = isSuccess ? "#00f2ff" : "#ff003c"; DOM.alertBox.style.transform = "translateX(-50%) translateY(0)"; if (autoClose) alertTimeout = setTimeout(() => { DOM.alertBox.style.transform = "translateX(-50%) translateY(-200%)"; }, 4000); }
+    function openOverlay(id) { document.getElementById(id).classList.add('active-overlay'); }
+    function closeOverlay(id) { document.getElementById(id).classList.remove('active-overlay'); }
+    function vibrate(pattern = [50]) { if (navigator.vibrate) navigator.vibrate(pattern); }
+    function debounce(func, timeout = 300) { let timer; return (...args) => { clearTimeout(timer); timer = setTimeout(() => { func.apply(this, args); }, timeout); }; }
+
+    function handleRoute() {
+        if (!AppState.currentUser) { DOM.pageAccess.style.display = 'flex'; DOM.appContainer.style.display = 'none'; return; }
+        DOM.pageAccess.style.display = 'none'; DOM.appContainer.style.display = 'block';
+
+        let hash = window.location.hash.slice(1);
+        if (!hash || !document.getElementById(`view-${hash}`)) hash = 'home';
+
+        if (hash === 'chats') { 
+            document.body.classList.remove('in-conversation', 'in-capture');
+            AppState.activeChatUser = null;
+            document.getElementById('chat-sidebar').classList.remove('hidden'); 
+            document.getElementById('chat-sidebar').style.display = 'flex'; 
+            document.getElementById('chat-window').classList.remove('active'); 
+            document.getElementById('chat-window').style.display = 'none'; 
+            loadConversationsList(); 
+        } 
+        else if (hash === 'capture') { 
+            document.body.classList.add('in-capture'); 
+            document.body.classList.remove('in-conversation'); 
+            initHardwareStream('reel-video-element', 'reel-placeholder-icon', false);
+        } 
+        else if (hash === 'stream') {
+            document.body.classList.remove('in-conversation', 'in-capture');
+        }
+        else { 
+            document.body.classList.remove('in-conversation', 'in-capture'); 
+            stopHardwareStream(false, 'reel-video-element', 'reel-placeholder-icon');
+            stopHardwareStream(true, 'stream-live-feed', 'stream-placeholder-icon');
+        }
+
+        document.querySelectorAll('.view-section').forEach(view => view.classList.remove('active-view'));
+        const targetView = document.getElementById(`view-${hash}`); targetView.classList.add('active-view');
+        gsap.fromTo(targetView, {opacity: 0, y: 30, scale:0.98}, {opacity: 1, y: 0, scale:1, duration: 0.5, ease: "power3.out"});
+
+        document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+        const activeNav = document.querySelector(`.nav-item[data-nav="${hash}"]`); if (activeNav) activeNav.classList.add('active');
+
+        DOM.dynamicLogo.innerHTML = hash === 'home' ? `TEAM<span>X</span>` : `${hash.charAt(0).toUpperCase() + hash.slice(1)}<span>X</span>`;
+        DOM.headerChatsBtn.style.display = (hash === 'home') ? 'inline-flex' : 'none';
+        if (hash === 'profile' && AppState.currentlyViewingProfile === AppState.currentUser) DOM.globalProfileActions.style.display = 'flex'; else DOM.globalProfileActions.style.display = 'none';
+        
+        const canvasObj = document.getElementById('canvas-container'); if (hash === 'watch' || hash === 'capture') canvasObj.style.display = 'none'; else canvasObj.style.display = 'block';
+        if (hash === 'home') { const teamxUser = AppState.usersDB["TEAMX@TXG.COM"]; if (teamxUser && teamxUser.customBannerUrl) DOM.bgVideo.src = teamxUser.customBannerUrl; DOM.bgVideo.play().catch(e => console.log("Autoplay blocked.")); } else { DOM.bgVideo.pause(); }
+        if (hash === 'profile') { if (!AppState.currentlyViewingProfile) AppState.currentlyViewingProfile = AppState.currentUser; openProfileData(AppState.currentlyViewingProfile); }
+        if (hash !== 'profile' && DOM.profileAudio) DOM.profileAudio.pause();
+        
+        if (hash === 'search') filterSearchData(); 
+        if (hash === 'watch') renderWatchFeed();
+    }
+    window.addEventListener('hashchange', handleRoute);
+
+    function setupEventListeners() {
+        document.getElementById('form-login').addEventListener('submit', (e) => { e.preventDefault(); const m = document.getElementById('login-mail').value.toUpperCase(); const p = document.getElementById('login-pass').value.toUpperCase(); if (!AppState.usersDB[m]) return pushAlert("DENIED", "USER NOT FOUND"); if (AppState.usersDB[m].password === p) { AppState.currentUser = m; localStorage.setItem('txg_device_auth', AppState.currentUser); initRealtimeChats(); pushAlert("GRANTED", "SYNCING CHANNELS...", true); gsap.to('#page-access', {scale: 1.5, opacity: 0, duration: 1, ease: "power2.inOut", onComplete: () => { window.location.hash = 'home'; gsap.set('#page-access', {scale: 1, opacity: 1}); }}); } else { pushAlert("DENIED", "INCORRECT PASSWORD"); } });
+        document.getElementById('form-register').addEventListener('submit', (e) => { e.preventDefault(); const n = document.getElementById('reg-name').value, s = document.getElementById('reg-surname').value; const u = document.getElementById('reg-username').value, g = document.getElementById('reg-mail').value; const t = document.getElementById('txg-mail').value.toUpperCase(), p = document.getElementById('reg-pass').value.toUpperCase(); if(!n || !s || !u || !AppState.finalDOB || !g || !t || !p) return pushAlert("ERROR", "FILL ALL FIELDS"); if(AppState.takenUsernames.includes(u)) return pushAlert("CONFLICT", "USERNAME TAKEN"); if(AppState.usersDB[t]) return pushAlert("CONFLICT", "MAIL ALREADY REGISTERED"); window.pendingRegistrationData = { id: t, password: p, name: n + " " + s, username: u, gmail: g, bio: "NEW OPERATOR IN THE TXG ARENA.", links: [], profileMusic: "", followers: [], following: [], clips: [], avatar: "https://images.unsplash.com/photo-1511367461989-f85a21fda167?w=400&h=400&fit=crop", otp: Math.floor(1000 + Math.random() * 9000).toString() }; pushAlert("SYSTEM", "SENDING OTP...", true, false); emailjs.send("TEAMx-txg-OTP", "TEAMx-txg-OTP", { to_email: g, to_name: n, otp: window.pendingRegistrationData.otp }).then(function(response) { pushAlert("OTP SENT", `CHECK YOUR INBOX`, true); openOverlay('otp-overlay'); document.getElementById('otp-input').value = ""; }, function(error) { pushAlert("EMAIL ERROR", "FAILED TO SEND OTP.", false); }); });
+        document.getElementById('nav-profile-btn').addEventListener('click', () => { AppState.currentlyViewingProfile = AppState.currentUser; });
+        DOM.searchInput.addEventListener('input', filterSearchData);
+
+        const chatMsgInputEl = document.getElementById('chat-msg-input');
+        if (chatMsgInputEl) {
+            chatMsgInputEl.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const sendBtn = document.querySelector('[data-action="send-chat-message"]');
+                    if(sendBtn) sendBtn.click();
+                }
+            });
+        }
+
+        let newChatSearchTimer;
+        const newChatSearchEl = document.getElementById('new-chat-search');
+        if (newChatSearchEl) {
+            newChatSearchEl.addEventListener('input', (e) => {
+                clearTimeout(newChatSearchTimer);
+                newChatSearchTimer = setTimeout(() => {
+                    const query = e.target.value.toLowerCase();
+                    const resultsContainer = document.getElementById('new-chat-results');
+                    resultsContainer.innerHTML = '';
+                    
+                    if (!query) return;
+
+                    Object.keys(AppState.usersDB).forEach(email => {
+                        if (email === AppState.currentUser) return; 
+                        const user = AppState.usersDB[email];
+                        if (user.name.toLowerCase().includes(query) || user.username.toLowerCase().includes(query)) {
+                            resultsContainer.innerHTML += `
+                                <div class="search-result-item glass-panel" data-action="start-new-chat" data-target-user="${email}">
+                                    <img src="${user.avatar}" class="search-avatar">
+                                    <div class="search-info">
+                                        <h4>${user.name}</h4>
+                                        <p>@${user.username}</p>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    });
+                }, 300);
+            });
+        }
+
+        DOM.volSlider.addEventListener('input', (e) => { const vol = e.target.value / 100; DOM.bgVideo.volume = vol; if (vol > 0 && DOM.bgVideo.muted) { DOM.bgVideo.muted = false; DOM.muteIcon.classList.replace('ph-speaker-slash', 'ph-speaker-high'); DOM.muteIcon.style.color = "var(--neon)"; } else if (vol === 0 && !DOM.bgVideo.muted) { DOM.bgVideo.muted = true; DOM.muteIcon.classList.replace('ph-speaker-high', 'ph-speaker-slash'); DOM.muteIcon.style.color = "#fff"; } });
+
+        document.querySelectorAll('input[data-chat-attach]').forEach(input => {
+            input.addEventListener('change', async (e) => { const file = e.target.files[0]; if (!file) return; const type = e.target.dataset.chatAttach; document.getElementById('chat-attach-menu').classList.remove('show'); try { const url = await uploadFileToCloudStorage(file, `${AppState.currentUser}_chat_${type}_${Date.now()}`, `CHAT ${type.toUpperCase()}`); sendChatMessage(url, type); } catch(err) { console.error(err); } e.target.value = ""; });
+        });
+
+        document.addEventListener('click', async (e) => {
+            const btn = e.target.closest('[data-action]');
+            if (!btn && e.target.classList.contains('selector-overlay')) { closeOverlay(e.target.id); return; }
+            if (!e.target.closest('.chat-header-actions')) { document.getElementById('chat-options-dropdown')?.classList.remove('show'); document.getElementById('flag-menu')?.classList.remove('show'); }
+            if (!e.target.closest('.chat-attach-btn') && !e.target.closest('.attachment-menu')) document.getElementById('chat-attach-menu')?.classList.remove('show');
+            document.querySelectorAll('.feed-options-dropdown').forEach(d => { if(!e.target.closest('[data-action="toggle-feed-options"]')) d.classList.remove('show'); });
+
+            if (!btn) return; vibrate(30); 
+            
+            switch(btn.dataset.action) {
+                case 'open-overlay': openOverlay(btn.dataset.target); break;
+                case 'close-overlay': closeOverlay(btn.dataset.target); break;
+                case 'switch-search-tab': document.querySelectorAll('.search-tab').forEach(t=>t.classList.remove('active')); btn.classList.add('active'); AppState.searchMode = btn.dataset.tab; filterSearchData(); break;
+                case 'toggle-auth-ui': const l = DOM.loginWin, r = DOM.regWin; if(l.style.display !== 'none') { gsap.to(l, {opacity:0, y:-20, duration:0.3, onComplete:() => { l.style.display='none'; r.style.display='block'; gsap.fromTo(r, {opacity:0, y:20}, {opacity:1, y:0, duration:0.3}); }}); } else { gsap.to(r, {opacity:0, y:-20, duration:0.3, onComplete:() => { r.style.display='none'; l.style.display='block'; gsap.fromTo(l, {opacity:0, y:20}, {opacity:1, y:0, duration:0.3}); }}); } break;
+                case 'toggle-pass': const inputField = document.getElementById(btn.dataset.targetInput); const iconEl = document.getElementById(btn.dataset.targetIcon); if (inputField.type === "password") { inputField.type = "text"; iconEl.classList.replace("ph-eye", "ph-eye-slash"); } else { inputField.type = "password"; iconEl.classList.replace("ph-eye-slash", "ph-eye"); } break;
+                case 'confirm-registration-otp': if (window.pendingRegistrationData && document.getElementById('otp-input').value === window.pendingRegistrationData.otp) { const t = window.pendingRegistrationData.id; AppState.usersDB[t] = window.pendingRegistrationData; AppState.takenUsernames.push(window.pendingRegistrationData.username); syncUserToCloud(t); pushAlert("SUCCESS", "GMAIL VERIFIED & ACCOUNT CREATED", true); closeOverlay('otp-overlay'); document.getElementById('otp-input').value = ""; window.pendingRegistrationData = null; setTimeout(() => document.querySelector('[data-action="toggle-auth-ui"]').click(), 1000); } else pushAlert("DENIED", "INCORRECT OTP CODE"); break;
+                case 'apply-gender': AppState.finalGender = btn.dataset.value; document.getElementById('gender-trigger').innerText = AppState.finalGender; closeOverlay('gender-overlay'); break;
+                case 'apply-dob': AppState.finalDOB = `${document.getElementById('day-in').value}/${document.getElementById('month-in').value}/${document.getElementById('year-in').value}`; document.getElementById('dob-trigger').innerText = AppState.finalDOB; closeOverlay('dob-overlay'); break;
+                case 'logout-user': closeOverlay('menu-overlay'); AppState.currentUser = null; AppState.currentlyViewingProfile = null; localStorage.removeItem('txg_device_auth'); document.getElementById('form-login').reset(); gsap.to('#app-container', {scale: 0.8, opacity: 0, duration: 0.5, onComplete: () => { window.location.hash = ''; handleRoute(); gsap.fromTo('#page-access', {scale: 1.5, opacity: 0}, {scale: 1, opacity: 1, duration: 0.5}); gsap.set('#app-container', {scale: 1, opacity: 1}); }}); pushAlert("SYSTEM", "DEVICE CREDENTIALS WIPED.", true); break;
+                case 'open-user-profile': AppState.currentlyViewingProfile = btn.dataset.email; window.location.hash = 'profile'; break;
+                
+                case 'profile-action-primary':
+                    if (AppState.currentlyViewingProfile === AppState.currentUser) {
+                        const me = AppState.usersDB[AppState.currentUser]; document.getElementById('edit-avatar-preview').src = me.avatar; const nameParts = me.name.split(' '); document.getElementById('edit-name').value = nameParts[0] || ''; document.getElementById('edit-surname').value = nameParts.slice(1).join(' ') || ''; document.getElementById('edit-username').value = me.username || ''; document.getElementById('edit-bio').value = me.bio || ''; document.getElementById('edit-gmail').value = me.gmail || ''; document.getElementById('edit-txg').value = AppState.currentUser;
+                        const linksList = document.getElementById('dynamic-links-list'); linksList.innerHTML = ''; (me.links || []).forEach(link => { linksList.insertAdjacentHTML('beforeend', `<div class="dynamic-link-row"><input type="text" value="${link}"><button type="button" class="remove-link-btn" data-action="remove-link-row"><i class="ph ph-trash"></i></button></div>`); });
+                        document.getElementById('edit-music-url').value = me.profileMusic || ''; document.getElementById('edit-music-file').value = ""; document.getElementById('music-file-name').innerText = "NO FILE SELECTED"; pendingAudioFile = null; pendingAvatarFile = null; openOverlay('edit-profile-overlay');
+                    } else {
+                        const targetUser = AppState.usersDB[AppState.currentlyViewingProfile]; const me = AppState.usersDB[AppState.currentUser]; const idx = targetUser.followers.indexOf(AppState.currentUser);
+                        if(idx > -1) { targetUser.followers.splice(idx, 1); me.following.splice(me.following.indexOf(AppState.currentlyViewingProfile), 1); } else { targetUser.followers.push(AppState.currentUser); me.following.push(AppState.currentlyViewingProfile); }
+                        syncUserToCloud(AppState.currentlyViewingProfile); syncUserToCloud(AppState.currentUser); openProfileData(AppState.currentlyViewingProfile);
+                    } break;
+                
+                case 'profile-action-secondary': 
+                    if (AppState.currentlyViewingProfile === AppState.currentUser) { 
+                        navigator.clipboard.writeText(window.location.href); 
+                        pushAlert("SYSTEM", "PROFILE LINK COPIED", true); 
+                    } else { 
+                        const targetProfile = AppState.currentlyViewingProfile;
+                        window.location.hash = 'chats'; 
+                        setTimeout(() => { loadActiveChat(targetProfile); }, 150); 
+                    } 
+                    break;
+
+                case 'trigger-avatar-upload': document.getElementById('avatar-upload').click(); break;
+                case 'add-link-input': document.getElementById('dynamic-links-list').insertAdjacentHTML('beforeend', `<div class="dynamic-link-row"><input type="text" placeholder="https://..."><button type="button" class="remove-link-btn" data-action="remove-link-row"><i class="ph ph-trash"></i></button></div>`); break;
+                case 'remove-link-row': btn.closest('.dynamic-link-row').remove(); break;
+                case 'save-profile':
+                    const user = AppState.usersDB[AppState.currentUser]; user.name = document.getElementById('edit-name').value + " " + document.getElementById('edit-surname').value; user.bio = document.getElementById('edit-bio').value; user.gmail = document.getElementById('edit-gmail').value; user.links = Array.from(document.querySelectorAll('#dynamic-links-list input')).map(inp => inp.value.trim()).filter(val => val !== "");
+                    syncUserToCloud(AppState.currentUser); pushAlert("SUCCESS", "CREDENTIALS UPDATED", true); closeOverlay('edit-profile-overlay'); openProfileData(AppState.currentUser); break;
+
+                case 'save-preferences': pushAlert("SYSTEM", "PREFERENCES SAVED", true); break;
+                case 'save-security': pushAlert("SYSTEM", "SECURITY PROTOCOLS UPDATED", true); break;
+
+                case 'open-capture-reel': closeOverlay('create-overlay'); window.location.hash = 'capture'; break;
+                case 'close-capture': window.location.hash = 'home'; break;
+                case 'flip-camera': pushAlert("CAPTURE", "CAMERA FLIPPED", true); break;
+                case 'record-reel': pushAlert("CAPTURE", "RECORDING STARTED...", true); btn.style.transform = "scale(1.2)"; break;
+                case 'reel-fx': pushAlert("CAPTURE", "FX PANEL OPENED", true); break;
+
+                case 'go-live-alert': 
+                    pushAlert("SYSTEM", "INITIALIZING LIVE BROADCAST...", true); 
+                    initHardwareStream('stream-live-feed', 'stream-placeholder-icon', true);
+                    break;
+                case 'toggle-stream-mic': 
+                    if (liveStreamData) {
+                        const audioTrack = liveStreamData.getAudioTracks()[0];
+                        if (audioTrack) {
+                            audioTrack.enabled = !audioTrack.enabled;
+                            btn.classList.toggle('active-st', audioTrack.enabled);
+                            pushAlert("STREAM", audioTrack.enabled ? "MIC ACTIVE" : "MIC MUTED", true);
+                        }
+                    } else { pushAlert("ERROR", "START STREAM FIRST", false); }
+                    break;
+                case 'toggle-stream-cam': 
+                    if (liveStreamData) {
+                        const videoTrack = liveStreamData.getVideoTracks()[0];
+                        if (videoTrack) {
+                            videoTrack.enabled = !videoTrack.enabled;
+                            btn.classList.toggle('active-st', videoTrack.enabled);
+                            pushAlert("STREAM", videoTrack.enabled ? "CAMERA ACTIVE" : "CAMERA MUTED", true);
+                        }
+                    } else { pushAlert("ERROR", "START STREAM FIRST", false); }
+                    break;
+                case 'stop-stream': 
+                    pushAlert("STREAM", "STREAM TERMINATED", false); 
+                    stopHardwareStream(true, 'stream-live-feed', 'stream-placeholder-icon');
+                    break;
+
+                case 'toggle-stream-screen': pushAlert("STREAM", "SCREEN SHARE TOGGLED", true); btn.classList.toggle('active-st'); break;
+                case 'toggle-stream-pip': pushAlert("STREAM", "PIP MODE ACTIVATED", true); break;
+                case 'hold-stream': pushAlert("STREAM", "STREAM PAUSED", false); break;
+
+                case 'open-upload-clip': document.getElementById('upload-modal-title').innerText = "UPLOAD MEDIA"; document.getElementById('edit-clip-mode-id').value = ""; document.getElementById('upload-file-picker-wrap').style.display = "block"; document.getElementById('thumbnail-section').style.display = "none"; document.getElementById('clip-location-input').value = ""; document.getElementById('clip-overlay-text').value = ""; document.getElementById('clip-title-input').value = ""; document.getElementById('clip-desc-input').value = ""; openOverlay('upload-clip-overlay'); closeOverlay('create-overlay'); break;
+                case 'initiate-upload': const desc = document.getElementById('clip-desc-input').value || ""; const tags = desc.match(/#[a-zA-Z0-9_]+/g) || []; const newClip = { id: 'clip_' + Date.now(), timestamp: Date.now(), url: "", thumbnail: "", type: pendingClipType, audioUrl: "", location: document.getElementById('clip-location-input').value || "", overlayText: document.getElementById('clip-overlay-text').value || "", title: document.getElementById('clip-title-input').value || "UNTITLED MEDIA", description: desc, tags: tags, views: 0, viewedBy: [], likedBy: [], comments: [], author: AppState.currentUser }; AppState.usersDB[AppState.currentUser].clips.push(newClip); syncUserToCloud(AppState.currentUser); pushAlert('SUCCESS', 'MEDIA DEPLOYED (MOCK)', true); closeOverlay('upload-clip-overlay'); if (window.location.hash === '#profile') openProfileData(AppState.currentUser); renderWatchFeed(); break;
+                case 'initiate-banner-upload': pushAlert("SUCCESS", "HOME BANNER UPDATED", true); closeOverlay('admin-banner-overlay'); break;
+                case 'delete-clip-prompt': document.getElementById('delete-clip-id').value = btn.dataset.clipId; openOverlay('delete-clip-overlay'); break;
+                case 'confirm-delete-clip': const delId = document.getElementById('delete-clip-id').value; AppState.usersDB[AppState.currentUser].clips = AppState.usersDB[AppState.currentUser].clips.filter(c => c.id !== delId); syncUserToCloud(AppState.currentUser); pushAlert('SYSTEM', 'MEDIA DELETED', true); closeOverlay('delete-clip-overlay'); renderWatchFeed(); if (window.location.hash === '#profile') openProfileData(AppState.currentUser); break;
+                case 'watch-clip': window.location.hash = 'watch'; setTimeout(() => { const el = document.getElementById(btn.dataset.clipId); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 600); break;
+                
+                case 'start-new-chat': 
+                    closeOverlay('new-chat-overlay'); 
+                    const chatTarget = btn.dataset.targetUser;
+                    window.location.hash = 'chats'; 
+                    setTimeout(() => { loadActiveChat(chatTarget); }, 150); 
+                    break;
+
+                case 'open-chat-window': loadActiveChat(btn.dataset.targetUser); break;
+                case 'close-chat-window': document.body.classList.remove('in-conversation'); AppState.activeChatUser = null; document.getElementById('chat-sidebar').classList.remove('hidden'); document.getElementById('chat-window').classList.remove('active'); document.getElementById('chat-window').style.display = 'none'; break;
+                
+                // --- FIXED: Broadcasting Calls to the target user ---
+                case 'start-call': case 'start-video-call': 
+                    const isVideo = btn.dataset.action === 'start-video-call'; 
+                    openOverlay('call-overlay'); 
+                    document.getElementById('call-status-text').innerText = `CALLING ${AppState.usersDB[AppState.activeChatUser].name.toUpperCase()}...`; 
+                    
+                    if (callChannel) {
+                        callChannel.send({
+                            type: 'broadcast',
+                            event: 'incoming_call',
+                            payload: { callerId: AppState.currentUser, targetUser: AppState.activeChatUser, isVideo: isVideo }
+                        });
+                    }
+
+                    try { 
+                        window.localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: isVideo }); 
+                        if(isVideo) { 
+                            const localVid = document.getElementById('local-video-feed'); 
+                            localVid.srcObject = window.localStream; 
+                            localVid.style.display = 'block'; 
+                        } 
+                    } catch(e) { 
+                        pushAlert("HARDWARE ERROR", "MIC/CAM BLOCKED", false); 
+                    } 
+                    break;
+                // ---------------------------------------------------
+
+                case 'toggle-call-mic':
+                    if (window.localStream) {
+                        const audioTrack = window.localStream.getAudioTracks()[0];
+                        if (audioTrack) {
+                            audioTrack.enabled = !audioTrack.enabled;
+                            btn.style.color = audioTrack.enabled ? "#fff" : "var(--neon)";
+                            pushAlert("CALL", audioTrack.enabled ? "MIC ACTIVE" : "MIC MUTED", true);
+                        }
+                    }
+                    break;
+                case 'toggle-call-speaker': pushAlert("CALL", "SPEAKER TOGGLED", true); break;
+
+                // --- NEW: Answering and Declining Logic ---
+                case 'answer-call':
+                    closeOverlay('incoming-call-overlay');
+                    openOverlay('call-overlay');
+                    document.getElementById('call-status-text').innerText = "CONNECTED";
+                    if (callChannel) callChannel.send({ type: 'broadcast', event: 'call_answered', payload: { targetUser: currentCallTarget } });
+                    try { 
+                        window.localStream = await navigator.mediaDevices.getUserMedia({ audio: true }); 
+                    } catch(e) { pushAlert("HARDWARE", "MIC/CAM BLOCKED", false); }
+                    break;
+
+                case 'decline-call':
+                    closeOverlay('incoming-call-overlay');
+                    if (callChannel) callChannel.send({ type: 'broadcast', event: 'call_declined', payload: { targetUser: currentCallTarget } });
+                    currentCallTarget = null;
+                    break;
+
+                case 'end-call': 
+                    if(window.localStream) { window.localStream.getTracks().forEach(t => t.stop()); window.localStream = null; } 
+                    document.getElementById('local-video-feed').style.display = 'none'; document.getElementById('remote-video-feed').style.display = 'none'; 
+                    closeOverlay('call-overlay'); 
+                    pushAlert("SYSTEM", "CALL TERMINATED", true); 
+                    break;
+                // ------------------------------------------
+
+                case 'toggle-chat-options': document.getElementById('chat-options-dropdown').classList.toggle('show'); document.getElementById('flag-menu').classList.remove('show'); break;
+                case 'toggle-flag-menu': document.getElementById('flag-menu').classList.toggle('show'); break;
+                case 'set-flag': pushAlert("FLAG SET", `USER FLAGGED AS ${btn.dataset.color.toUpperCase()}`, true); document.getElementById('chat-options-dropdown').classList.remove('show'); break;
+                case 'chat-opt-clear': 
+                    if (!AppState.activeChatUser) return; 
+                     try { 
+                    const { error } = await    supabase.from('messages').delete().or(`and(sender.eq.${AppState.currentUser},receiver.eq.${AppState.activeChatUser}),and(sender.eq.${AppState.activeChatUser},receiver.eq.${AppState.currentUser})`); 
+                    if (error) throw error; 
+                        document.getElementById('chat-messages-area').innerHTML = ''; 
+                    pushAlert("SYSTEM", "CHAT HISTORY CLEARED. NEW SESSION STARTED.", true); 
+                    document.getElementById('chat-options-dropdown').classList.remove('show'); 
+                    } catch(e) { pushAlert("ERROR", "COULD NOT CLEAR CHAT", false); } 
+                break;
+
+                case 'chat-opt-delete': 
+                    if (!AppState.activeChatUser) return; 
+                    try { 
+                        const { error } = await supabase.from('messages').delete().or(`and(sender.eq.${AppState.currentUser},receiver.eq.${AppState.activeChatUser}),and(sender.eq.${AppState.activeChatUser},receiver.eq.${AppState.currentUser})`); 
+                        if (error) throw error; 
+                        document.getElementById('chat-messages-area').innerHTML = ''; 
+                        document.getElementById('chat-options-dropdown').classList.remove('show'); 
+                        document.body.classList.remove('in-conversation'); 
+                        AppState.activeChatUser = null; 
+                        document.getElementById('chat-sidebar').classList.remove('hidden'); 
+                        document.getElementById('chat-window').classList.remove('active'); 
+                        document.getElementById('chat-window').style.display = 'none'; 
+                        closeOverlay('chat-settings-overlay'); 
+                        loadConversationsList(); 
+                        pushAlert("SYSTEM", "CONVERSATION DELETED.", true); 
+                    } catch(e) { pushAlert("ERROR", "COULD NOT DELETE CHAT", false); } 
+                    break;
+
+                case 'chat-opt-settings': 
+                    document.getElementById('chat-options-dropdown').classList.remove('show');
+                    openOverlay('chat-settings-overlay');
+                    break;
+
+                case 'chat-opt-block': 
+                    document.getElementById('chat-options-dropdown').classList.remove('show');
+                    const me = AppState.usersDB[AppState.currentUser];
+                    if (!me.blocked) me.blocked = [];
+                    
+                    if (me.blocked.includes(AppState.activeChatUser)) {
+                        me.blocked = me.blocked.filter(u => u !== AppState.activeChatUser);
+                        btn.innerHTML = `<i class="ph ph-shield-slash"></i> BLOCK USER`;
+                        pushAlert("SYSTEM", "USER UNBLOCKED.", true);
+                    } else {
+                        me.blocked.push(AppState.activeChatUser);
+                        btn.innerHTML = `<i class="ph ph-shield-check"></i> UNBLOCK USER`;
+                        pushAlert("SYSTEM", "USER BLOCKED.", false);
+                        document.querySelector('[data-action="close-chat-window"]').click(); 
+                    }
+                    syncUserToCloud(AppState.currentUser);
+                    break;
+
+                case 'toggle-chat-attachment': document.getElementById('chat-attach-menu').classList.toggle('show'); break;
+                case 'chat-attach-location': if (navigator.geolocation) { pushAlert("SYSTEM", "FETCHING COORDINATES...", true); navigator.geolocation.getCurrentPosition((pos) => { sendChatMessage(`[LOCATION] LAT: ${pos.coords.latitude.toFixed(4)}, LNG: ${pos.coords.longitude.toFixed(4)}`, 'location'); document.getElementById('chat-attach-menu').classList.remove('show'); }); } break;
+                case 'chat-attach-contact': pushAlert("SYSTEM", "CONTACT SELECTION OPENED", true); document.getElementById('chat-attach-menu').classList.remove('show'); break;
+                case 'send-chat-message': if (!AppState.activeChatUser || !AppState.currentUser) return; const input = document.getElementById('chat-msg-input'); const msgText = input.value.trim(); if (!msgText) return; input.value = ''; sendChatMessage(msgText, 'text'); break;
+            }
+        });
+    }
+
+    async function sendChatMessage(content, type = 'text') { if (!AppState.activeChatUser || !AppState.currentUser) return; let finalContent = content; if(type !== 'text') { finalContent = JSON.stringify({ type: type, url: content }); } const encryptedContent = encryptMessage(finalContent, AppState.currentUser, AppState.activeChatUser); try { const { error } = await supabase.from('messages').insert([{ sender: AppState.currentUser, receiver: AppState.activeChatUser, content: encryptedContent }]); if (error) throw error; } catch (err) { pushAlert("COMMS ERROR", "FAILED TO SEND", false); } }
+    async function loadConversationsList() { if (!AppState.currentUser) return; const { data, error } = await supabase.from('messages').select('*').or(`sender.eq.${AppState.currentUser},receiver.eq.${AppState.currentUser}`).order('created_at', { ascending: false }); if (error) return console.error(error); const recentChats = {}; data.forEach(msg => { const otherUser = msg.sender === AppState.currentUser ? msg.receiver : msg.sender; if (!recentChats[otherUser]) recentChats[otherUser] = msg; }); if (AppState.activeChatUser && !recentChats[AppState.activeChatUser]) recentChats[AppState.activeChatUser] = { dummy: true }; const listEl = document.getElementById('chat-conversation-list'); listEl.innerHTML = ''; if (Object.keys(recentChats).length === 0) { listEl.innerHTML = `<p style="text-align:center; color:#888; font-size:0.8rem; margin-top:20px;">NO SECURE CHANNELS FOUND.</p>`; return; } Object.keys(recentChats).forEach(uid => { const u = AppState.usersDB[uid]; if(!u) return; let latestText = "NEW CONVERSATION..."; if(!recentChats[uid].dummy) { const dec = decryptMessage(recentChats[uid].content, AppState.currentUser, uid); try { const parsed = JSON.parse(dec); latestText = `[${parsed.type.toUpperCase()}]`; } catch(e) { latestText = dec; } } listEl.innerHTML += `<div class="chat-list-item" data-action="open-chat-window" data-target-user="${uid}"><img src="${u.avatar}"><div class="info"><h5>${u.name}</h5><p>${latestText}</p></div></div>`; }); }
+    async function loadActiveChat(uid) { AppState.activeChatUser = uid; document.body.classList.add('in-conversation'); document.getElementById('chat-sidebar').classList.add('hidden'); document.getElementById('chat-window').classList.add('active'); document.getElementById('chat-window').style.display = 'flex'; const u = AppState.usersDB[uid]; document.getElementById('active-chat-avatar').src = u.avatar; document.getElementById('active-chat-name').innerText = u.name; const { data, error } = await supabase.from('messages').select('*').or(`and(sender.eq.${AppState.currentUser},receiver.eq.${uid}),and(sender.eq.${uid},receiver.eq.${AppState.currentUser})`).order('created_at', { ascending: true }); const area = document.getElementById('chat-messages-area'); area.innerHTML = ''; if (data) { data.forEach(msg => { const isMe = msg.sender === AppState.currentUser; const decText = decryptMessage(msg.content, AppState.currentUser, uid); let finalHTML = decText; try { const media = JSON.parse(decText); if(media.type === 'image') finalHTML = `<img src="${media.url}">`; else if(media.type === 'video') finalHTML = `<video src="${media.url}" controls></video>`; else if(media.type === 'audio') finalHTML = `<audio src="${media.url}" controls></audio>`; else if(media.type === 'document') finalHTML = `<a href="${media.url}" target="_blank" style="color:#00f2ff; text-decoration:none;"><i class="ph-fill ph-file-text"></i> VIEW DOCUMENT</a>`; else if(media.type === 'location') finalHTML = `<div class="chat-bubble-map"><i class="ph-fill ph-map-pin"></i></div><div style="font-size:0.6rem; text-align:center;">${media.url}</div>`; } catch(e) {} area.innerHTML += `<div class="chat-bubble ${isMe ? 'me' : 'them'}">${finalHTML}</div>`; }); } area.scrollTop = area.scrollHeight; }
+    
+    // --- FIXED: Added Call Listening Channel ---
+    function initRealtimeChats() { 
+        supabase.channel('public:messages').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => { const msg = payload.new; if (msg.sender === AppState.currentUser || msg.receiver === AppState.currentUser) { loadConversationsList(); if (AppState.activeChatUser && (msg.sender === AppState.activeChatUser || msg.receiver === AppState.activeChatUser)) { const isMe = msg.sender === AppState.currentUser; const decText = decryptMessage(msg.content, AppState.currentUser, AppState.activeChatUser); let finalHTML = decText; try { const media = JSON.parse(decText); if(media.type === 'image') finalHTML = `<img src="${media.url}">`; else if(media.type === 'video') finalHTML = `<video src="${media.url}" controls></video>`; else if(media.type === 'audio') finalHTML = `<audio src="${media.url}" controls></audio>`; else if(media.type === 'document') finalHTML = `<a href="${media.url}" target="_blank" style="color:#00f2ff; text-decoration:none;"><i class="ph-fill ph-file-text"></i> VIEW DOCUMENT</a>`; else if(media.type === 'location') finalHTML = `<div class="chat-bubble-map"><i class="ph-fill ph-map-pin"></i></div><div style="font-size:0.6rem; text-align:center;">${media.url}</div>`; } catch(e) {} const area = document.getElementById('chat-messages-area'); area.innerHTML += `<div class="chat-bubble ${isMe ? 'me' : 'them'}">${finalHTML}</div>`; area.scrollTop = area.scrollHeight; vibrate([30, 30]); } else if(msg.receiver === AppState.currentUser) { pushAlert("NEW COMMS", `MESSAGE FROM ${AppState.usersDB[msg.sender]?.username || 'OPERATOR'}`, true); } } }).subscribe(); 
+
+        callChannel = supabase.channel('call_signaling');
+        callChannel.on('broadcast', { event: 'incoming_call' }, payload => {
+            if (payload.payload.targetUser === AppState.currentUser) {
+                const caller = AppState.usersDB[payload.payload.callerId];
+                if(caller) {
+                    document.getElementById('incoming-caller-avatar').src = caller.avatar;
+                    document.getElementById('incoming-caller-name').innerText = caller.name;
+                    currentCallTarget = payload.payload.callerId;
+                    openOverlay('incoming-call-overlay');
+                    vibrate([500, 200, 500, 200, 500]); 
+                }
+            }
+        }).on('broadcast', { event: 'call_declined' }, payload => {
+            if (payload.payload.targetUser === AppState.currentUser) {
+                pushAlert("CALL", "USER DECLINED THE CALL", false);
+                document.querySelector('[data-action="end-call"]').click();
+            }
+        }).on('broadcast', { event: 'call_answered' }, payload => {
+            if (payload.payload.targetUser === AppState.currentUser) {
+                document.getElementById('call-status-text').innerText = "CONNECTED";
+                pushAlert("CALL", "CALL CONNECTED", true);
+            }
+        }).subscribe();
+    }
+    // ------------------------------------------
+
+    function initGlassParticles() { document.querySelectorAll('.glass-panel').forEach(panel => { if (panel.querySelector('.glass-particle-container')) return; const container = document.createElement('div'); container.className = 'glass-particle-container'; const numParticles = Math.floor(Math.random() * 4) + 3; for (let i = 0; i < numParticles; i++) { const particle = document.createElement('div'); particle.className = 'g-particle'; particle.style.left = Math.random() * 100 + '%'; particle.style.top = Math.random() * 100 + '%'; const size = Math.random() * 5 + 2; particle.style.width = size + 'px'; particle.style.height = size + 'px'; particle.style.animationDelay = (Math.random() * 4) + 's'; container.appendChild(particle); } panel.appendChild(container); }); }
+    function initGlassInteractions() { document.querySelectorAll('.glass-panel').forEach(panel => { if(panel.closest('.selector-overlay') || panel.id === 'main-nav' || panel.closest('.chat-layout') || panel.closest('#page-access')) return; panel.addEventListener('mousemove', (e) => { const rect = panel.getBoundingClientRect(); const x = e.clientX - rect.left; const y = e.clientY - rect.top; const cX = rect.width / 2; const cY = rect.height / 2; const rX = ((y - cY) / cY) * -10; const rY = ((x - cX) / cX) * 10; panel.style.transform = `perspective(1000px) rotateX(${rX}deg) rotateY(${rY}deg) scale3d(1.02, 1.02, 1.02)`; }); panel.addEventListener('mouseleave', () => { panel.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`; }); }); }
+    async function syncUserToCloud(email) { if (!email || !AppState.usersDB[email]) return; try { const { error } = await supabase.from('users').upsert({ id: email, data: AppState.usersDB[email] }); if (error) throw error; } catch(e) { pushAlert("SYNC ERROR", "FAILED TO SAVE TO CLOUD"); } }
+
+    const filterSearchData = debounce(() => { const query = DOM.searchInput.value.toLowerCase(); DOM.searchResults.innerHTML = ""; DOM.searchMediaResults.innerHTML = ""; if(AppState.searchMode === 'users') { DOM.searchResults.style.display = 'block'; DOM.searchMediaResults.style.display = 'none'; Object.keys(AppState.usersDB).forEach(email => { const user = AppState.usersDB[email]; if (user.name.toLowerCase().includes(query) || user.username.toLowerCase().includes(query)) { const el = document.createElement('div'); el.className = 'search-result-item glass-panel'; el.dataset.action = "open-user-profile"; el.dataset.email = email; el.innerHTML = `<img src="${user.avatar}" class="search-avatar"><div class="search-info"><h4>${user.name}</h4><p>@${user.username}</p></div>`; DOM.searchResults.appendChild(el); } }); } else { DOM.searchResults.style.display = 'none'; DOM.searchMediaResults.style.display = 'grid'; Object.keys(AppState.usersDB).forEach(email => { AppState.usersDB[email].clips.forEach(clip => { const searchStr = (clip.title + " " + clip.description + " " + (clip.tags?clip.tags.join(" "):"")).toLowerCase(); if (searchStr.includes(query)) { const views = clip.viewedBy ? clip.viewedBy.length : (clip.views || 0); const div = document.createElement('div'); div.className = "ig-grid-item"; div.dataset.action = "watch-clip"; div.dataset.clipId = clip.id; if(clip.type === 'image') { div.innerHTML = `<img src="${clip.url}" style="width:100%; height:100%; object-fit:cover;">`; } else { div.innerHTML = `<video src="${clip.url}" poster="${clip.thumbnail || ''}" style="width:100%; height:100%; object-fit:cover;" muted></video>`; } div.innerHTML += `<div class="clip-views"><i class="ph-fill ph-play"></i> ${views}</div><i class="ph-fill ph-play-circle view-icon"></i>`; DOM.searchMediaResults.appendChild(div); } }); }); } }, 300);
+
+    function openProfileData(email) { const user = AppState.usersDB[email]; document.getElementById('display-avatar').src = user.avatar; document.getElementById('display-name').innerHTML = `${user.name} <i class="ph-fill ph-check-circle" style="color:#00f2ff; font-size:1rem;"></i>`; document.getElementById('display-username').innerText = user.username; document.getElementById('display-bio').innerText = user.bio; document.getElementById('display-posts').innerText = user.clips.length; document.getElementById('display-followers').innerText = user.followers.length; document.getElementById('display-following').innerText = user.following.length; const linksContainer = document.getElementById('display-links'); linksContainer.innerHTML = ''; if (user.links && user.links.length > 0) { user.links.forEach(link => { let domain = link.replace(/^https?:\/\//, '').split('/')[0] || "LINK"; linksContainer.innerHTML += `<a href="${link}" target="_blank" class="profile-link"><i class="ph ph-link"></i> ${domain}</a>`; }); } if (user.profileMusic && user.profileMusic !== "") { DOM.profileAudio.src = user.profileMusic; DOM.profileAudio.play().catch(e => {}); } else { DOM.profileAudio.pause(); DOM.profileAudio.src = ""; } const actionBtn = document.getElementById('profile-action-btn'); actionBtn.classList.remove('following'); if (email === AppState.currentUser) { actionBtn.innerText = "EDIT PROFILE"; document.getElementById('profile-secondary-btn').innerText = "SHARE"; DOM.globalProfileActions.style.display = 'flex'; } else { if (user.followers.includes(AppState.currentUser)) { actionBtn.innerText = "FOLLOWING"; actionBtn.classList.add('following'); } else { actionBtn.innerText = "FOLLOW"; } document.getElementById('profile-secondary-btn').innerText = "MESSAGE"; DOM.globalProfileActions.style.display = 'none'; } DOM.profileGridContainer.innerHTML = ""; if (user.clips.length === 0) { DOM.profileGridContainer.innerHTML = `<div style="grid-column: span 3; text-align: center; padding: 40px 0; color: #888; font-family: 'Orbitron'; font-size: 0.8rem;">NO CLIPS CAPTURED YET</div>`; } else { user.clips.forEach(clip => { const views = clip.viewedBy ? clip.viewedBy.length : (clip.views || 0); const div = document.createElement('div'); div.className = "ig-grid-item"; div.dataset.action = "watch-clip"; div.dataset.clipId = clip.id; if(clip.type === 'image') { div.innerHTML = `<img src="${clip.url}" style="width:100%; height:100%; object-fit:cover;">`; } else { div.innerHTML = `<video src="${clip.url}" poster="${clip.thumbnail || ''}" style="width:100%; height:100%; object-fit:cover;" muted></video>`; } div.innerHTML += `<div class="clip-views"><i class="ph-fill ph-play"></i> ${views}</div><i class="ph-fill ph-play-circle view-icon"></i>`; DOM.profileGridContainer.appendChild(div); }); } }
+
+    function renderWatchFeed() { const feed = document.getElementById('watch-feed-container'); let allClips = []; Object.keys(AppState.usersDB).forEach(email => { AppState.usersDB[email].clips.forEach(clip => { if (!clip.comments) clip.comments = []; allClips.push(clip); }); }); allClips.sort((a,b) => b.timestamp - a.timestamp); if(allClips.length === 0) { feed.innerHTML = "<div style='height: 100vh; display:flex; justify-content:center; align-items:center;'><p style='color:#888; font-family:Orbitron; letter-spacing: 2px;'>NO MEDIA UPLOADED YET.</p></div>"; return; } let feedHtml = ''; allClips.forEach(clip => { const author = AppState.usersDB[clip.author]; const likesCount = clip.likedBy ? clip.likedBy.length : 0; const isLiked = clip.likedBy && clip.likedBy.includes(AppState.currentUser); const likeIconClass = isLiked ? "ph-fill ph-heart" : "ph ph-heart"; const likeColorClass = isLiked ? "color: var(--neon);" : "color: #fff;"; const viewsCount = clip.viewedBy ? clip.viewedBy.length : (clip.views || 0); const commentsCount = clip.comments ? clip.comments.length : 0; let ownerActions = ''; if (clip.author === AppState.currentUser) { ownerActions = `<div class="action-btn" data-action="toggle-feed-options" data-clip-id="${clip.id}"><i class="ph ph-dots-three-vertical"></i><div class="feed-options-dropdown" id="feed-opt-${clip.id}"><div class="feed-opt-item" data-action="edit-clip" data-clip-id="${clip.id}"><i class="ph ph-pencil-simple"></i> EDIT</div><div class="feed-opt-item" style="color:var(--neon);" data-action="delete-clip-prompt" data-clip-id="${clip.id}"><i class="ph ph-trash"></i> DELETE</div></div></div>`; } let mediaElement = clip.type === 'image' ? `<img src="${clip.url}" class="feed-media">` : `<video src="${clip.url}" poster="${clip.thumbnail || ''}" loop playsinline preload="metadata"></video>`; feedHtml += `<div class="watch-clip-container" id="${clip.id}" data-author="${clip.author}"> ${mediaElement} <i class="ph-fill ph-heart heart-animation" id="heart-anim-${clip.id}"></i> <div class="watch-clip-actions"> <div class="action-btn" data-action="toggle-like" data-clip-id="${clip.id}" data-author="${clip.author}"> <i class="${likeIconClass}" style="${likeColorClass}" id="like-icon-${clip.id}"></i><span id="like-count-${clip.id}">${likesCount}</span> </div> <div class="action-btn" data-action="open-comments" data-clip-id="${clip.id}" data-author="${clip.author}"><i class="ph-fill ph-chat-circle"></i><span>${commentsCount}</span></div> <div class="action-btn"><i class="ph-fill ph-share-network"></i><span>SHARE</span></div> ${ownerActions} </div> <div class="watch-clip-info"> ${clip.location ? `<div class="clip-location"><i class="ph-fill ph-map-pin"></i> ${clip.location}</div>` : ''} <div class="clip-author-row"> <img src="${author.avatar}" alt="Avatar"> <h4 style="color:#fff; font-family:'Orbitron'; font-size: 1rem;">@${author.username}</h4> ${clip.author !== AppState.currentUser ? `<button class="btn btn-outline" style="padding: 4px 12px; font-size: 0.6rem; border-radius: 20px; width: auto; margin:0; border-color: var(--neon); color: var(--neon);">FOLLOW</button>` : ''} </div> <h4 style="color:#fff; font-size: 1rem;">${clip.title}</h4> <p style="font-size:0.7rem; color:#ccc; margin-bottom: 5px;">${clip.description || ''}</p> <p id="views-${clip.id}" style="font-size:0.7rem; color:#aaa; font-family: 'Orbitron';"><i class="ph-fill ph-play"></i> ${viewsCount} VIEWS</p> </div> </div>`; }); feed.innerHTML = feedHtml; const containers = feed.querySelectorAll('.watch-clip-container'); const observer = new IntersectionObserver((entries) => { entries.forEach(entry => { const vid = entry.target.querySelector('video'); if (entry.isIntersecting) { if (vid) vid.play().catch(e => {}); } else { if (vid) { vid.pause(); vid.currentTime = 0; } } }); }, { root: feed, threshold: 0.6 }); containers.forEach(c => observer.observe(c)); }
+
+    function initThreeJS() { 
+        const canvasContainer = document.getElementById('canvas-container'); 
+        if (!canvasContainer) return; 
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); 
+        renderer.setPixelRatio(window.devicePixelRatio); renderer.setSize(window.innerWidth, window.innerHeight); 
+        canvasContainer.appendChild(renderer.domElement); 
+        const sceneMain = new THREE.Scene(); 
+        const cameraMain = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000); 
+        cameraMain.position.z = 6; 
+        
+        const glassMat = new THREE.MeshPhysicalMaterial({ color: 0xffffff, metalness: 0, roughness: 0.0005, transmission: 1, ior: 1.5, transparent: true, opacity: 1 }); 
+        const glowMat = new THREE.MeshBasicMaterial({ color: 0xff003c, wireframe: true, transparent: true, opacity: 0.4 }); 
+        const character = new THREE.Group(); 
+        const headGeom = new THREE.IcosahedronGeometry(0.8, 4); const head = new THREE.Mesh(headGeom, glassMat); const headGlow = new THREE.Mesh(headGeom, glowMat); 
+        headGlow.scale.setScalar(1.); head.position.y = 1.3; headGlow.position.y = 1.3001; 
+        const bodyGeom = new THREE.TorusKnotGeometry(0.7, 0.25, 128, 32); const body = new THREE.Mesh(bodyGeom, glassMat); const bodyGlow = new THREE.Mesh(bodyGeom, glowMat); 
+        bodyGlow.scale.setScalar(1); body.position.y = -0.4; bodyGlow.position.y = -0.4001; 
+        character.add(head, headGlow, body, bodyGlow); sceneMain.add(character); 
+        
+        const redLight = new THREE.PointLight(0xff003c, 10, 0); redLight.position.set(5, 5, 5); sceneMain.add(redLight); 
+        const cyanLight = new THREE.PointLight(0x00f2ff, 5, 0); cyanLight.position.set(-5, -5, 5); sceneMain.add(cyanLight); 
+        sceneMain.add(new THREE.AmbientLight(0xffffff, 0.5)); 
+        
+        const starCount = 6000; const starPositions = new Float32Array(starCount * 3); 
+        for (let i = 0; i < starCount * 3; i += 3) { 
+            const r = 50 + Math.random() * 100; const th = Math.random() * Math.PI * 2; const ph = Math.acos(2 * Math.random() - 1); 
+            starPositions[i] = r * Math.sin(ph) * Math.cos(th); starPositions[i+1] = r * Math.sin(ph) * Math.sin(th); starPositions[i+2] = r * Math.cos(ph); 
+        } 
+        const starGeo = new THREE.BufferGeometry(); starGeo.setAttribute('position', new THREE.BufferAttribute(starPositions, 3)); 
+        const starField = new THREE.Points(starGeo, new THREE.PointsMaterial({color: 0xffffff, size: 0.1, transparent: true, opacity: 0.8, blending: THREE.AdditiveBlending})); 
+        sceneMain.add(starField); 
+
+        let isDragging = false, prevX = 0, hoverTweenChar, hoverTweenStars;
+        const startDragging = (x) => { isDragging = true; prevX = x; if (hoverTweenChar) hoverTweenChar.kill(); if (hoverTweenStars) hoverTweenStars.kill(); };
+        window.addEventListener('mousedown', (e) => startDragging(e.clientX));
+        window.addEventListener('touchstart', (e) => startDragging(e.touches[0].clientX), {passive: false});
+        window.addEventListener('mouseup', () => isDragging = false);
+        window.addEventListener('touchend', () => isDragging = false);
+        window.addEventListener('mousemove', (e) => {
+            if (isDragging) { const dX = e.clientX - prevX; character.rotation.y += dX * 0.005; starField.rotation.y += dX * 0.002; prevX = e.clientX; }
+            else if (window.gsap) { const tY = (e.clientX / window.innerWidth - 0.5) * 1.5; hoverTweenChar = gsap.to(character.rotation, { y: tY, duration: 1.5, ease: "power2.out" }); hoverTweenStars = gsap.to(starField.rotation, { y: tY * 0.2, duration: 2, ease: "power2.out" }); }
+        });
+        window.addEventListener('touchmove', (e) => { if (isDragging) { const dX = e.touches[0].clientX - prevX; character.rotation.y += dX * 0.01; starField.rotation.y += dX * 0.004; prevX = e.touches[0].clientX; } }, {passive: false});
+
+        function animate() { 
+            requestAnimationFrame(animate); 
+            if(!isDragging) { character.rotation.y += 0.005; starField.rotation.y += 0.0005; }
+            character.position.y = Math.sin(Date.now()*0.001)*0.2; 
+            renderer.render(sceneMain, cameraMain); 
+        } 
+        animate(); 
+        window.addEventListener('resize', () => { renderer.setSize(window.innerWidth, window.innerHeight); cameraMain.aspect = window.innerWidth / window.innerHeight; cameraMain.updateProjectionMatrix(); }); 
+    }
+
+    initApp();
+</script>
+
+
+</body>
+</html>
