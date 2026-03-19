@@ -54,7 +54,22 @@
            ========================================= */
         header { position: fixed; top: 0; left: 0; width: 100%; height: calc(60px + env(safe-area-inset-top)); padding-top: env(safe-area-inset-top); z-index: 100; background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent); pointer-events: none; } .page-logo { font-family: 'Orbitron'; font-size: 1.4rem; letter-spacing: 8px; position: absolute; bottom: 15px; left: 20px; pointer-events: auto; text-shadow: 0 2px 10px rgba(0,0,0,0.8); } .page-logo span { color: var(--neon); text-shadow: 0 0 10px var(--neon); } .profile-global-actions { position: absolute; bottom: 15px; right: 20px; display: none; gap: 20px; font-size: 1.6rem; color: #fff; z-index: 105; pointer-events: auto; } .profile-global-actions i { cursor: pointer; transition: all 0.3s; } .profile-global-actions i:hover { color: var(--neon); filter: drop-shadow(0 0 8px var(--neon)); transform: scale(1.3) rotate(5deg); }
 
-        .floating-nav { position: fixed; bottom: max(30px, env(safe-area-inset-bottom)); left: 12%; transform: translateX(-50%); width: 90%; max-width: 400px; display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; border-radius: 50px; z-index: 100; } 
+        .floating-nav { 
+    position: fixed; 
+    bottom: max(30px, env(safe-area-inset-bottom)); 
+    left: 0; /* Added for centering */
+    right: 0; /* Added for centering */
+    margin: 0 auto; /* Added for centering */
+    width: 90%; 
+    max-width: 400px; 
+    display: flex; 
+    justify-content: space-between;
+    align-items: center; 
+    padding: 15px 30px; 
+    border-radius: 50px; 
+    z-index: 100; 
+} 
+ 
         .nav-item { color: #888; font-size: 1.8rem; text-decoration: none; display: flex; flex-direction: column; align-items: center; transition: transform 0.1s cubic-bezier(0.2, 1, 0.2, 1), color 0.1s; position: relative; pointer-events: auto; } 
         .nav-item:active { transform: scale(0.85); color: var(--neon); } 
         .nav-item.active { color: var(--neon); filter: drop-shadow(0 0 8px var(--neon)); transform: translateY(-5px) scale(1.1); } 
@@ -73,7 +88,34 @@
 
         .ig-profile-wrap { max-width: 500px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; padding: 25px 20px; position: relative;} .ig-header { display: flex; align-items: center; gap: 25px; padding: 0 10px; margin-top: 10px; position: relative; z-index: 2;} .ig-avatar-ring { width: 90px; height: 90px; border-radius: 50%; background: conic-gradient(from 45deg, var(--neon), #00f2ff, var(--neon)); padding: 3px; position: relative; display: flex; align-items: center; justify-content: center; animation: spinRing 4s linear infinite; box-shadow: 0 0 15px rgba(0, 242, 255, 0.4); } @keyframes spinRing { 100% { transform: rotate(360deg); } } .ig-avatar-ring img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 3px solid #000; animation: counterSpinRing 4s linear infinite; } @keyframes counterSpinRing { 100% { transform: rotate(-360deg); } } .ig-stats-container { display: flex; flex: 1; justify-content: space-around; } .ig-stat { display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.3s;} .ig-stat:hover { transform: scale(1.1) translateY(-5px); color: var(--neon);} .ig-stat h3 { font-family: 'Orbitron'; font-size: 1.2rem; margin-bottom: 2px; text-shadow: 0 0 5px rgba(255,255,255,0.5); } .ig-stat span { font-size: 0.6rem; color: #aaa; letter-spacing: 1px; } .ig-bio-section { padding: 0 10px; position: relative; z-index: 2;} .ig-bio-name { font-family: 'Orbitron'; font-size: 1.1rem; color: #fff; display: flex; align-items: center; gap: 5px; } .ig-bio-username { font-size: 0.7rem; color: #00f2ff; margin-bottom: 8px; text-transform: uppercase; } .ig-bio-text { font-size: 0.8rem; color: #ccc; line-height: 1.4; text-transform: uppercase;} .profile-links-container { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 8px; } .profile-link { display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; background: rgba(0, 242, 255, 0.1); border: 1px solid #00f2ff; color: #00f2ff; border-radius: 4px; font-size: 0.65rem; text-decoration: none; transition: 0.3s; font-family: 'Orbitron'; } .profile-link:hover { background: #00f2ff; color: #000; box-shadow: 0 0 10px #00f2ff; transform: translateY(-2px); } .ig-actions { display: flex; gap: 10px; padding: 0 10px; position: relative; z-index: 2;} .ig-actions .btn { padding: 10px; font-size: 0.7rem; margin-top: 0; } .ig-actions .btn-follow.following { background: transparent; border: 1px solid var(--glass-border); color: #fff; } .ig-tabs { display: flex; border-top: 1px solid var(--glass-border); margin-top: 10px; position: relative; z-index: 2;} .ig-tab { flex: 1; display: flex; justify-content: center; align-items: center; padding: 15px 0; color: #555; font-size: 1.4rem; cursor: pointer; transition: 0.3s; border-top: 2px solid transparent; margin-top: -1px; } .ig-tab:hover { color: #fff; } .ig-tab.active { color: var(--neon); border-top-color: var(--neon); text-shadow: 0 0 10px rgba(255,0,60,0.5); transform: translateY(-2px);} .ig-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; padding-bottom: 20px; position: relative; z-index: 2;} .ig-grid-item { aspect-ratio: 1 / 1; background: #111; position: relative; overflow: hidden; cursor: pointer; border-radius: 6px; } .ig-grid-item img, .ig-grid-item video { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease, filter 0.4s ease; filter: grayscale(40%) contrast(1.1); } .ig-grid-item:hover img, .ig-grid-item:hover video { transform: scale(1.1); filter: grayscale(0%) contrast(1.2); } .ig-grid-item .view-icon { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 2rem; color: #fff; opacity: 0; transition: 0.3s; text-shadow: 0 2px 10px rgba(0,0,0,0.8); } .ig-grid-item:hover .view-icon { opacity: 1; color: var(--neon); } .clip-views { position: absolute; bottom: 5px; left: 5px; font-size: 0.6rem; background: rgba(0,0,0,0.6); padding: 2px 5px; border-radius: 4px; display: flex; align-items: center; gap: 3px; z-index: 5;} .edit-avatar-wrap { width: 100px; height: 100px; border-radius: 50%; margin: 0 auto 20px auto; position: relative; cursor: pointer; overflow: hidden; border: 2px solid var(--neon); box-shadow: 0 0 20px rgba(255, 0, 60, 0.4); transition: 0.3s; z-index: 2;} .edit-avatar-wrap:hover { transform: scale(1.05) rotate(5deg); box-shadow: 0 0 30px var(--neon);} .edit-avatar-wrap img { width: 100%; height: 100%; object-fit: cover; } .edit-avatar-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; opacity: 0; transition: 0.3s; } .edit-avatar-wrap:hover .edit-avatar-overlay { opacity: 1; } .dynamic-link-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; } .dynamic-link-row input { flex: 1; margin: 0; } .remove-link-btn { background: rgba(255,0,60,0.1); border: 1px solid var(--neon); color: var(--neon); width: 40px; height: 40px; border-radius: 8px; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: 0.3s; } .remove-link-btn:hover { background: var(--neon); color: #fff; transform: scale(1.05); }
 
-        #view-watch { padding: 0 !important; overflow: hidden; } .watch-feed { height: 100dvh; width: 100%; overflow-y: scroll; scroll-snap-type: y mandatory; scroll-behavior: smooth; display: flex; flex-direction: column; -ms-overflow-style: none; scrollbar-width: none; } .watch-feed::-webkit-scrollbar { display: none; } .watch-clip-container { width: 100vw; height: 100dvh; background: #000; position: relative; scroll-snap-align: start; scroll-snap-stop: always; flex-shrink: 0; display: flex; justify-content: center; align-items: center; } .watch-clip-container video, .watch-clip-container img.feed-media { width: 100%; height: 100%; object-fit: cover; display: block; background: #000; } .media-overlay-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'Orbitron'; font-size: 2rem; color: #fff; text-shadow: 0 0 15px var(--neon), 2px 2px 5px #000; pointer-events: none; z-index: 10; text-align: center; width: 90%; } .heart-animation { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); font-size: 8rem; color: var(--neon); z-index: 10; opacity: 0; pointer-events: none; filter: drop-shadow(0 0 20px var(--neon)); } .watch-clip-info { padding: 20px; padding-bottom: 110px; position: absolute; bottom: 0; left: 0; width: 100%; background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 60%, transparent 100%); pointer-events: none; z-index: 2; display: flex; flex-direction: column; gap: 5px; } .clip-location { font-size: 0.7rem; color: #00f2ff; font-family: 'Orbitron'; display: flex; align-items: center; gap: 5px; margin-bottom: 5px; text-shadow: 0 2px 5px rgba(0,0,0,0.8); } .clip-author-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; pointer-events: auto; } .clip-author-row img { width: 35px; height: 35px; border-radius: 50%; border: 2px solid var(--neon); object-fit: cover; } .watch-clip-actions { position: absolute; right: 15px; bottom: 120px; display: flex; flex-direction: column; gap: 25px; z-index: 3; pointer-events: auto; } .action-btn { display: flex; flex-direction: column; align-items: center; color: #fff; font-size: 0.7rem; font-family: 'Orbitron'; gap: 5px; cursor: pointer; transition: 0.3s; text-shadow: 0 2px 5px rgba(0,0,0,0.8); position: relative; } .action-btn i { font-size: 2.2rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); } .action-btn:hover i { color: var(--neon); transform: scale(1.15); filter: drop-shadow(0 0 10px var(--neon)); } .feed-options-dropdown { position: absolute; right: 40px; bottom: 0; background: rgba(0,0,0,0.9); border: 1px solid var(--glass-border); border-radius: 8px; padding: 5px; display: none; flex-direction: column; gap: 5px; backdrop-filter: blur(10px); min-width: 120px; } .feed-options-dropdown.show { display: flex; animation: fadeIn 0.2s; } .feed-opt-item { padding: 10px; font-size: 0.7rem; color: #fff; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 8px; transition: 0.3s; border-radius: 4px;} .feed-opt-item:hover { background: rgba(255,255,255,0.1); color: var(--neon); }
+        #view-watch { padding: 0 !important; overflow: hidden; } .watch-feed { height: 100dvh; width: 100%; overflow-y: scroll; scroll-snap-type: y mandatory; scroll-behavior: smooth; display: flex; flex-direction: column; -ms-overflow-style: none; scrollbar-width: none; } .watch-feed::-webkit-scrollbar { display: none; } .watch-clip-container { width: 100vw; height: 100dvh; background: #000; position: relative; scroll-snap-align: start; scroll-snap-stop: always; flex-shrink: 0; display: flex; justify-content: center; align-items: center; } .watch-clip-container video, .watch-clip-container img.feed-media { width: 100%; height: 100%; object-fit: contain; display: block; background: #000; } 
+
+/* --- NEW FULLSCREEN CLASSES --- */
+/* --- BULLETPROOF FULLSCREEN CLASSES --- */
+.watch-clip-container.is-fullscreen { 
+    position: fixed !important; 
+    top: 0 !important; 
+    left: 0 !important; 
+    width: 100vw !important; 
+    height: 100dvh !important; 
+    z-index: 99999 !important; 
+    background: #000 !important; 
+}
+.watch-clip-container.is-fullscreen video, 
+.watch-clip-container.is-fullscreen img.feed-media { 
+    object-fit: contain !important; 
+}
+.watch-clip-container.is-fullscreen .watch-clip-actions,
+.watch-clip-container.is-fullscreen .watch-clip-info { display: none !important; }
+.watch-clip-container.is-fullscreen .exit-fullscreen-btn { display: flex !important; }
+
+.exit-fullscreen-btn { display: none; position: absolute; top: max(20px, env(safe-area-inset-top)); left: 20px; z-index: 100000; background: rgba(0,0,0,0.6); padding: 10px 15px; border-radius: 8px; border: 1px solid var(--glass-border); cursor: pointer; transition: 0.3s; align-items: center; gap: 5px; font-family: 'Orbitron'; font-size: 0.7rem; color: #fff; backdrop-filter: blur(10px); }
+.exit-fullscreen-btn:hover { background: var(--neon); border-color: var(--neon); transform: scale(1.05); }
+
+body.is-video-fullscreen header, 
+body.is-video-fullscreen #main-nav { display: none !important; }
+
+ .media-overlay-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'Orbitron'; font-size: 2rem; color: #fff; text-shadow: 0 0 15px var(--neon), 2px 2px 5px #000; pointer-events: none; z-index: 10; text-align: center; width: 90%; } .heart-animation { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); font-size: 8rem; color: var(--neon); z-index: 10; opacity: 0; pointer-events: none; filter: drop-shadow(0 0 20px var(--neon)); } .watch-clip-info { padding: 20px; padding-bottom: 110px; position: absolute; bottom: 0; left: 0; width: 100%; background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 60%, transparent 100%); pointer-events: none; z-index: 2; display: flex; flex-direction: column; gap: 5px; } .clip-location { font-size: 0.7rem; color: #00f2ff; font-family: 'Orbitron'; display: flex; align-items: center; gap: 5px; margin-bottom: 5px; text-shadow: 0 2px 5px rgba(0,0,0,0.8); } .clip-author-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; pointer-events: auto; } .clip-author-row img { width: 35px; height: 35px; border-radius: 50%; border: 2px solid var(--neon); object-fit: cover; } .watch-clip-actions { position: absolute; right: 15px; bottom: 120px; display: flex; flex-direction: column; gap: 25px; z-index: 3; pointer-events: auto; } .action-btn { display: flex; flex-direction: column; align-items: center; color: #fff; font-size: 0.7rem; font-family: 'Orbitron'; gap: 5px; cursor: pointer; transition: 0.3s; text-shadow: 0 2px 5px rgba(0,0,0,0.8); position: relative; } .action-btn i { font-size: 2.2rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); } .action-btn:hover i { color: var(--neon); transform: scale(1.15); filter: drop-shadow(0 0 10px var(--neon)); } .feed-options-dropdown { position: absolute; right: 40px; bottom: 0; background: rgba(0,0,0,0.9); border: 1px solid var(--glass-border); border-radius: 8px; padding: 5px; display: none; flex-direction: column; gap: 5px; backdrop-filter: blur(10px); min-width: 120px; } .feed-options-dropdown.show { display: flex; animation: fadeIn 0.2s; } .feed-opt-item { padding: 10px; font-size: 0.7rem; color: #fff; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 8px; transition: 0.3s; border-radius: 4px;} .feed-opt-item:hover { background: rgba(255,255,255,0.1); color: var(--neon); }
 
         .stream-dashboard { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 20px; position: relative; z-index: 2;} @media(min-width: 900px) { .stream-dashboard { grid-template-columns: 2.5fr 1fr; } } .stream-player-container { display: flex; flex-direction: column; gap: 15px; } .stream-video-box { width: 100%; aspect-ratio: 16/9; background: #0a0a0a; border: 1px solid var(--neon); border-radius: 10px; position: relative; overflow: hidden; display: flex; justify-content: center; align-items: center; box-shadow: 0 0 20px rgba(255,0,60,0.2); transition: 0.3s;} .stream-live-badge { position: absolute; top: 15px; left: 15px; z-index: 2; background: #333; color: #fff; padding: 5px 10px; font-family: 'Orbitron'; font-size: 0.7rem; border-radius: 4px; display: flex; align-items: center; gap: 5px; transition: 0.3s ease;} .stream-live-badge i { font-size: 1rem; } @keyframes pulseBadge { 0%, 100% { filter: brightness(1); box-shadow: 0 0 10px var(--neon);} 50% { filter: brightness(0.7); box-shadow: none;} } .stream-meta { padding: 15px; } .stream-title { font-family: 'Orbitron'; font-size: 1.2rem; color: #fff; margin-bottom: 5px; } .stream-category { color: #00f2ff; font-size: 0.8rem; margin-bottom: 15px; } .stream-toolbar { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--glass-border); padding-top: 15px; flex-wrap: wrap; gap: 10px;} .st-metrics { display: flex; gap: 15px; font-size: 0.8rem; color: #aaa; } .st-metrics span { display: flex; align-items: center; gap: 5px; } .st-metrics i { color: var(--neon); } .st-controls { display: flex; gap: 10px; } .st-btn { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: #fff; display: flex; justify-content: center; align-items: center; font-size: 1.2rem; cursor: pointer; transition: 0.3s;} .st-btn:hover { background: var(--neon); border-color: var(--neon); transform: scale(1.1); box-shadow: 0 0 10px var(--neon);} .st-btn.active-st { background: #fff; color: #000; border-color: #fff;} .st-btn-danger:hover { background: #ffaa00; border-color: #ffaa00; box-shadow: 0 0 10px #ffaa00; color: #000; } .st-btn-pip:hover { background: #00f2ff; border-color: #00f2ff; box-shadow: 0 0 10px #00f2ff; color: #000; } .stream-chat-container { display: flex; flex-direction: column; height: 500px; } .chat-header { padding: 15px; border-bottom: 1px solid var(--glass-border); font-family: 'Orbitron'; font-size: 0.9rem; color: var(--neon); text-align: center; letter-spacing: 2px;} .chat-messages { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; } .chat-messages::-webkit-scrollbar { width: 4px; } .chat-messages::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 10px; } .msg { font-size: 0.8rem; line-height: 1.4; background: rgba(0,0,0,0.4); padding: 8px 10px; border-radius: 8px; border-left: 2px solid #555;} .msg.sys { border-left-color: #00f2ff; color: #00f2ff; font-family: 'Orbitron'; font-size: 0.7rem; text-align: center; background: transparent;} .msg.sub { border-left-color: var(--neon); } .msg span.user { font-weight: bold; color: #fff; margin-right: 5px; }
 
@@ -88,6 +130,39 @@
         body.in-conversation .chat-window { position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100dvh !important; z-index: 9999 !important; background: rgba(0,0,0,0.95) !important; backdrop-filter: blur(20px) !important; border-radius: 0 !important; border: none !important; margin: 0 !important; display: flex !important; flex-direction: column !important; }
 
         @media(max-width: 768px) { .chat-sidebar.hidden { display: none; } .chat-window { display: none; } .chat-window.active { display: flex; } } @keyframes fadeIn { from {opacity: 0; transform: translateY(10px);} to {opacity: 1; transform: translateY(0);} }
+        
+        body.is-video-fullscreen header, 
+body.is-video-fullscreen #main-nav { 
+    display: none !important; 
+}
+
+
+/* =========================================
+   DESKTOP / LARGE SCREEN ADJUSTMENTS
+   ========================================= */
+@media (min-width: 900px) {
+    .floating-nav {
+        top: 50%;
+        left: 30px;
+        bottom: auto;
+        right: auto;
+        transform: translateY(-50%);
+        width: 80px;
+        height: 60vh;
+        max-height: 500px;
+        flex-direction: column;
+        justify-content: space-evenly;
+        border-radius: 40px;
+        margin: 0;
+    }
+    
+    /* Shift the main content over so it doesn't hide behind the side nav */
+    .home-content {
+        padding-left: 130px !important;
+        padding-right: 130px !important; /* Keep it balanced */
+    }
+}
+
     </style>
 </head>
 <body>
@@ -107,6 +182,8 @@
             <button class="btn btn-outline" style="border-radius:50%; width:50px; height:50px; padding:0;" data-action="toggle-call-speaker" id="btn-call-speaker"><i class="ph-fill ph-speaker-high"></i></button>
             <button class="btn btn-outline" style="border-radius:50%; width:70px; height:70px; padding:0; background: rgba(255,0,60,0.2); border-color: var(--neon);" data-action="end-call"><i class="ph-fill ph-phone-slash" style="color:var(--neon); font-size:1.8rem;"></i></button>
             <button class="btn btn-outline" style="border-radius:50%; width:50px; height:50px; padding:0;" data-action="call-text-reply"><i class="ph-fill ph-chat-text"></i></button>
+            <button class="btn btn-outline" style="border-radius:50%; width:50px; height:50px; padding:0;" data-action="toggle-call-video" id="btn-call-video"><i class="ph-fill ph-video-camera"></i></button>
+
             </div>
         </div>
     </div>
@@ -280,6 +357,20 @@
     </div>
 </div>
 
+<div class="selector-overlay" id="capture-confirm-overlay" data-overlay="capture-confirm-overlay">
+    <div class="modal-box glass-panel">
+        <h3 style="margin-bottom: 10px;">MEDIA CAPTURED</h3>
+        <div style="width: 100%; aspect-ratio: 9/16; background: #000; margin-bottom: 15px; border-radius: 8px; overflow: hidden; border: 1px solid var(--neon);">
+            <video id="capture-preview-vid" controls playsinline style="width:100%; height:100%; object-fit:cover; display:none;"></video>
+            <img id="capture-preview-img" style="width:100%; height:100%; object-fit:cover; display:none;">
+        </div>
+        <div class="opt-grid" style="grid-template-columns: 1fr 1fr;">
+            <div class="opt-btn" data-action="discard-capture">RETAKE</div>
+            <div class="opt-btn" style="border-color: var(--neon); color: var(--neon);" data-action="proceed-with-capture">PROCEED</div>
+        </div>
+    </div>
+</div>
+
     
     <div id="page-access" class="portal-ui">
         <div class="glass-panel" id="portal-ui-size">
@@ -343,34 +434,48 @@
                 <i class="ph ph-video-camera-slash" id="reel-placeholder-icon" style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:6rem; color:#333; z-index:1;"></i>
                 
                 <div style="position:absolute; bottom: max(40px, env(safe-area-inset-bottom)); width:100%; display:flex; justify-content:space-around; align-items:center; z-index:10; padding:0 20px;">
-                    <div class="opt-btn glass-panel" data-action="flip-camera" style="border-radius:50%; width:60px; height:60px; font-size:1.5rem;"><i class="ph ph-arrows-clockwise"></i></div>
-                    <div class="opt-btn glass-panel" data-action="record-reel" style="border-radius:50%; width:90px; height:90px; border-color:var(--neon); color:var(--neon); font-size:3rem;"><i class="ph-fill ph-record"></i></div>
-                    <div class="opt-btn glass-panel" data-action="reel-fx" style="border-radius:50%; width:60px; height:60px; font-size:1.5rem;"><i class="ph ph-faders"></i></div>
-                </div>
+    <div class="opt-btn glass-panel" data-action="swap-capture-mode" id="btn-swap-mode" style="border-radius:50%; width:60px; height:60px; font-size:1.5rem;"><i class="ph ph-image"></i></div>
+    <div class="opt-btn glass-panel" data-action="record-reel" id="btn-record-reel" style="border-radius:50%; width:90px; height:90px; border-color:var(--neon); color:var(--neon); font-size:3rem; transition: 0.3s;"><i class="ph-fill ph-record"></i></div>
+    <div class="opt-btn glass-panel" data-action="flip-camera" style="border-radius:50%; width:60px; height:60px; font-size:1.5rem;"><i class="ph ph-arrows-clockwise"></i></div>
+</div>
+
             </div>
         </main>
     
-        <main id="view-stream" class="home-content view-section">
-            <div class="stream-dashboard">
-                <div class="stream-player-container">
-                    <div class="stream-video-box glass-panel" id="stream-video-box"><video id="stream-live-feed" autoplay muted playsinline style="width:100%; height:100%; object-fit:cover; position:absolute; z-index:1; display:none;"></video><div class="stream-live-badge" id="stream-status-badge"><i class="ph-fill ph-broadcast"></i> OFFLINE</div><i class="ph ph-plugs" id="stream-placeholder-icon" style="font-size: 4rem; color: #333; z-index: 0;"></i></div>
-                    <div class="stream-meta glass-panel">
-                        <h2 class="stream-title">TXG ARENA CHAMPIONSHIP</h2><div class="stream-category">COMPETITIVE E-SPORTS</div>
-                        <div class="stream-toolbar">
-                            <div class="st-metrics"><span><i class="ph-fill ph-users"></i> 0</span></div>
-                            <div class="st-controls">
-                                <div class="st-btn" data-action="toggle-stream-mic"><i class="ph ph-microphone"></i></div>
-                                <div class="st-btn" data-action="toggle-stream-cam"><i class="ph ph-video-camera"></i></div>
-                                <div class="st-btn" data-action="toggle-stream-screen"><i class="ph ph-screencast"></i></div>
-                                <div class="st-btn" style="border-color: var(--neon); color: var(--neon);" data-action="stop-stream"><i class="ph ph-stop"></i></div>
-                                <button class="btn" style="margin: 0; padding: 10px 20px; width: auto;" data-action="go-live-alert">GO LIVE</button>
-                            </div>
-                        </div>
+       <main id="view-stream" class="home-content view-section">
+    <div class="stream-dashboard">
+        <div class="stream-player-container">
+            <div class="stream-video-box glass-panel" id="stream-video-box">
+                <video id="stream-live-feed" autoplay muted playsinline style="width:100%; height:100%; object-fit:cover; position:absolute; z-index:1; display:none;"></video>
+                <div class="stream-live-badge" id="stream-status-badge" style="transition: 0.3s;"><i class="ph-fill ph-broadcast"></i> OFFLINE</div>
+                <i class="ph ph-plugs" id="stream-placeholder-icon" style="font-size: 4rem; color: #333; z-index: 0;"></i>
+            </div>
+            <div class="stream-meta glass-panel">
+                <h2 class="stream-title">TXG ARENA CHAMPIONSHIP</h2>
+                <div class="stream-category">COMPETITIVE E-SPORTS</div>
+                <div class="stream-toolbar">
+                    <div class="st-metrics"><span id="stream-viewer-count"><i class="ph-fill ph-users"></i> 0</span></div>
+                    <div class="st-controls">
+                        <div class="st-btn" data-action="toggle-stream-mic"><i class="ph ph-microphone"></i></div>
+                        <div class="st-btn" data-action="toggle-stream-cam"><i class="ph ph-video-camera"></i></div>
+                        <div class="st-btn" data-action="toggle-stream-screen"><i class="ph ph-screencast"></i></div>
+                        <div class="st-btn" style="border-color: var(--neon); color: var(--neon);" data-action="stop-stream"><i class="ph ph-stop"></i></div>
+                        <button class="btn" id="btn-go-live" style="margin: 0; padding: 10px 20px; width: auto;" data-action="go-live-alert">GO LIVE</button>
                     </div>
                 </div>
-                <div class="stream-chat-container glass-panel"><div class="chat-header">ARENA CHAT</div><div class="chat-messages"><div class="msg sys">CHAT ROOM INITIALIZED...</div></div><div class="chat-input-area"><input type="text" placeholder="SEND MESSAGE..."><button class="btn"><i class="ph ph-paper-plane-right"></i></button></div></div>
             </div>
-        </main>
+        </div>
+        <div class="stream-chat-container glass-panel">
+            <div class="chat-header">ARENA CHAT</div>
+            <div class="chat-messages" id="stream-chat-area"><div class="msg sys">CHAT ROOM INITIALIZED...</div></div>
+            <div class="chat-input-area" style="display:flex; gap:10px; padding:15px;">
+                <input type="text" id="stream-chat-input" placeholder="SEND MESSAGE..." style="flex:1;">
+                <button class="btn" data-action="send-stream-chat" style="margin:0; width:50px; padding:0; display:flex; justify-content:center; align-items:center;"><i class="ph ph-paper-plane-right"></i></button>
+            </div>
+        </div>
+    </div>
+</main>
+
         
         <main id="view-profile" class="home-content view-section">
             <div class="ig-profile-wrap glass-panel">
@@ -453,7 +558,7 @@
         </nav>
     </div>
 
-   <script type="module">
+<script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
     const CURRENT_VERSION = "v0.00.001";
@@ -467,82 +572,46 @@
     window.pendingRegistrationData = null;
     let DOM = {};
     let alertTimeout;
-    let pendingAudioFile = null; let pendingThumbnailFile = null; let pendingClipFile = null; let pendingClipType = 'video'; let pendingClipAudioFile = null; let pendingAvatarFile = null; let pendingBannerFile = null; 
     
-    // --- WebRTC & Call State ---
-    let peerConnection;
-    let callChannel; 
-    let currentCallTarget = null;
-    let isVideoCallActive = false;
+    let pendingClipFile = null; 
+    let pendingClipType = 'video'; 
+    let currentFacingMode = 'user'; 
+    let currentCaptureMode = 'video'; 
+    
+    let mediaRecorder; let recordedChunks = []; let capturedBlob = null; let capturedFileType = '';
+
+    let peerConnection; let callChannel; let currentCallTarget = null; let isVideoCallActive = false;
     const iceServers = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }] };
 
-    // Sets up the WebRTC Handshake logic
+    // Stream Global States
+    let streamChannel; 
+    let streamViewers = 0; 
+    let isScreenSharing = false;
+
     async function setupPeerConnection(targetUser) {
         peerConnection = new RTCPeerConnection(iceServers);
-
-        // 1. Add our local camera/mic to the connection
-        if (window.localStream) {
-            window.localStream.getTracks().forEach(track => {
-                peerConnection.addTrack(track, window.localStream);
-            });
-        }
-
-        // 2. When we receive the other person's video, display it
-        peerConnection.ontrack = (event) => {
-            const remoteVid = document.getElementById('remote-video-feed');
-            if (remoteVid.srcObject !== event.streams[0]) {
-                remoteVid.srcObject = event.streams[0];
-                remoteVid.style.display = 'block';
-                remoteVid.play().catch(e => console.log("Play prevented"));
-            }
-        };
-
-        // 3. Send IP/Router routing info to the other person
-        peerConnection.onicecandidate = (event) => {
-            if (event.candidate && callChannel) {
-                callChannel.send({
-                    type: 'broadcast', event: 'webrtc_ice',
-                    payload: { targetUser: targetUser, candidate: event.candidate, sender: AppState.currentUser }
-                });
-            }
-        };
+        if (window.localStream) { window.localStream.getTracks().forEach(track => { peerConnection.addTrack(track, window.localStream); }); }
+        peerConnection.ontrack = (event) => { const remoteVid = document.getElementById('remote-video-feed'); if (remoteVid.srcObject !== event.streams[0]) { remoteVid.srcObject = event.streams[0]; remoteVid.style.display = 'block'; remoteVid.play().catch(e => {}); } };
+        peerConnection.onicecandidate = (event) => { if (event.candidate && callChannel) { callChannel.send({ type: 'broadcast', event: 'webrtc_ice', payload: { targetUser: targetUser, candidate: event.candidate, sender: AppState.currentUser } }); } };
     }
 
-    async function makeCall(targetUser) {
-        await setupPeerConnection(targetUser);
-        const offer = await peerConnection.createOffer();
-        await peerConnection.setLocalDescription(offer);
-        callChannel.send({ type: 'broadcast', event: 'webrtc_offer', payload: { targetUser: targetUser, offer: offer, sender: AppState.currentUser } });
-    }
+    async function makeCall(targetUser) { await setupPeerConnection(targetUser); const offer = await peerConnection.createOffer(); await peerConnection.setLocalDescription(offer); callChannel.send({ type: 'broadcast', event: 'webrtc_offer', payload: { targetUser: targetUser, offer: offer, sender: AppState.currentUser } }); }
+    async function handleOffer(offer, sender) { await setupPeerConnection(sender); await peerConnection.setRemoteDescription(new RTCSessionDescription(offer)); const answer = await peerConnection.createAnswer(); await peerConnection.setLocalDescription(answer); callChannel.send({ type: 'broadcast', event: 'webrtc_answer', payload: { targetUser: sender, answer: answer, sender: AppState.currentUser } }); }
 
-    async function handleOffer(offer, sender) {
-        await setupPeerConnection(sender);
-        await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
-        const answer = await peerConnection.createAnswer();
-        await peerConnection.setLocalDescription(answer);
-        callChannel.send({ type: 'broadcast', event: 'webrtc_answer', payload: { targetUser: sender, answer: answer, sender: AppState.currentUser } });
-    }
-    // ---------------------------
-
-    let captureStream = null;
-    let liveStreamData = null;
+    let captureStream = null; let liveStreamData = null;
 
     async function initHardwareStream(videoElementId, placeholderIconId, isStreamMode = false) {
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-            const videoEl = document.getElementById(videoElementId);
-            videoEl.srcObject = stream;
-            videoEl.style.display = 'block';
-            document.getElementById(placeholderIconId).style.display = 'none';
+            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: currentFacingMode }, audio: true });
+            const videoEl = document.getElementById(videoElementId); videoEl.srcObject = stream; videoEl.style.display = 'block'; document.getElementById(placeholderIconId).style.display = 'none';
             if (isStreamMode) { liveStreamData = stream; } else { captureStream = stream; }
-        } catch (err) { pushAlert("HARDWARE ERROR", "MIC/CAM BLOCKED BY BROWSER SECUIRTY", false); }
+        } catch (err) { pushAlert("HARDWARE ERROR", "MIC/CAM BLOCKED", false); }
     }
 
     function stopHardwareStream(isStreamMode = false, videoElementId, placeholderIconId) {
         let activeStream = isStreamMode ? liveStreamData : captureStream;
         if (activeStream) { activeStream.getTracks().forEach(track => track.stop()); if (isStreamMode) liveStreamData = null; else captureStream = null; }
-        document.getElementById(videoElementId).style.display = 'none';
-        document.getElementById(placeholderIconId).style.display = 'block';
+        document.getElementById(videoElementId).style.display = 'none'; document.getElementById(placeholderIconId).style.display = 'block';
     }
 
     function generateChatKey(u1, u2) { return [u1, u2].sort().join('::'); }
@@ -551,7 +620,7 @@
 
     async function uploadFileToCloudStorage(file, path, prefixMsg) {
         return new Promise(async (resolve, reject) => {
-            pushAlert(prefixMsg, `UPLOADING STARTED...`, true, false);
+            pushAlert("UPLOADING", `PLEASE WAIT...`, true, false);
             try {
                 const { data, error } = await supabase.storage.from('media').upload(path, file, { cacheControl: '3600', upsert: true });
                 if (error) throw error;
@@ -591,31 +660,21 @@
         let hash = window.location.hash.slice(1);
         if (!hash || !document.getElementById(`view-${hash}`)) hash = 'home';
 
+        if (document.fullscreenElement || document.webkitIsFullScreen) { document.querySelector('[data-action="exit-fullscreen"]')?.click(); }
+
         if (hash === 'chats') { 
-            document.body.classList.remove('in-conversation', 'in-capture');
-            AppState.activeChatUser = null;
-            document.getElementById('chat-sidebar').classList.remove('hidden'); 
-            document.getElementById('chat-sidebar').style.display = 'flex'; 
-            document.getElementById('chat-window').classList.remove('active'); 
-            document.getElementById('chat-window').style.display = 'none'; 
+            document.body.classList.remove('in-conversation', 'in-capture'); AppState.activeChatUser = null;
+            document.getElementById('chat-sidebar').classList.remove('hidden'); document.getElementById('chat-sidebar').style.display = 'flex'; 
+            document.getElementById('chat-window').classList.remove('active'); document.getElementById('chat-window').style.display = 'none'; 
             loadConversationsList(); 
         } 
-        else if (hash === 'capture') { 
-            document.body.classList.add('in-capture'); 
-            document.body.classList.remove('in-conversation'); 
-            initHardwareStream('reel-video-element', 'reel-placeholder-icon', false);
-        } 
+        else if (hash === 'capture') { document.body.classList.add('in-capture'); document.body.classList.remove('in-conversation'); initHardwareStream('reel-video-element', 'reel-placeholder-icon', false); } 
         else if (hash === 'stream') { document.body.classList.remove('in-conversation', 'in-capture'); }
-        else { 
-            document.body.classList.remove('in-conversation', 'in-capture'); 
-            stopHardwareStream(false, 'reel-video-element', 'reel-placeholder-icon');
-            stopHardwareStream(true, 'stream-live-feed', 'stream-placeholder-icon');
-        }
+        else { document.body.classList.remove('in-conversation', 'in-capture'); stopHardwareStream(false, 'reel-video-element', 'reel-placeholder-icon'); stopHardwareStream(true, 'stream-live-feed', 'stream-placeholder-icon'); }
 
         document.querySelectorAll('.view-section').forEach(view => view.classList.remove('active-view'));
         const targetView = document.getElementById(`view-${hash}`); targetView.classList.add('active-view');
         gsap.fromTo(targetView, {opacity: 0, y: 30, scale:0.98}, {opacity: 1, y: 0, scale:1, duration: 0.5, ease: "power3.out"});
-
         document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
         const activeNav = document.querySelector(`.nav-item[data-nav="${hash}"]`); if (activeNav) activeNav.classList.add('active');
 
@@ -634,6 +693,9 @@
     window.addEventListener('hashchange', handleRoute);
 
     function setupEventListeners() {
+        const resetFullscreenState = () => { if (!document.fullscreenElement && !document.webkitIsFullScreen) { document.querySelectorAll('.is-fullscreen').forEach(el => el.classList.remove('is-fullscreen')); document.body.classList.remove('is-video-fullscreen'); try { screen.orientation.unlock().catch(e=>{}); } catch(e){} } };
+        document.addEventListener('fullscreenchange', resetFullscreenState); document.addEventListener('webkitfullscreenchange', resetFullscreenState);
+
         document.getElementById('form-login').addEventListener('submit', (e) => { e.preventDefault(); const m = document.getElementById('login-mail').value.toUpperCase(); const p = document.getElementById('login-pass').value.toUpperCase(); if (!AppState.usersDB[m]) return pushAlert("DENIED", "USER NOT FOUND"); if (AppState.usersDB[m].password === p) { AppState.currentUser = m; localStorage.setItem('txg_device_auth', AppState.currentUser); initRealtimeChats(); pushAlert("GRANTED", "SYNCING CHANNELS...", true); gsap.to('#page-access', {scale: 1.5, opacity: 0, duration: 1, ease: "power2.inOut", onComplete: () => { window.location.hash = 'home'; gsap.set('#page-access', {scale: 1, opacity: 1}); }}); } else { pushAlert("DENIED", "INCORRECT PASSWORD"); } });
         document.getElementById('form-register').addEventListener('submit', (e) => { e.preventDefault(); const n = document.getElementById('reg-name').value, s = document.getElementById('reg-surname').value; const u = document.getElementById('reg-username').value, g = document.getElementById('reg-mail').value; const t = document.getElementById('txg-mail').value.toUpperCase(), p = document.getElementById('reg-pass').value.toUpperCase(); if(!n || !s || !u || !AppState.finalDOB || !g || !t || !p) return pushAlert("ERROR", "FILL ALL FIELDS"); if(AppState.takenUsernames.includes(u)) return pushAlert("CONFLICT", "USERNAME TAKEN"); if(AppState.usersDB[t]) return pushAlert("CONFLICT", "MAIL ALREADY REGISTERED"); window.pendingRegistrationData = { id: t, password: p, name: n + " " + s, username: u, gmail: g, bio: "NEW OPERATOR IN THE TXG ARENA.", links: [], profileMusic: "", followers: [], following: [], clips: [], avatar: "https://images.unsplash.com/photo-1511367461989-f85a21fda167?w=400&h=400&fit=crop", otp: Math.floor(1000 + Math.random() * 9000).toString() }; pushAlert("SYSTEM", "SENDING OTP...", true, false); emailjs.send("TEAMx-txg-OTP", "TEAMx-txg-OTP", { to_email: g, to_name: n, otp: window.pendingRegistrationData.otp }).then(function(response) { pushAlert("OTP SENT", `CHECK YOUR INBOX`, true); openOverlay('otp-overlay'); document.getElementById('otp-input').value = ""; }, function(error) { pushAlert("EMAIL ERROR", "FAILED TO SEND OTP.", false); }); });
         document.getElementById('nav-profile-btn').addEventListener('click', () => { AppState.currentlyViewingProfile = AppState.currentUser; });
@@ -641,6 +703,10 @@
 
         const chatMsgInputEl = document.getElementById('chat-msg-input');
         if (chatMsgInputEl) { chatMsgInputEl.addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.preventDefault(); const sendBtn = document.querySelector('[data-action="send-chat-message"]'); if(sendBtn) sendBtn.click(); } }); }
+        
+        // Listen to Enter key on Stream Chat
+        const streamChatInputEl = document.getElementById('stream-chat-input');
+        if (streamChatInputEl) { streamChatInputEl.addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.preventDefault(); document.querySelector('[data-action="send-stream-chat"]')?.click(); } }); }
 
         let newChatSearchTimer;
         const newChatSearchEl = document.getElementById('new-chat-search');
@@ -663,9 +729,8 @@
 
         DOM.volSlider.addEventListener('input', (e) => { const vol = e.target.value / 100; DOM.bgVideo.volume = vol; if (vol > 0 && DOM.bgVideo.muted) { DOM.bgVideo.muted = false; DOM.muteIcon.classList.replace('ph-speaker-slash', 'ph-speaker-high'); DOM.muteIcon.style.color = "var(--neon)"; } else if (vol === 0 && !DOM.bgVideo.muted) { DOM.bgVideo.muted = true; DOM.muteIcon.classList.replace('ph-speaker-high', 'ph-speaker-slash'); DOM.muteIcon.style.color = "#fff"; } });
 
-        document.querySelectorAll('input[data-chat-attach]').forEach(input => {
-            input.addEventListener('change', async (e) => { const file = e.target.files[0]; if (!file) return; const type = e.target.dataset.chatAttach; document.getElementById('chat-attach-menu').classList.remove('show'); try { const url = await uploadFileToCloudStorage(file, `${AppState.currentUser}_chat_${type}_${Date.now()}`, `CHAT ${type.toUpperCase()}`); sendChatMessage(url, type); } catch(err) { console.error(err); } e.target.value = ""; });
-        });
+        document.getElementById('clip-file-input')?.addEventListener('change', (e) => { const file = e.target.files[0]; if (file) { pendingClipFile = file; pendingClipType = file.type.startsWith('image') ? 'image' : 'video'; document.getElementById('clip-file-name-display').innerText = file.name; } });
+        document.querySelectorAll('input[data-chat-attach]').forEach(input => { input.addEventListener('change', async (e) => { const file = e.target.files[0]; if (!file) return; const type = e.target.dataset.chatAttach; document.getElementById('chat-attach-menu').classList.remove('show'); try { const url = await uploadFileToCloudStorage(file, `${AppState.currentUser}_chat_${type}_${Date.now()}`, `CHAT ${type.toUpperCase()}`); sendChatMessage(url, type); } catch(err) { console.error(err); } e.target.value = ""; }); });
 
         document.addEventListener('click', async (e) => {
             const btn = e.target.closest('[data-action]');
@@ -692,13 +757,16 @@
                     if (AppState.currentlyViewingProfile === AppState.currentUser) {
                         const me = AppState.usersDB[AppState.currentUser]; document.getElementById('edit-avatar-preview').src = me.avatar; const nameParts = me.name.split(' '); document.getElementById('edit-name').value = nameParts[0] || ''; document.getElementById('edit-surname').value = nameParts.slice(1).join(' ') || ''; document.getElementById('edit-username').value = me.username || ''; document.getElementById('edit-bio').value = me.bio || ''; document.getElementById('edit-gmail').value = me.gmail || ''; document.getElementById('edit-txg').value = AppState.currentUser;
                         const linksList = document.getElementById('dynamic-links-list'); linksList.innerHTML = ''; (me.links || []).forEach(link => { linksList.insertAdjacentHTML('beforeend', `<div class="dynamic-link-row"><input type="text" value="${link}"><button type="button" class="remove-link-btn" data-action="remove-link-row"><i class="ph ph-trash"></i></button></div>`); });
-                        document.getElementById('edit-music-url').value = me.profileMusic || ''; document.getElementById('edit-music-file').value = ""; document.getElementById('music-file-name').innerText = "NO FILE SELECTED"; pendingAudioFile = null; pendingAvatarFile = null; openOverlay('edit-profile-overlay');
+                        document.getElementById('edit-music-url').value = me.profileMusic || ''; document.getElementById('edit-music-file').value = ""; document.getElementById('music-file-name').innerText = "NO FILE SELECTED"; openOverlay('edit-profile-overlay');
                     } else {
                         const targetUser = AppState.usersDB[AppState.currentlyViewingProfile]; const me = AppState.usersDB[AppState.currentUser]; const idx = targetUser.followers.indexOf(AppState.currentUser);
                         if(idx > -1) { targetUser.followers.splice(idx, 1); me.following.splice(me.following.indexOf(AppState.currentlyViewingProfile), 1); } else { targetUser.followers.push(AppState.currentUser); me.following.push(AppState.currentlyViewingProfile); }
                         syncUserToCloud(AppState.currentlyViewingProfile); syncUserToCloud(AppState.currentUser); openProfileData(AppState.currentlyViewingProfile);
                     } break;
-                case 'profile-action-secondary': if (AppState.currentlyViewingProfile === AppState.currentUser) { navigator.clipboard.writeText(window.location.href); pushAlert("SYSTEM", "PROFILE LINK COPIED", true); } else { const targetProfile = AppState.currentlyViewingProfile; window.location.hash = 'chats'; setTimeout(() => { loadActiveChat(targetProfile); }, 150); } break;
+                
+                case 'profile-action-secondary': 
+                    if (AppState.currentlyViewingProfile === AppState.currentUser) { navigator.clipboard.writeText(window.location.href); pushAlert("SYSTEM", "PROFILE LINK COPIED", true); } else { const targetProfile = AppState.currentlyViewingProfile; window.location.hash = 'chats'; setTimeout(() => { loadActiveChat(targetProfile); }, 150); } break;
+
                 case 'trigger-avatar-upload': document.getElementById('avatar-upload').click(); break;
                 case 'add-link-input': document.getElementById('dynamic-links-list').insertAdjacentHTML('beforeend', `<div class="dynamic-link-row"><input type="text" placeholder="https://..."><button type="button" class="remove-link-btn" data-action="remove-link-row"><i class="ph ph-trash"></i></button></div>`); break;
                 case 'remove-link-row': btn.closest('.dynamic-link-row').remove(); break;
@@ -711,85 +779,144 @@
 
                 case 'open-capture-reel': closeOverlay('create-overlay'); window.location.hash = 'capture'; break;
                 case 'close-capture': window.location.hash = 'home'; break;
-                case 'flip-camera': pushAlert("CAPTURE", "CAMERA FLIPPED", true); break;
-                case 'record-reel': pushAlert("CAPTURE", "RECORDING STARTED...", true); btn.style.transform = "scale(1.2)"; break;
-                case 'reel-fx': pushAlert("CAPTURE", "FX PANEL OPENED", true); break;
+                
+                case 'swap-capture-mode':
+                    currentCaptureMode = currentCaptureMode === 'video' ? 'image' : 'video'; const recBtn = document.getElementById('btn-record-reel');
+                    btn.innerHTML = currentCaptureMode === 'video' ? '<i class="ph ph-image"></i>' : '<i class="ph ph-video-camera"></i>'; recBtn.innerHTML = currentCaptureMode === 'video' ? '<i class="ph-fill ph-record"></i>' : '<i class="ph-fill ph-camera"></i>'; pushAlert("MODE CHANGED", `NOW IN ${currentCaptureMode.toUpperCase()} MODE`, true); break;
 
-                case 'go-live-alert': pushAlert("SYSTEM", "INITIALIZING LIVE BROADCAST...", true); initHardwareStream('stream-live-feed', 'stream-placeholder-icon', true); break;
+                case 'flip-camera': currentFacingMode = currentFacingMode === 'user' ? 'environment' : 'user'; stopHardwareStream(false, 'reel-video-element', 'reel-placeholder-icon'); initHardwareStream('reel-video-element', 'reel-placeholder-icon', false); pushAlert("CAPTURE", "CAMERA FLIPPED", true); break;
+                
+                case 'record-reel': 
+                    if (currentCaptureMode === 'video') {
+                        if (mediaRecorder && mediaRecorder.state === 'recording') {
+                            mediaRecorder.stop(); btn.style.color = 'var(--neon)'; btn.style.transform = "scale(1)"; btn.innerHTML = '<i class="ph-fill ph-record"></i>'; pushAlert("CAPTURE", "RECORDING STOPPED", true);
+                        } else {
+                            recordedChunks = []; mediaRecorder = new MediaRecorder(captureStream); mediaRecorder.ondataavailable = e => { if (e.data.size > 0) recordedChunks.push(e.data); };
+                            mediaRecorder.onstop = () => { capturedBlob = new Blob(recordedChunks, { type: 'video/webm' }); capturedFileType = 'video'; document.getElementById('capture-preview-vid').src = URL.createObjectURL(capturedBlob); document.getElementById('capture-preview-vid').style.display = 'block'; document.getElementById('capture-preview-img').style.display = 'none'; openOverlay('capture-confirm-overlay'); };
+                            mediaRecorder.start(); btn.style.color = '#fff'; btn.style.transform = "scale(1.2)"; btn.innerHTML = '<i class="ph-fill ph-stop-circle"></i>'; pushAlert("CAPTURE", "RECORDING STARTED", true);
+                        }
+                    } else {
+                        const canvas = document.createElement('canvas'); const videoEl = document.getElementById('reel-video-element'); canvas.width = videoEl.videoWidth; canvas.height = videoEl.videoHeight; canvas.getContext('2d').drawImage(videoEl, 0, 0);
+                        canvas.toBlob((blob) => { capturedBlob = blob; capturedFileType = 'image'; document.getElementById('capture-preview-img').src = URL.createObjectURL(blob); document.getElementById('capture-preview-img').style.display = 'block'; document.getElementById('capture-preview-vid').style.display = 'none'; openOverlay('capture-confirm-overlay'); }, 'image/jpeg'); pushAlert("CAPTURE", "PHOTO TAKEN", true);
+                    } break;
+                
+                case 'discard-capture': capturedBlob = null; closeOverlay('capture-confirm-overlay'); break;
+                
+                case 'proceed-with-capture':
+                    closeOverlay('capture-confirm-overlay'); const ext = capturedFileType === 'video' ? '.webm' : '.jpg'; const file = new File([capturedBlob], "capture_" + Date.now() + ext, { type: capturedBlob.type });
+                    pendingClipFile = file; pendingClipType = capturedFileType; window.location.hash = 'home';
+                    setTimeout(() => { document.getElementById('upload-modal-title').innerText = "UPLOAD MEDIA"; document.getElementById('upload-file-picker-wrap').style.display = "block"; document.getElementById('clip-file-name-display').innerText = file.name; document.getElementById('clip-title-input').value = "MY CAPTURE"; document.getElementById('clip-desc-input').value = ""; openOverlay('upload-clip-overlay'); }, 400); break;
+
+                // --- NEW STREAM LOGIC ---
+                case 'go-live-alert': 
+                    pushAlert("SYSTEM", "INITIALIZING LIVE BROADCAST...", true); 
+                    await initHardwareStream('stream-live-feed', 'stream-placeholder-icon', true); 
+                    document.getElementById('stream-status-badge').innerHTML = '<i class="ph-fill ph-broadcast"></i> LIVE';
+                    document.getElementById('stream-status-badge').style.color = '#ff003c';
+                    btn.style.display = 'none'; 
+
+                    if(streamChannel) {
+                        streamChannel.send({type: 'broadcast', event: 'stream_started', payload: { user: AppState.currentUser }});
+                    }
+                    break;
+                
                 case 'toggle-stream-mic': if (liveStreamData) { const audioTrack = liveStreamData.getAudioTracks()[0]; if (audioTrack) { audioTrack.enabled = !audioTrack.enabled; btn.classList.toggle('active-st', audioTrack.enabled); pushAlert("STREAM", audioTrack.enabled ? "MIC ACTIVE" : "MIC MUTED", true); } } else { pushAlert("ERROR", "START STREAM FIRST", false); } break;
                 case 'toggle-stream-cam': if (liveStreamData) { const videoTrack = liveStreamData.getVideoTracks()[0]; if (videoTrack) { videoTrack.enabled = !videoTrack.enabled; btn.classList.toggle('active-st', videoTrack.enabled); pushAlert("STREAM", videoTrack.enabled ? "CAMERA ACTIVE" : "CAMERA MUTED", true); } } else { pushAlert("ERROR", "START STREAM FIRST", false); } break;
-                case 'stop-stream': pushAlert("STREAM", "STREAM TERMINATED", false); stopHardwareStream(true, 'stream-live-feed', 'stream-placeholder-icon'); break;
-                case 'toggle-stream-screen': pushAlert("STREAM", "SCREEN SHARE TOGGLED", true); btn.classList.toggle('active-st'); break;
-                case 'toggle-stream-pip': pushAlert("STREAM", "PIP MODE ACTIVATED", true); break;
-                case 'hold-stream': pushAlert("STREAM", "STREAM PAUSED", false); break;
+                
+                case 'toggle-stream-screen': 
+                    if (!liveStreamData) { pushAlert("ERROR", "START STREAM FIRST", false); return; }
+                    if (isScreenSharing) {
+                        try {
+                            const camStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: currentFacingMode } });
+                            const videoTrack = camStream.getVideoTracks()[0];
+                            liveStreamData.removeTrack(liveStreamData.getVideoTracks()[0]);
+                            liveStreamData.addTrack(videoTrack);
+                            document.getElementById('stream-live-feed').srcObject = liveStreamData;
+                            isScreenSharing = false; btn.classList.remove('active-st'); pushAlert("STREAM", "CAMERA RESTORED", true);
+                        } catch (e) { pushAlert("ERROR", "CAM ACCESS DENIED", false); }
+                    } else {
+                        try {
+                            const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+                            const screenTrack = screenStream.getVideoTracks()[0];
+                            liveStreamData.removeTrack(liveStreamData.getVideoTracks()[0]);
+                            liveStreamData.addTrack(screenTrack);
+                            document.getElementById('stream-live-feed').srcObject = liveStreamData;
+                            
+                            screenTrack.onended = () => { isScreenSharing = false; btn.classList.remove('active-st'); };
+                            isScreenSharing = true; btn.classList.add('active-st'); pushAlert("STREAM", "SCREEN SHARE ACTIVE", true);
+                        } catch (e) { pushAlert("ERROR", "SCREEN SHARE DENIED", false); }
+                    }
+                    break;
+                
+                case 'stop-stream': 
+                    pushAlert("STREAM", "STREAM TERMINATED", false); 
+                    stopHardwareStream(true, 'stream-live-feed', 'stream-placeholder-icon'); 
+                    document.getElementById('stream-status-badge').innerHTML = '<i class="ph-fill ph-broadcast"></i> OFFLINE';
+                    document.getElementById('stream-status-badge').style.color = '#fff';
+                    document.getElementById('btn-go-live').style.display = 'block';
+                    if(streamChannel) { streamChannel.send({type: 'broadcast', event: 'stream_ended', payload: { user: AppState.currentUser }}); }
+                    break;
 
-                case 'open-upload-clip': document.getElementById('upload-modal-title').innerText = "UPLOAD MEDIA"; document.getElementById('edit-clip-mode-id').value = ""; document.getElementById('upload-file-picker-wrap').style.display = "block"; document.getElementById('thumbnail-section').style.display = "none"; document.getElementById('clip-location-input').value = ""; document.getElementById('clip-overlay-text').value = ""; document.getElementById('clip-title-input').value = ""; document.getElementById('clip-desc-input').value = ""; openOverlay('upload-clip-overlay'); closeOverlay('create-overlay'); break;
-                case 'initiate-upload': const desc = document.getElementById('clip-desc-input').value || ""; const tags = desc.match(/#[a-zA-Z0-9_]+/g) || []; const newClip = { id: 'clip_' + Date.now(), timestamp: Date.now(), url: "", thumbnail: "", type: pendingClipType, audioUrl: "", location: document.getElementById('clip-location-input').value || "", overlayText: document.getElementById('clip-overlay-text').value || "", title: document.getElementById('clip-title-input').value || "UNTITLED MEDIA", description: desc, tags: tags, views: 0, viewedBy: [], likedBy: [], comments: [], author: AppState.currentUser }; AppState.usersDB[AppState.currentUser].clips.push(newClip); syncUserToCloud(AppState.currentUser); pushAlert('SUCCESS', 'MEDIA DEPLOYED (MOCK)', true); closeOverlay('upload-clip-overlay'); if (window.location.hash === '#profile') openProfileData(AppState.currentUser); renderWatchFeed(); break;
+                case 'send-stream-chat':
+                    const sInput = document.getElementById('stream-chat-input');
+                    const sText = sInput.value.trim();
+                    if (!sText) return;
+                    if(streamChannel) {
+                        streamChannel.send({
+                            type: 'broadcast', event: 'stream_chat_msg',
+                            payload: { username: AppState.usersDB[AppState.currentUser].username, text: sText }
+                        });
+                        // Append locally instantly
+                        const sArea = document.getElementById('stream-chat-area');
+                        sArea.innerHTML += `<div class="msg"><span class="user">@${AppState.usersDB[AppState.currentUser].username}:</span> ${sText}</div>`;
+                        sArea.scrollTop = sArea.scrollHeight;
+                    }
+                    sInput.value = '';
+                    break;
+                // -----------------------------
+
+                case 'open-upload-clip': document.getElementById('upload-modal-title').innerText = "UPLOAD MEDIA"; document.getElementById('edit-clip-mode-id').value = ""; document.getElementById('upload-file-picker-wrap').style.display = "block"; document.getElementById('thumbnail-section').style.display = "none"; document.getElementById('clip-location-input').value = ""; document.getElementById('clip-overlay-text').value = ""; document.getElementById('clip-title-input').value = ""; document.getElementById('clip-desc-input').value = ""; pendingClipFile = null; document.getElementById('clip-file-name-display').innerText = ""; openOverlay('upload-clip-overlay'); closeOverlay('create-overlay'); break;
+                
+                case 'initiate-upload': 
+                    const editId = document.getElementById('edit-clip-mode-id').value; const isEdit = editId !== ""; const fDesc = document.getElementById('clip-desc-input').value || ""; const fTags = fDesc.match(/#[a-zA-Z0-9_]+/g) || []; 
+                    if (isEdit) { const clipToEdit = AppState.usersDB[AppState.currentUser].clips.find(c => c.id === editId); if (clipToEdit) { clipToEdit.title = document.getElementById('clip-title-input').value || "UNTITLED MEDIA"; clipToEdit.description = fDesc; clipToEdit.tags = fTags; clipToEdit.location = document.getElementById('clip-location-input').value; clipToEdit.overlayText = document.getElementById('clip-overlay-text').value; syncUserToCloud(AppState.currentUser); pushAlert('SUCCESS', 'MEDIA UPDATED', true); closeOverlay('upload-clip-overlay'); if (window.location.hash === '#profile') openProfileData(AppState.currentUser); renderWatchFeed(); } return; }
+                    if (!pendingClipFile) { pushAlert("ERROR", "NO MEDIA SELECTED", false); return; }
+                    try { const mediaUrl = await uploadFileToCloudStorage(pendingClipFile, `${AppState.currentUser}_clip_${Date.now()}`, `MEDIA UPLOAD`); const newClip = { id: 'clip_' + Date.now(), timestamp: Date.now(), url: mediaUrl, thumbnail: "", type: pendingClipType, audioUrl: "", location: document.getElementById('clip-location-input').value || "", overlayText: document.getElementById('clip-overlay-text').value || "", title: document.getElementById('clip-title-input').value || "UNTITLED MEDIA", description: fDesc, tags: fTags, views: 0, viewedBy: [], likedBy: [], comments: [], author: AppState.currentUser }; AppState.usersDB[AppState.currentUser].clips.push(newClip); syncUserToCloud(AppState.currentUser); pushAlert('SUCCESS', 'MEDIA DEPLOYED', true); closeOverlay('upload-clip-overlay'); pendingClipFile = null; document.getElementById('clip-file-name-display').innerText = ""; if (window.location.hash === '#profile') openProfileData(AppState.currentUser); renderWatchFeed(); } catch (e) {} break;
+
                 case 'initiate-banner-upload': pushAlert("SUCCESS", "HOME BANNER UPDATED", true); closeOverlay('admin-banner-overlay'); break;
                 case 'delete-clip-prompt': document.getElementById('delete-clip-id').value = btn.dataset.clipId; openOverlay('delete-clip-overlay'); break;
                 case 'confirm-delete-clip': const delId = document.getElementById('delete-clip-id').value; AppState.usersDB[AppState.currentUser].clips = AppState.usersDB[AppState.currentUser].clips.filter(c => c.id !== delId); syncUserToCloud(AppState.currentUser); pushAlert('SYSTEM', 'MEDIA DELETED', true); closeOverlay('delete-clip-overlay'); renderWatchFeed(); if (window.location.hash === '#profile') openProfileData(AppState.currentUser); break;
                 case 'watch-clip': window.location.hash = 'watch'; setTimeout(() => { const el = document.getElementById(btn.dataset.clipId); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 600); break;
                 
+                case 'enter-fullscreen':
+                    document.getElementById('feed-opt-' + btn.dataset.clipId).classList.remove('show'); const clipContainer = document.getElementById(btn.dataset.clipId);
+                    if(clipContainer) {
+                        clipContainer.classList.add('is-fullscreen'); document.body.classList.add('is-video-fullscreen'); 
+                        const vid = clipContainer.querySelector('video');
+                        if (vid && vid.webkitEnterFullscreen) { vid.webkitEnterFullscreen(); } else {
+                            const reqFS = clipContainer.requestFullscreen || clipContainer.webkitRequestFullscreen || clipContainer.msRequestFullscreen;
+                            if (reqFS) { reqFS.call(clipContainer).then(() => { try { screen.orientation.lock("landscape").catch(e=>{}); } catch(e){} }).catch(e=>{ try { screen.orientation.lock("landscape").catch(e=>{}); } catch(e){} }); }
+                        }
+                    } break;
+                    
+                case 'exit-fullscreen':
+                    document.querySelectorAll('.is-fullscreen').forEach(el => el.classList.remove('is-fullscreen')); document.body.classList.remove('is-video-fullscreen'); 
+                    if (document.exitFullscreen) { document.exitFullscreen().catch(e=>{}); } else if (document.webkitExitFullscreen) { document.webkitExitFullscreen(); } try { screen.orientation.unlock(); } catch(e){} break;
+
+                case 'toggle-feed-options': document.getElementById('feed-opt-' + btn.dataset.clipId).classList.toggle('show'); break;
+                case 'toggle-like': const likeAuthor = btn.dataset.author; const likeClipId = btn.dataset.clipId; const likeClip = AppState.usersDB[likeAuthor].clips.find(c => c.id === likeClipId); if(likeClip) { const isLiked = likeClip.likedBy.includes(AppState.currentUser); if(isLiked) { likeClip.likedBy = likeClip.likedBy.filter(u => u !== AppState.currentUser); document.getElementById('like-icon-'+likeClipId).className = "ph ph-heart"; document.getElementById('like-icon-'+likeClipId).style.color = "#fff"; } else { likeClip.likedBy.push(AppState.currentUser); document.getElementById('like-icon-'+likeClipId).className = "ph-fill ph-heart"; document.getElementById('like-icon-'+likeClipId).style.color = "var(--neon)"; const anim = document.getElementById('heart-anim-'+likeClipId); anim.style.opacity = '1'; gsap.fromTo(anim, {scale: 0}, {scale: 1.5, opacity: 0, duration: 1, ease: "power2.out"}); } document.getElementById('like-count-'+likeClipId).innerText = likeClip.likedBy.length; syncUserToCloud(likeAuthor); } break;
+                case 'open-comments': const commAuthor = btn.dataset.author; const commClipId = btn.dataset.clipId; document.getElementById('active-comment-clip-id').value = commClipId; document.getElementById('active-comment-author-id').value = commAuthor; const commClip = AppState.usersDB[commAuthor].clips.find(c => c.id === commClipId); const commList = document.getElementById('comments-list'); commList.innerHTML = ''; if(!commClip.comments || commClip.comments.length === 0) { commList.innerHTML = '<p style="color:#888; font-size:0.7rem; text-align:center; padding: 20px;">NO COMMENTS YET.</p>'; } else { commClip.comments.forEach(c => { const u = AppState.usersDB[c.user] || AppState.usersDB["TEAMX@TXG.COM"]; commList.innerHTML += `<div style="display:flex; gap:10px; margin-bottom:15px; align-items:flex-start;"><img src="${u.avatar}" style="width:30px; height:30px; border-radius:50%; object-fit:cover; border:1px solid var(--neon);"><div><h5 style="font-family:'Orbitron'; font-size:0.7rem; color:var(--neon); margin-bottom:2px;">@${u.username}</h5><p style="font-size:0.7rem; color:#ccc;">${c.text}</p></div></div>`; }); } openOverlay('comments-overlay'); break;
+                case 'post-comment': const targetAuthor = document.getElementById('active-comment-author-id').value; const targetClipId = document.getElementById('active-comment-clip-id').value; const commInput = document.getElementById('new-comment-input'); const commText = commInput.value.trim(); if(!commText) return; const targetClip = AppState.usersDB[targetAuthor].clips.find(c => c.id === targetClipId); if(!targetClip.comments) targetClip.comments = []; targetClip.comments.push({ user: AppState.currentUser, text: commText, time: Date.now() }); commInput.value = ''; syncUserToCloud(targetAuthor); document.querySelector(`[data-action="open-comments"][data-clip-id="${targetClipId}"]`).click(); document.querySelector(`[data-action="open-comments"][data-clip-id="${targetClipId}"] span`).innerText = targetClip.comments.length; break;
+                case 'edit-clip': document.getElementById(`feed-opt-${btn.dataset.clipId}`).classList.remove('show'); const edClip = AppState.usersDB[AppState.currentUser].clips.find(c => c.id === btn.dataset.clipId); if(edClip) { document.getElementById('upload-modal-title').innerText = "EDIT MEDIA"; document.getElementById('edit-clip-mode-id').value = edClip.id; document.getElementById('upload-file-picker-wrap').style.display = "none"; document.getElementById('clip-location-input').value = edClip.location || ""; document.getElementById('clip-overlay-text').value = edClip.overlayText || ""; document.getElementById('clip-title-input').value = edClip.title || ""; document.getElementById('clip-desc-input').value = edClip.description || ""; openOverlay('upload-clip-overlay'); } break;
                 case 'start-new-chat': closeOverlay('new-chat-overlay'); const chatTarget = btn.dataset.targetUser; window.location.hash = 'chats'; setTimeout(() => { loadActiveChat(chatTarget); }, 150); break;
                 case 'open-chat-window': loadActiveChat(btn.dataset.targetUser); break;
                 case 'close-chat-window': document.body.classList.remove('in-conversation'); AppState.activeChatUser = null; document.getElementById('chat-sidebar').classList.remove('hidden'); document.getElementById('chat-window').classList.remove('active'); document.getElementById('chat-window').style.display = 'none'; break;
-                
-                // --- FIXED: Handshake Initializer ---
-                case 'start-call': case 'start-video-call': 
-                    const isVideo = btn.dataset.action === 'start-video-call'; 
-                    openOverlay('call-overlay'); 
-                    currentCallTarget = AppState.activeChatUser;
-                    document.getElementById('call-status-text').innerText = `CALLING ${AppState.usersDB[currentCallTarget].name.toUpperCase()}...`; 
-                    
-                    if (callChannel) {
-                        callChannel.send({ type: 'broadcast', event: 'incoming_call', payload: { callerId: AppState.currentUser, targetUser: currentCallTarget, isVideo: isVideo }});
-                    }
-                    try { 
-                        window.localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: isVideo }); 
-                        if(isVideo) { 
-                            const localVid = document.getElementById('local-video-feed'); 
-                            localVid.srcObject = window.localStream; localVid.style.display = 'block'; 
-                        } 
-                    } catch(e) { pushAlert("HARDWARE ERROR", "MIC/CAM BLOCKED", false); } 
-                    break;
-
-                case 'answer-call':
-                    closeOverlay('incoming-call-overlay');
-                    openOverlay('call-overlay');
-                    document.getElementById('call-status-text').innerText = "CONNECTING...";
-                    try { 
-                        window.localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: isVideoCallActive }); 
-                        if (isVideoCallActive) {
-                            const localVid = document.getElementById('local-video-feed');
-                            localVid.srcObject = window.localStream;
-                            localVid.style.display = 'block';
-                        }
-                        if (callChannel) {
-                            callChannel.send({ type: 'broadcast', event: 'call_answered', payload: { targetUser: currentCallTarget, sender: AppState.currentUser } });
-                        }
-                    } catch(e) { pushAlert("HARDWARE", "MIC/CAM BLOCKED", false); }
-                    break;
-
-                case 'decline-call':
-                    closeOverlay('incoming-call-overlay');
-                    if (callChannel) callChannel.send({ type: 'broadcast', event: 'call_declined', payload: { targetUser: currentCallTarget } });
-                    currentCallTarget = null;
-                    break;
-
-                case 'end-call': 
-                    if (peerConnection) { peerConnection.close(); peerConnection = null; }
-                    if(window.localStream) { window.localStream.getTracks().forEach(t => t.stop()); window.localStream = null; } 
-                    document.getElementById('local-video-feed').style.display = 'none'; document.getElementById('remote-video-feed').style.display = 'none'; 
-                    closeOverlay('call-overlay'); 
-                    pushAlert("SYSTEM", "CALL TERMINATED", true); 
-                    if (callChannel && currentCallTarget) {
-                        callChannel.send({ type: 'broadcast', event: 'call_ended', payload: { targetUser: currentCallTarget }});
-                    }
-                    currentCallTarget = null;
-                    break;
-                // ------------------------------------
-
+                case 'start-call': case 'start-video-call': const isVideo = btn.dataset.action === 'start-video-call'; openOverlay('call-overlay'); currentCallTarget = AppState.activeChatUser; document.getElementById('call-status-text').innerText = `CALLING ${AppState.usersDB[currentCallTarget].name.toUpperCase()}...`; if (callChannel) { callChannel.send({ type: 'broadcast', event: 'incoming_call', payload: { callerId: AppState.currentUser, targetUser: currentCallTarget, isVideo: isVideo }}); } try { window.localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: isVideo }); if(isVideo) { const localVid = document.getElementById('local-video-feed'); localVid.srcObject = window.localStream; localVid.style.display = 'block'; } } catch(e) { pushAlert("HARDWARE ERROR", "MIC/CAM BLOCKED", false); } break;
+                case 'answer-call': closeOverlay('incoming-call-overlay'); openOverlay('call-overlay'); document.getElementById('call-status-text').innerText = "CONNECTING..."; try { window.localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: isVideoCallActive }); if (isVideoCallActive) { const localVid = document.getElementById('local-video-feed'); localVid.srcObject = window.localStream; localVid.style.display = 'block'; } if (callChannel) { callChannel.send({ type: 'broadcast', event: 'call_answered', payload: { targetUser: currentCallTarget, sender: AppState.currentUser } }); } } catch(e) { pushAlert("HARDWARE", "MIC/CAM BLOCKED", false); } break;
+                case 'decline-call': closeOverlay('incoming-call-overlay'); if (callChannel) callChannel.send({ type: 'broadcast', event: 'call_declined', payload: { targetUser: currentCallTarget } }); currentCallTarget = null; break;
+                case 'end-call': if (peerConnection) { peerConnection.close(); peerConnection = null; } if(window.localStream) { window.localStream.getTracks().forEach(t => t.stop()); window.localStream = null; } document.getElementById('local-video-feed').style.display = 'none'; document.getElementById('remote-video-feed').style.display = 'none'; closeOverlay('call-overlay'); pushAlert("SYSTEM", "CALL TERMINATED", true); if (callChannel && currentCallTarget) { callChannel.send({ type: 'broadcast', event: 'call_ended', payload: { targetUser: currentCallTarget }}); } currentCallTarget = null; break;
                 case 'toggle-call-mic': if (window.localStream) { const audioTrack = window.localStream.getAudioTracks()[0]; if (audioTrack) { audioTrack.enabled = !audioTrack.enabled; btn.style.color = audioTrack.enabled ? "#fff" : "var(--neon)"; pushAlert("CALL", audioTrack.enabled ? "MIC ACTIVE" : "MIC MUTED", true); } } break;
+                case 'toggle-call-video': if (window.localStream) { const videoTrack = window.localStream.getVideoTracks()[0]; if (videoTrack) { videoTrack.enabled = !videoTrack.enabled; btn.style.color = videoTrack.enabled ? "#fff" : "var(--neon)"; pushAlert("CALL", videoTrack.enabled ? "CAMERA ACTIVE" : "CAMERA MUTED", true); } } break;
                 case 'toggle-call-speaker': pushAlert("CALL", "SPEAKER TOGGLED", true); break;
                 case 'toggle-chat-options': document.getElementById('chat-options-dropdown').classList.toggle('show'); document.getElementById('flag-menu').classList.remove('show'); break;
                 case 'toggle-flag-menu': document.getElementById('flag-menu').classList.toggle('show'); break;
@@ -810,55 +937,33 @@
     async function loadConversationsList() { if (!AppState.currentUser) return; const { data, error } = await supabase.from('messages').select('*').or(`sender.eq.${AppState.currentUser},receiver.eq.${AppState.currentUser}`).order('created_at', { ascending: false }); if (error) return console.error(error); const recentChats = {}; data.forEach(msg => { const otherUser = msg.sender === AppState.currentUser ? msg.receiver : msg.sender; if (!recentChats[otherUser]) recentChats[otherUser] = msg; }); if (AppState.activeChatUser && !recentChats[AppState.activeChatUser]) recentChats[AppState.activeChatUser] = { dummy: true }; const listEl = document.getElementById('chat-conversation-list'); listEl.innerHTML = ''; if (Object.keys(recentChats).length === 0) { listEl.innerHTML = `<p style="text-align:center; color:#888; font-size:0.8rem; margin-top:20px;">NO SECURE CHANNELS FOUND.</p>`; return; } Object.keys(recentChats).forEach(uid => { const u = AppState.usersDB[uid]; if(!u) return; let latestText = "NEW CONVERSATION..."; if(!recentChats[uid].dummy) { const dec = decryptMessage(recentChats[uid].content, AppState.currentUser, uid); try { const parsed = JSON.parse(dec); latestText = `[${parsed.type.toUpperCase()}]`; } catch(e) { latestText = dec; } } listEl.innerHTML += `<div class="chat-list-item" data-action="open-chat-window" data-target-user="${uid}"><img src="${u.avatar}"><div class="info"><h5>${u.name}</h5><p>${latestText}</p></div></div>`; }); }
     async function loadActiveChat(uid) { AppState.activeChatUser = uid; document.body.classList.add('in-conversation'); document.getElementById('chat-sidebar').classList.add('hidden'); document.getElementById('chat-window').classList.add('active'); document.getElementById('chat-window').style.display = 'flex'; const u = AppState.usersDB[uid]; document.getElementById('active-chat-avatar').src = u.avatar; document.getElementById('active-chat-name').innerText = u.name; const { data, error } = await supabase.from('messages').select('*').or(`and(sender.eq.${AppState.currentUser},receiver.eq.${uid}),and(sender.eq.${uid},receiver.eq.${AppState.currentUser})`).order('created_at', { ascending: true }); const area = document.getElementById('chat-messages-area'); area.innerHTML = ''; if (data) { data.forEach(msg => { const isMe = msg.sender === AppState.currentUser; const decText = decryptMessage(msg.content, AppState.currentUser, uid); let finalHTML = decText; try { const media = JSON.parse(decText); if(media.type === 'image') finalHTML = `<img src="${media.url}">`; else if(media.type === 'video') finalHTML = `<video src="${media.url}" controls></video>`; else if(media.type === 'audio') finalHTML = `<audio src="${media.url}" controls></audio>`; else if(media.type === 'document') finalHTML = `<a href="${media.url}" target="_blank" style="color:#00f2ff; text-decoration:none;"><i class="ph-fill ph-file-text"></i> VIEW DOCUMENT</a>`; else if(media.type === 'location') finalHTML = `<div class="chat-bubble-map"><i class="ph-fill ph-map-pin"></i></div><div style="font-size:0.6rem; text-align:center;">${media.url}</div>`; } catch(e) {} area.innerHTML += `<div class="chat-bubble ${isMe ? 'me' : 'them'}">${finalHTML}</div>`; }); } area.scrollTop = area.scrollHeight; }
     
-    // --- FIXED: Added WebRTC Handshake Listeners ---
+    // --- UPDATED REALTIME & STREAM BROADCASTING ---
     function initRealtimeChats() { 
         supabase.channel('public:messages').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => { const msg = payload.new; if (msg.sender === AppState.currentUser || msg.receiver === AppState.currentUser) { loadConversationsList(); if (AppState.activeChatUser && (msg.sender === AppState.activeChatUser || msg.receiver === AppState.activeChatUser)) { const isMe = msg.sender === AppState.currentUser; const decText = decryptMessage(msg.content, AppState.currentUser, AppState.activeChatUser); let finalHTML = decText; try { const media = JSON.parse(decText); if(media.type === 'image') finalHTML = `<img src="${media.url}">`; else if(media.type === 'video') finalHTML = `<video src="${media.url}" controls></video>`; else if(media.type === 'audio') finalHTML = `<audio src="${media.url}" controls></audio>`; else if(media.type === 'document') finalHTML = `<a href="${media.url}" target="_blank" style="color:#00f2ff; text-decoration:none;"><i class="ph-fill ph-file-text"></i> VIEW DOCUMENT</a>`; else if(media.type === 'location') finalHTML = `<div class="chat-bubble-map"><i class="ph-fill ph-map-pin"></i></div><div style="font-size:0.6rem; text-align:center;">${media.url}</div>`; } catch(e) {} const area = document.getElementById('chat-messages-area'); area.innerHTML += `<div class="chat-bubble ${isMe ? 'me' : 'them'}">${finalHTML}</div>`; area.scrollTop = area.scrollHeight; vibrate([30, 30]); } else if(msg.receiver === AppState.currentUser) { pushAlert("NEW COMMS", `MESSAGE FROM ${AppState.usersDB[msg.sender]?.username || 'OPERATOR'}`, true); } } }).subscribe(); 
 
         callChannel = supabase.channel('call_signaling');
-        callChannel.on('broadcast', { event: 'incoming_call' }, payload => {
-            if (payload.payload.targetUser === AppState.currentUser) {
-                const caller = AppState.usersDB[payload.payload.callerId];
-                if(caller) {
-                    document.getElementById('incoming-caller-avatar').src = caller.avatar;
-                    document.getElementById('incoming-caller-name').innerText = caller.name;
-                    currentCallTarget = payload.payload.callerId;
-                    isVideoCallActive = payload.payload.isVideo;
-                    openOverlay('incoming-call-overlay');
-                    vibrate([500, 200, 500, 200, 500]); 
+        callChannel.on('broadcast', { event: 'incoming_call' }, payload => { if (payload.payload.targetUser === AppState.currentUser) { const caller = AppState.usersDB[payload.payload.callerId]; if(caller) { document.getElementById('incoming-caller-avatar').src = caller.avatar; document.getElementById('incoming-caller-name').innerText = caller.name; currentCallTarget = payload.payload.callerId; isVideoCallActive = payload.payload.isVideo; openOverlay('incoming-call-overlay'); vibrate([500, 200, 500, 200, 500]); } }
+        }).on('broadcast', { event: 'call_declined' }, payload => { if (payload.payload.targetUser === AppState.currentUser) { pushAlert("CALL", "USER DECLINED THE CALL", false); document.querySelector('[data-action="end-call"]').click(); }
+        }).on('broadcast', { event: 'call_ended' }, payload => { if (payload.payload.targetUser === AppState.currentUser) { pushAlert("CALL", "CALL ENDED", false); document.querySelector('[data-action="end-call"]').click(); }
+        }).on('broadcast', { event: 'call_answered' }, async payload => { if (payload.payload.targetUser === AppState.currentUser) { document.getElementById('call-status-text').innerText = "CONNECTED"; pushAlert("CALL", "CALL CONNECTED", true); await makeCall(payload.payload.sender); }
+        }).on('broadcast', { event: 'webrtc_offer' }, async payload => { if (payload.payload.targetUser === AppState.currentUser) { await handleOffer(payload.payload.offer, payload.payload.sender); }
+        }).on('broadcast', { event: 'webrtc_answer' }, async payload => { if (payload.payload.targetUser === AppState.currentUser) { if (peerConnection) await peerConnection.setRemoteDescription(new RTCSessionDescription(payload.payload.answer)); }
+        }).on('broadcast', { event: 'webrtc_ice' }, async payload => { if (payload.payload.targetUser === AppState.currentUser) { if (peerConnection) await peerConnection.addIceCandidate(new RTCIceCandidate(payload.payload.candidate)); }
+        }).subscribe();
+
+        streamChannel = supabase.channel('arena_global_stream');
+        streamChannel.on('broadcast', { event: 'stream_started' }, payload => {
+            if (payload.payload.user !== AppState.currentUser) { pushAlert("LIVE STREAM", `@${AppState.usersDB[payload.payload.user].username} WENT LIVE!`, true); }
+        }).on('broadcast', { event: 'stream_chat_msg' }, payload => {
+            if (payload.payload.username !== AppState.usersDB[AppState.currentUser].username) {
+                const sArea = document.getElementById('stream-chat-area');
+                if(sArea) {
+                    sArea.innerHTML += `<div class="msg"><span class="user">@${payload.payload.username}:</span> ${payload.payload.text}</div>`;
+                    sArea.scrollTop = sArea.scrollHeight;
                 }
-            }
-        }).on('broadcast', { event: 'call_declined' }, payload => {
-            if (payload.payload.targetUser === AppState.currentUser) {
-                pushAlert("CALL", "USER DECLINED THE CALL", false);
-                document.querySelector('[data-action="end-call"]').click();
-            }
-        }).on('broadcast', { event: 'call_ended' }, payload => {
-            if (payload.payload.targetUser === AppState.currentUser) {
-                pushAlert("CALL", "CALL ENDED", false);
-                document.querySelector('[data-action="end-call"]').click();
-            }
-        }).on('broadcast', { event: 'call_answered' }, async payload => {
-            if (payload.payload.targetUser === AppState.currentUser) {
-                document.getElementById('call-status-text').innerText = "CONNECTED";
-                pushAlert("CALL", "CALL CONNECTED", true);
-                // When answered, the caller initializes the WebRTC connection!
-                await makeCall(payload.payload.sender);
-            }
-        }).on('broadcast', { event: 'webrtc_offer' }, async payload => {
-            if (payload.payload.targetUser === AppState.currentUser) {
-                await handleOffer(payload.payload.offer, payload.payload.sender);
-            }
-        }).on('broadcast', { event: 'webrtc_answer' }, async payload => {
-            if (payload.payload.targetUser === AppState.currentUser) {
-                if (peerConnection) await peerConnection.setRemoteDescription(new RTCSessionDescription(payload.payload.answer));
-            }
-        }).on('broadcast', { event: 'webrtc_ice' }, async payload => {
-            if (payload.payload.targetUser === AppState.currentUser) {
-                if (peerConnection) await peerConnection.addIceCandidate(new RTCIceCandidate(payload.payload.candidate));
             }
         }).subscribe();
     }
-    // ------------------------------------------
 
     function initGlassParticles() { document.querySelectorAll('.glass-panel').forEach(panel => { if (panel.querySelector('.glass-particle-container')) return; const container = document.createElement('div'); container.className = 'glass-particle-container'; const numParticles = Math.floor(Math.random() * 4) + 3; for (let i = 0; i < numParticles; i++) { const particle = document.createElement('div'); particle.className = 'g-particle'; particle.style.left = Math.random() * 100 + '%'; particle.style.top = Math.random() * 100 + '%'; const size = Math.random() * 5 + 2; particle.style.width = size + 'px'; particle.style.height = size + 'px'; particle.style.animationDelay = (Math.random() * 4) + 's'; container.appendChild(particle); } panel.appendChild(container); }); }
     function initGlassInteractions() { document.querySelectorAll('.glass-panel').forEach(panel => { if(panel.closest('.selector-overlay') || panel.id === 'main-nav' || panel.closest('.chat-layout') || panel.closest('#page-access')) return; panel.addEventListener('mousemove', (e) => { const rect = panel.getBoundingClientRect(); const x = e.clientX - rect.left; const y = e.clientY - rect.top; const cX = rect.width / 2; const cY = rect.height / 2; const rX = ((y - cY) / cY) * -10; const rY = ((x - cX) / cX) * 10; panel.style.transform = `perspective(1000px) rotateX(${rX}deg) rotateY(${rY}deg) scale3d(1.02, 1.02, 1.02)`; }); panel.addEventListener('mouseleave', () => { panel.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`; }); }); }
@@ -868,7 +973,75 @@
 
     function openProfileData(email) { const user = AppState.usersDB[email]; document.getElementById('display-avatar').src = user.avatar; document.getElementById('display-name').innerHTML = `${user.name} <i class="ph-fill ph-check-circle" style="color:#00f2ff; font-size:1rem;"></i>`; document.getElementById('display-username').innerText = user.username; document.getElementById('display-bio').innerText = user.bio; document.getElementById('display-posts').innerText = user.clips.length; document.getElementById('display-followers').innerText = user.followers.length; document.getElementById('display-following').innerText = user.following.length; const linksContainer = document.getElementById('display-links'); linksContainer.innerHTML = ''; if (user.links && user.links.length > 0) { user.links.forEach(link => { let domain = link.replace(/^https?:\/\//, '').split('/')[0] || "LINK"; linksContainer.innerHTML += `<a href="${link}" target="_blank" class="profile-link"><i class="ph ph-link"></i> ${domain}</a>`; }); } if (user.profileMusic && user.profileMusic !== "") { DOM.profileAudio.src = user.profileMusic; DOM.profileAudio.play().catch(e => {}); } else { DOM.profileAudio.pause(); DOM.profileAudio.src = ""; } const actionBtn = document.getElementById('profile-action-btn'); actionBtn.classList.remove('following'); if (email === AppState.currentUser) { actionBtn.innerText = "EDIT PROFILE"; document.getElementById('profile-secondary-btn').innerText = "SHARE"; DOM.globalProfileActions.style.display = 'flex'; } else { if (user.followers.includes(AppState.currentUser)) { actionBtn.innerText = "FOLLOWING"; actionBtn.classList.add('following'); } else { actionBtn.innerText = "FOLLOW"; } document.getElementById('profile-secondary-btn').innerText = "MESSAGE"; DOM.globalProfileActions.style.display = 'none'; } DOM.profileGridContainer.innerHTML = ""; if (user.clips.length === 0) { DOM.profileGridContainer.innerHTML = `<div style="grid-column: span 3; text-align: center; padding: 40px 0; color: #888; font-family: 'Orbitron'; font-size: 0.8rem;">NO CLIPS CAPTURED YET</div>`; } else { user.clips.forEach(clip => { const views = clip.viewedBy ? clip.viewedBy.length : (clip.views || 0); const div = document.createElement('div'); div.className = "ig-grid-item"; div.dataset.action = "watch-clip"; div.dataset.clipId = clip.id; if(clip.type === 'image') { div.innerHTML = `<img src="${clip.url}" style="width:100%; height:100%; object-fit:cover;">`; } else { div.innerHTML = `<video src="${clip.url}" poster="${clip.thumbnail || ''}" style="width:100%; height:100%; object-fit:cover;" muted></video>`; } div.innerHTML += `<div class="clip-views"><i class="ph-fill ph-play"></i> ${views}</div><i class="ph-fill ph-play-circle view-icon"></i>`; DOM.profileGridContainer.appendChild(div); }); } }
 
-    function renderWatchFeed() { const feed = document.getElementById('watch-feed-container'); let allClips = []; Object.keys(AppState.usersDB).forEach(email => { AppState.usersDB[email].clips.forEach(clip => { if (!clip.comments) clip.comments = []; allClips.push(clip); }); }); allClips.sort((a,b) => b.timestamp - a.timestamp); if(allClips.length === 0) { feed.innerHTML = "<div style='height: 100vh; display:flex; justify-content:center; align-items:center;'><p style='color:#888; font-family:Orbitron; letter-spacing: 2px;'>NO MEDIA UPLOADED YET.</p></div>"; return; } let feedHtml = ''; allClips.forEach(clip => { const author = AppState.usersDB[clip.author]; const likesCount = clip.likedBy ? clip.likedBy.length : 0; const isLiked = clip.likedBy && clip.likedBy.includes(AppState.currentUser); const likeIconClass = isLiked ? "ph-fill ph-heart" : "ph ph-heart"; const likeColorClass = isLiked ? "color: var(--neon);" : "color: #fff;"; const viewsCount = clip.viewedBy ? clip.viewedBy.length : (clip.views || 0); const commentsCount = clip.comments ? clip.comments.length : 0; let ownerActions = ''; if (clip.author === AppState.currentUser) { ownerActions = `<div class="action-btn" data-action="toggle-feed-options" data-clip-id="${clip.id}"><i class="ph ph-dots-three-vertical"></i><div class="feed-options-dropdown" id="feed-opt-${clip.id}"><div class="feed-opt-item" data-action="edit-clip" data-clip-id="${clip.id}"><i class="ph ph-pencil-simple"></i> EDIT</div><div class="feed-opt-item" style="color:var(--neon);" data-action="delete-clip-prompt" data-clip-id="${clip.id}"><i class="ph ph-trash"></i> DELETE</div></div></div>`; } let mediaElement = clip.type === 'image' ? `<img src="${clip.url}" class="feed-media">` : `<video src="${clip.url}" poster="${clip.thumbnail || ''}" loop playsinline preload="metadata"></video>`; feedHtml += `<div class="watch-clip-container" id="${clip.id}" data-author="${clip.author}"> ${mediaElement} <i class="ph-fill ph-heart heart-animation" id="heart-anim-${clip.id}"></i> <div class="watch-clip-actions"> <div class="action-btn" data-action="toggle-like" data-clip-id="${clip.id}" data-author="${clip.author}"> <i class="${likeIconClass}" style="${likeColorClass}" id="like-icon-${clip.id}"></i><span id="like-count-${clip.id}">${likesCount}</span> </div> <div class="action-btn" data-action="open-comments" data-clip-id="${clip.id}" data-author="${clip.author}"><i class="ph-fill ph-chat-circle"></i><span>${commentsCount}</span></div> <div class="action-btn"><i class="ph-fill ph-share-network"></i><span>SHARE</span></div> ${ownerActions} </div> <div class="watch-clip-info"> ${clip.location ? `<div class="clip-location"><i class="ph-fill ph-map-pin"></i> ${clip.location}</div>` : ''} <div class="clip-author-row"> <img src="${author.avatar}" alt="Avatar"> <h4 style="color:#fff; font-family:'Orbitron'; font-size: 1rem;">@${author.username}</h4> ${clip.author !== AppState.currentUser ? `<button class="btn btn-outline" style="padding: 4px 12px; font-size: 0.6rem; border-radius: 20px; width: auto; margin:0; border-color: var(--neon); color: var(--neon);">FOLLOW</button>` : ''} </div> <h4 style="color:#fff; font-size: 1rem;">${clip.title}</h4> <p style="font-size:0.7rem; color:#ccc; margin-bottom: 5px;">${clip.description || ''}</p> <p id="views-${clip.id}" style="font-size:0.7rem; color:#aaa; font-family: 'Orbitron';"><i class="ph-fill ph-play"></i> ${viewsCount} VIEWS</p> </div> </div>`; }); feed.innerHTML = feedHtml; const containers = feed.querySelectorAll('.watch-clip-container'); const observer = new IntersectionObserver((entries) => { entries.forEach(entry => { const vid = entry.target.querySelector('video'); if (entry.isIntersecting) { if (vid) vid.play().catch(e => {}); } else { if (vid) { vid.pause(); vid.currentTime = 0; } } }); }, { root: feed, threshold: 0.6 }); containers.forEach(c => observer.observe(c)); }
+    function renderWatchFeed() { 
+        const feed = document.getElementById('watch-feed-container'); let allClips = []; 
+        Object.keys(AppState.usersDB).forEach(email => { AppState.usersDB[email].clips.forEach(clip => { if (!clip.comments) clip.comments = []; allClips.push(clip); }); }); 
+        allClips.sort((a,b) => b.timestamp - a.timestamp); 
+        if(allClips.length === 0) { feed.innerHTML = "<div style='height: 100vh; display:flex; justify-content:center; align-items:center;'><p style='color:#888; font-family:Orbitron; letter-spacing: 2px;'>NO MEDIA UPLOADED YET.</p></div>"; return; } 
+        
+        let feedHtml = ''; 
+        allClips.forEach(clip => { 
+            const author = AppState.usersDB[clip.author]; const likesCount = clip.likedBy ? clip.likedBy.length : 0; const isLiked = clip.likedBy && clip.likedBy.includes(AppState.currentUser); const likeIconClass = isLiked ? "ph-fill ph-heart" : "ph ph-heart"; const likeColorClass = isLiked ? "color: var(--neon);" : "color: #fff;"; const viewsCount = clip.viewedBy ? clip.viewedBy.length : (clip.views || 0); const commentsCount = clip.comments ? clip.comments.length : 0; 
+            
+            let optionsMenu = `
+                <div class="action-btn" data-action="toggle-feed-options" data-clip-id="${clip.id}">
+                    <i class="ph ph-dots-three-vertical"></i>
+                    <div class="feed-options-dropdown" id="feed-opt-${clip.id}">
+                        <div class="feed-opt-item" data-action="enter-fullscreen" data-clip-id="${clip.id}"><i class="ph ph-corners-out"></i> FULL SCREEN</div>
+                        ${clip.author === AppState.currentUser ? `
+                            <div class="feed-opt-item" data-action="edit-clip" data-clip-id="${clip.id}"><i class="ph ph-pencil-simple"></i> EDIT</div>
+                            <div class="feed-opt-item" style="color:var(--neon);" data-action="delete-clip-prompt" data-clip-id="${clip.id}"><i class="ph ph-trash"></i> DELETE</div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+
+            let mediaElement = clip.type === 'image' ? `<img src="${clip.url}" class="feed-media">` : `<video src="${clip.url}" poster="${clip.thumbnail || ''}" loop playsinline preload="metadata"></video>`; 
+            
+            feedHtml += `
+                <div class="watch-clip-container" id="${clip.id}" data-author="${clip.author}"> 
+                    ${mediaElement} 
+                    <i class="ph-fill ph-heart heart-animation" id="heart-anim-${clip.id}"></i> 
+                    <div class="exit-fullscreen-btn" data-action="exit-fullscreen"><i class="ph ph-arrow-left" style="font-size: 1.2rem;"></i> BACK</div>
+                    <div class="watch-clip-actions"> 
+                        <div class="action-btn" data-action="toggle-like" data-clip-id="${clip.id}" data-author="${clip.author}"> <i class="${likeIconClass}" style="${likeColorClass}" id="like-icon-${clip.id}"></i><span id="like-count-${clip.id}">${likesCount}</span> </div> 
+                        <div class="action-btn" data-action="open-comments" data-clip-id="${clip.id}" data-author="${clip.author}"><i class="ph-fill ph-chat-circle"></i><span>${commentsCount}</span></div> 
+                        <div class="action-btn"><i class="ph-fill ph-share-network"></i><span>SHARE</span></div> 
+                        ${optionsMenu} 
+                    </div> 
+                    <div class="watch-clip-info"> 
+                        ${clip.location ? `<div class="clip-location"><i class="ph-fill ph-map-pin"></i> ${clip.location}</div>` : ''} 
+                        <div class="clip-author-row"> 
+                            <img src="${author.avatar}" alt="Avatar"> <h4 style="color:#fff; font-family:'Orbitron'; font-size: 1rem;">@${author.username}</h4> 
+                            ${clip.author !== AppState.currentUser ? `<button class="btn btn-outline" style="padding: 4px 12px; font-size: 0.6rem; border-radius: 20px; width: auto; margin:0; border-color: var(--neon); color: var(--neon);">FOLLOW</button>` : ''} 
+                        </div> 
+                        <h4 style="color:#fff; font-size: 1rem;">${clip.title}</h4> 
+                        <p style="font-size:0.7rem; color:#ccc; margin-bottom: 5px;">${clip.description || ''}</p> 
+                        <p id="views-${clip.id}" style="font-size:0.7rem; color:#aaa; font-family: 'Orbitron';"><i class="ph-fill ph-play"></i> ${viewsCount} VIEWS</p> 
+                    </div> 
+                </div>`; 
+        }); 
+        feed.innerHTML = feedHtml; 
+
+        const containers = feed.querySelectorAll('.watch-clip-container'); 
+        const observer = new IntersectionObserver((entries) => { 
+            entries.forEach(entry => { 
+                const vid = entry.target.querySelector('video'); 
+                if (entry.isIntersecting) { 
+                    if (vid) vid.play().catch(e => {}); 
+                    const cId = entry.target.id; const aId = entry.target.dataset.author; const cData = AppState.usersDB[aId]?.clips.find(c => c.id === cId);
+                    if (cData && cData.viewedBy && !cData.viewedBy.includes(AppState.currentUser)) {
+                        cData.viewedBy.push(AppState.currentUser);
+                        const vEl = document.getElementById(`views-${cId}`); if(vEl) vEl.innerHTML = `<i class="ph-fill ph-play"></i> ${cData.viewedBy.length} VIEWS`;
+                        syncUserToCloud(aId);
+                    }
+                } else { 
+                    if (vid) { vid.pause(); vid.currentTime = 0; } 
+                } 
+            }); 
+        }, { root: feed, threshold: 0.6 }); 
+        containers.forEach(c => observer.observe(c)); 
+    }
 
     function initThreeJS() { 
         const canvasContainer = document.getElementById('canvas-container'); 
@@ -926,6 +1099,8 @@
 
     initApp();
 </script>
+
+
 
 
 
