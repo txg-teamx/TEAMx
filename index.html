@@ -692,20 +692,59 @@ body.is-video-fullscreen #main-nav {
             } else { noMsg.style.display = 'block'; }
         } catch(e) { console.error(e); }
     }
+    
+        // Helper to find an email by username
+    function getUserByUsername(targetUser) {
+        const cleanUser = targetUser.toLowerCase();
+        for (let email in AppState.usersDB) {
+            if (AppState.usersDB[email].username.toLowerCase() === cleanUser) {
+                return email;
+            }
+        }
+        return null;
+    }
 
-    function handleRoute() {
+
+        function handleRoute() {
         if (!AppState.currentUser) { DOM.pageAccess.style.display = 'flex'; DOM.appContainer.style.display = 'none'; return; }
         DOM.pageAccess.style.display = 'none'; DOM.appContainer.style.display = 'block';
 
-        let hash = window.location.hash.slice(1); if (!hash || !document.getElementById(`view-${hash}`)) hash = 'home';
+        let hash = window.location.hash.slice(1); 
+        if (!hash) hash = 'home';
+        
+        let viewId = hash; // Default view is the hash
+
+        // --- NEW DYNAMIC ROUTING LOGIC ---
+        if (hash.startsWith('@')) {
+            const targetUsername = hash.slice(1);
+            const targetEmail = getUserByUsername(targetUsername);
+            
+            if (targetEmail) {
+                AppState.currentlyViewingProfile = targetEmail;
+                viewId = 'profile'; // The HTML section is still id="view-profile"
+            } else {
+                pushAlert("404", "OPERATOR NOT FOUND", false);
+                window.location.replace('#home');
+                return;
+            }
+        } else if (hash === 'profile') {
+            // Auto-redirect generic #profile to the user's actual #@username
+            const myUsername = AppState.usersDB[AppState.currentUser].username;
+            window.location.replace('#@' + myUsername);
+            return;
+        }
+        // ----------------------------------
+
+        if (!document.getElementById(`view-${viewId}`)) viewId = 'home';
         if (document.fullscreenElement || document.webkitIsFullScreen) { document.querySelector('[data-action="exit-fullscreen"]')?.click(); }
 
-        if (hash === 'chats') { 
+        // Sidebar & Capture resets based on viewId
+        if (viewId === 'chats') { 
             document.body.classList.remove('in-conversation', 'in-capture'); AppState.activeChatUser = null; document.getElementById('chat-sidebar').classList.remove('hidden'); document.getElementById('chat-sidebar').style.display = 'flex'; document.getElementById('chat-window').classList.remove('active'); document.getElementById('chat-window').style.display = 'none'; loadConversationsList(); 
-        } else if (hash === 'capture') { 
+        } else if (viewId === 'capture') { 
             document.body.classList.add('in-capture'); document.body.classList.remove('in-conversation'); 
             navigator.mediaDevices.getUserMedia({ video: { facingMode: currentFacingMode }, audio: true }).then(stream => { captureStream = stream; const videoEl = document.getElementById('reel-video-element'); videoEl.srcObject = stream; videoEl.style.display = 'block'; document.getElementById('reel-placeholder-icon').style.display = 'none'; }).catch(e=>{});
-        } else if (hash === 'stream') { 
+        } else if (viewId === 'stream') { 
             document.body.classList.remove('in-conversation', 'in-capture'); 
         } else { 
             document.body.classList.remove('in-conversation', 'in-capture'); 
@@ -713,22 +752,33 @@ body.is-video-fullscreen #main-nav {
             if(!isLive && liveStreamData) { liveStreamData.getTracks().forEach(t=>t.stop()); liveStreamData = null; document.getElementById('stream-live-feed').style.display='none'; document.getElementById('stream-placeholder-icon').style.display='block'; }
         }
 
+        // View Toggling
         document.querySelectorAll('.view-section').forEach(view => view.classList.remove('active-view'));
-        const targetView = document.getElementById(`view-${hash}`); targetView.classList.add('active-view');
+        const targetView = document.getElementById(`view-${viewId}`); targetView.classList.add('active-view');
         gsap.fromTo(targetView, {opacity: 0, y: 30, scale:0.98}, {opacity: 1, y: 0, scale:1, duration: 0.5, ease: "power3.out"});
-        document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-        const activeNav = document.querySelector(`.nav-item[data-nav="${hash}"]`); if (activeNav) activeNav.classList.add('active');
-
-        DOM.dynamicLogo.innerHTML = hash === 'home' ? `TEAM<span>X</span>` : `${hash.charAt(0).toUpperCase() + hash.slice(1)}<span>X</span>`;
-        DOM.headerChatsBtn.style.display = (hash === 'home') ? 'inline-flex' : 'none';
-        if (hash === 'profile' && AppState.currentlyViewingProfile === AppState.currentUser) DOM.globalProfileActions.style.display = 'flex'; else DOM.globalProfileActions.style.display = 'none';
         
-        const canvasObj = document.getElementById('canvas-container'); if (hash === 'watch' || hash === 'capture') canvasObj.style.display = 'none'; else canvasObj.style.display = 'block';
-        if (hash === 'home') { loadActiveStreams(); const teamxUser = AppState.usersDB["TEAMX@TXG.COM"]; if (teamxUser && teamxUser.customBannerUrl) DOM.bgVideo.src = teamxUser.customBannerUrl; DOM.bgVideo.play().catch(e => {}); } else { DOM.bgVideo.pause(); }
-        if (hash === 'profile') { if (!AppState.currentlyViewingProfile) AppState.currentlyViewingProfile = AppState.currentUser; openProfileData(AppState.currentlyViewingProfile); }
-        if (hash !== 'profile' && DOM.profileAudio) DOM.profileAudio.pause();
-        if (hash === 'search') filterSearchData(); if (hash === 'watch') renderWatchFeed();
+        // Nav Highlighting
+        document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+        const activeNav = document.querySelector(`.nav-item[data-nav="${viewId}"]`); if (activeNav) activeNav.classList.add('active');
+
+        // Headers & Video BG
+        DOM.dynamicLogo.innerHTML = viewId === 'home' ? `TEAM<span>X</span>` : `${viewId.charAt(0).toUpperCase() + viewId.slice(1)}<span>X</span>`;
+        DOM.headerChatsBtn.style.display = (viewId === 'home') ? 'inline-flex' : 'none';
+        
+        // Profile Action buttons visibility
+        if (viewId === 'profile' && AppState.currentlyViewingProfile === AppState.currentUser) DOM.globalProfileActions.style.display = 'flex'; else DOM.globalProfileActions.style.display = 'none';
+        
+        const canvasObj = document.getElementById('canvas-container'); if (viewId === 'watch' || viewId === 'capture') canvasObj.style.display = 'none'; else canvasObj.style.display = 'block';
+        if (viewId === 'home') { loadActiveStreams(); const teamxUser = AppState.usersDB["TEAMX@TXG.COM"]; if (teamxUser && teamxUser.customBannerUrl) DOM.bgVideo.src = teamxUser.customBannerUrl; DOM.bgVideo.play().catch(e => {}); } else { DOM.bgVideo.pause(); }
+        
+        // Open the loaded profile
+        if (viewId === 'profile') { openProfileData(AppState.currentlyViewingProfile); }
+        if (viewId !== 'profile' && DOM.profileAudio) DOM.profileAudio.pause();
+        
+        if (viewId === 'search') filterSearchData(); 
+        if (viewId === 'watch') renderWatchFeed();
     }
+
     window.addEventListener('hashchange', handleRoute);
 
     function setupEventListeners() {
@@ -737,7 +787,7 @@ body.is-video-fullscreen #main-nav {
 
         document.getElementById('form-login').addEventListener('submit', (e) => { e.preventDefault(); const m = document.getElementById('login-mail').value.toUpperCase(); const p = document.getElementById('login-pass').value.toUpperCase(); if (!AppState.usersDB[m]) return pushAlert("DENIED", "USER NOT FOUND"); if (AppState.usersDB[m].password === p) { AppState.currentUser = m; localStorage.setItem('txg_device_auth', AppState.currentUser); initRealtimeChats(); pushAlert("GRANTED", "SYNCING CHANNELS...", true); gsap.to('#page-access', {scale: 1.5, opacity: 0, duration: 1, ease: "power2.inOut", onComplete: () => { window.location.hash = 'home'; gsap.set('#page-access', {scale: 1, opacity: 1}); }}); } else { pushAlert("DENIED", "INCORRECT PASSWORD"); } });
         document.getElementById('form-register').addEventListener('submit', (e) => { e.preventDefault(); const n = document.getElementById('reg-name').value, s = document.getElementById('reg-surname').value; const u = document.getElementById('reg-username').value, g = document.getElementById('reg-mail').value; const t = document.getElementById('txg-mail').value.toUpperCase(), p = document.getElementById('reg-pass').value.toUpperCase(); if(!n || !s || !u || !AppState.finalDOB || !g || !t || !p) return pushAlert("ERROR", "FILL ALL FIELDS"); if(AppState.takenUsernames.includes(u)) return pushAlert("CONFLICT", "USERNAME TAKEN"); if(AppState.usersDB[t]) return pushAlert("CONFLICT", "MAIL ALREADY REGISTERED"); window.pendingRegistrationData = { id: t, password: p, name: n + " " + s, username: u, gmail: g, bio: "NEW OPERATOR IN THE TXG ARENA.", links: [], profileMusic: "", followers: [], following: [], clips: [], avatar: "https://images.unsplash.com/photo-1511367461989-f85a21fda167?w=400&h=400&fit=crop", otp: Math.floor(1000 + Math.random() * 9000).toString() }; pushAlert("SYSTEM", "SENDING OTP...", true, false); emailjs.send("TEAMx-txg-OTP", "TEAMx-txg-OTP", { to_email: g, to_name: n, otp: window.pendingRegistrationData.otp }).then(function(response) { pushAlert("OTP SENT", `CHECK YOUR INBOX`, true); openOverlay('otp-overlay'); document.getElementById('otp-input').value = ""; }, function(error) { pushAlert("EMAIL ERROR", "FAILED TO SEND OTP.", false); }); });
-        document.getElementById('nav-profile-btn').addEventListener('click', () => { AppState.currentlyViewingProfile = AppState.currentUser; });
+        
         DOM.searchInput.addEventListener('input', filterSearchData);
 
         const chatMsgInputEl = document.getElementById('chat-msg-input'); if (chatMsgInputEl) { chatMsgInputEl.addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.preventDefault(); const sendBtn = document.querySelector('[data-action="send-chat-message"]'); if(sendBtn) sendBtn.click(); } }); }
@@ -770,7 +820,11 @@ body.is-video-fullscreen #main-nav {
                 case 'apply-gender': AppState.finalGender = btn.dataset.value; document.getElementById('gender-trigger').innerText = AppState.finalGender; closeOverlay('gender-overlay'); break;
                 case 'apply-dob': AppState.finalDOB = `${document.getElementById('day-in').value}/${document.getElementById('month-in').value}/${document.getElementById('year-in').value}`; document.getElementById('dob-trigger').innerText = AppState.finalDOB; closeOverlay('dob-overlay'); break;
                 case 'logout-user': closeOverlay('menu-overlay'); AppState.currentUser = null; AppState.currentlyViewingProfile = null; localStorage.removeItem('txg_device_auth'); document.getElementById('form-login').reset(); gsap.to('#app-container', {scale: 0.8, opacity: 0, duration: 0.5, onComplete: () => { window.location.hash = ''; handleRoute(); gsap.fromTo('#page-access', {scale: 1.5, opacity: 0}, {scale: 1, opacity: 1, duration: 0.5}); gsap.set('#app-container', {scale: 1, opacity: 1}); }}); pushAlert("SYSTEM", "DEVICE CREDENTIALS WIPED.", true); break;
-                case 'open-user-profile': AppState.currentlyViewingProfile = btn.dataset.email; window.location.hash = 'profile'; break;
+              case 'open-user-profile': 
+    const targetUsername = AppState.usersDB[btn.dataset.email].username;
+    window.location.hash = '@' + targetUsername; 
+    break;
+
                 case 'profile-action-primary': if (AppState.currentlyViewingProfile === AppState.currentUser) { const me = AppState.usersDB[AppState.currentUser]; document.getElementById('edit-avatar-preview').src = me.avatar; const nameParts = me.name.split(' '); document.getElementById('edit-name').value = nameParts[0] || ''; document.getElementById('edit-surname').value = nameParts.slice(1).join(' ') || ''; document.getElementById('edit-username').value = me.username || ''; document.getElementById('edit-bio').value = me.bio || ''; document.getElementById('edit-gmail').value = me.gmail || ''; document.getElementById('edit-txg').value = AppState.currentUser; const linksList = document.getElementById('dynamic-links-list'); linksList.innerHTML = ''; (me.links || []).forEach(link => { linksList.insertAdjacentHTML('beforeend', `<div class="dynamic-link-row"><input type="text" value="${link}"><button type="button" class="remove-link-btn" data-action="remove-link-row"><i class="ph ph-trash"></i></button></div>`); }); document.getElementById('edit-music-url').value = me.profileMusic || ''; document.getElementById('edit-music-file').value = ""; document.getElementById('music-file-name').innerText = "NO FILE SELECTED"; openOverlay('edit-profile-overlay'); } else { const targetUser = AppState.usersDB[AppState.currentlyViewingProfile]; const me = AppState.usersDB[AppState.currentUser]; const idx = targetUser.followers.indexOf(AppState.currentUser); if(idx > -1) { targetUser.followers.splice(idx, 1); me.following.splice(me.following.indexOf(AppState.currentlyViewingProfile), 1); } else { targetUser.followers.push(AppState.currentUser); me.following.push(AppState.currentlyViewingProfile); } syncUserToCloud(AppState.currentlyViewingProfile); syncUserToCloud(AppState.currentUser); openProfileData(AppState.currentlyViewingProfile); } break;
                 case 'profile-action-secondary': if (AppState.currentlyViewingProfile === AppState.currentUser) { navigator.clipboard.writeText(window.location.href); pushAlert("SYSTEM", "PROFILE LINK COPIED", true); } else { const targetProfile = AppState.currentlyViewingProfile; window.location.hash = 'chats'; setTimeout(() => { loadActiveChat(targetProfile); }, 150); } break;
                 case 'trigger-avatar-upload': document.getElementById('avatar-upload').click(); break;
