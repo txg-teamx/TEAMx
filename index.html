@@ -175,6 +175,24 @@ body.is-video-fullscreen #main-nav {
 .live-card-info img { width: 25px; height: 25px; border-radius: 50%; border: 1px solid #00f2ff; }
 .live-card-info h4 { font-size: 0.7rem; color: #fff; font-family: 'Orbitron'; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
+/* --- STREAM FULLSCREEN CLASSES --- */
+.stream-video-box.is-fullscreen {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100dvh !important;
+    z-index: 99999 !important;
+    background: #000 !important;
+    border: none !important;
+    border-radius: 0 !important;
+}
+
+.stream-video-box.is-fullscreen #stream-exit-fs {
+    display: flex !important;
+}
+
+
     </style>
 </head>
 <body>
@@ -464,10 +482,15 @@ body.is-video-fullscreen #main-nav {
     <div class="stream-dashboard">
         <div class="stream-player-container">
             <div class="stream-video-box glass-panel" id="stream-video-box">
-                <video id="stream-live-feed" autoplay muted playsinline style="width:100%; height:100%; object-fit:cover; position:absolute; z-index:1; display:none;"></video>
-                <div class="stream-live-badge" id="stream-status-badge" style="transition: 0.3s;"><i class="ph-fill ph-broadcast"></i> OFFLINE</div>
-                <i class="ph ph-plugs" id="stream-placeholder-icon" style="font-size: 4rem; color: #333; z-index: 0;"></i>
-            </div>
+    <div class="exit-fullscreen-btn" id="stream-exit-fs" data-action="exit-stream-fullscreen" style="display:none; position:absolute; top: max(20px, env(safe-area-inset-top)); left:20px; z-index:100000;">
+        <i class="ph ph-arrow-left" style="font-size: 1.2rem;"></i> BACK
+    </div>
+    
+    <video id="stream-live-feed" autoplay muted playsinline style="width:100%; height:100%; object-fit:cover; position:absolute; z-index:1; display:none;"></video>
+    <div class="stream-live-badge" id="stream-status-badge" style="transition: 0.3s;"><i class="ph-fill ph-broadcast"></i> OFFLINE</div>
+    <i class="ph ph-plugs" id="stream-placeholder-icon" style="font-size: 4rem; color: #333; z-index: 0;"></i>
+</div>
+
            <div class="stream-meta glass-panel">
     <input type="text" id="stream-setup-title" value="TXG ARENA CHAMPIONSHIP" style="background:transparent; border:none; border-bottom:1px solid var(--neon); color:#fff; font-family:'Orbitron'; font-size:1.2rem; width:100%; margin-bottom:5px; outline:none; text-transform:uppercase;">
     <input type="text" id="stream-setup-desc" value="COMPETITIVE E-SPORTS" style="background:transparent; border:none; color:#00f2ff; font-size:0.8rem; width:100%; margin-bottom:15px; outline:none; text-transform:uppercase;">
@@ -582,6 +605,11 @@ body.is-video-fullscreen #main-nav {
 <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
+    // 1. Force Home page on browser reload
+    if (performance.navigation.type === performance.navigation.TYPE_RELOAD) {
+        window.history.replaceState(null, null, '#home');
+    }
+
     const CURRENT_VERSION = "v0.00.001";
     const supabaseUrl = 'https://ekvgpdhbfdwzupwyxztj.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVrdmdwZGhiZmR3enVwd3l4enRqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3MTU3NTQsImV4cCI6MjA4OTI5MTc1NH0.9KCJ8sennmQgw-G3RH1ARQcjHnEBdsk2rgtjFeC-XMs';
@@ -619,29 +647,18 @@ body.is-video-fullscreen #main-nav {
         });
     }
 
-        async function initApp() {
+    async function initApp() {
         if (window.emailjs) emailjs.init("9tRVwCTCF-XeYFzR8");
-        initThreeJS(); 
-        cacheDOM(); 
-        initGlassParticles(); 
-        initGlassInteractions(); 
-        setupEventListeners();
-
-        // --- NEW CODE: Check for Screen Share Support ---
-        const screenShareBtn = document.querySelector('[data-action="toggle-stream-screen"]');
-        // If the browser doesn't have the getDisplayMedia API, hide the button
+        initThreeJS(); cacheDOM(); initGlassParticles(); initGlassInteractions(); setupEventListeners();
+        
+        // --- Hide Screen Share Button if unsupported by device (Mobile fallback) ---
         if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
-            if (screenShareBtn) {
-                screenShareBtn.style.display = 'none';
-                console.log("Screen sharing not supported on this device. Button hidden.");
-            }
+            const screenShareBtn = document.querySelector('[data-action="toggle-stream-screen"]');
+            if (screenShareBtn) screenShareBtn.style.display = 'none';
         }
-        // -------------------------------------------------
 
         try {
-            const { data, error } = await supabase.from('users').select('*'); 
-            // ... (rest of your existing initApp code)
- if (error) throw error;
+            const { data, error } = await supabase.from('users').select('*'); if (error) throw error;
             if (!data || data.length === 0) { AppState.usersDB = defaultUsers; for (const email of Object.keys(defaultUsers)) { await supabase.from('users').insert({ id: email, data: defaultUsers[email] }); AppState.takenUsernames.push(defaultUsers[email].username); } } 
             else { data.forEach((row) => { AppState.usersDB[row.id] = row.data; AppState.takenUsernames.push(row.data.username); }); }
             const savedCurrentUser = localStorage.getItem('txg_device_auth'); if (savedCurrentUser && AppState.usersDB[savedCurrentUser]) { AppState.currentUser = savedCurrentUser; initRealtimeChats(); }
@@ -658,30 +675,21 @@ body.is-video-fullscreen #main-nav {
     function vibrate(pattern = [50]) { if (navigator.vibrate) navigator.vibrate(pattern); }
     function debounce(func, timeout = 300) { let timer; return (...args) => { clearTimeout(timer); timer = setTimeout(() => { func.apply(this, args); }, timeout); }; }
 
-    // --- HOME PAGE ACTIVE STREAMS LOADER ---
     async function loadActiveStreams() {
         const carousel = document.getElementById('home-live-carousel');
         const noMsg = document.getElementById('no-live-msg');
         if (!carousel) return;
-        
         try {
             const { data, error } = await supabase.from('live_streams').select('*').eq('is_live', true);
             if (error) throw error;
-            
-            // Clear existing cards
             document.querySelectorAll('.live-card').forEach(el => el.remove());
-            
             if (data.length > 0) {
                 noMsg.style.display = 'none';
                 data.forEach(stream => {
                     const u = AppState.usersDB[stream.host_id];
-                    if (u) {
-                        carousel.innerHTML += `<div class="live-card" id="live-card-${stream.host_id}" data-action="join-stream-feed" data-target-user="${stream.host_id}"><img src="${u.avatar}" class="bg"><div class="live-card-badge">LIVE</div><div class="live-card-info"><img src="${u.avatar}"><h4>${u.name}</h4></div></div>`;
-                    }
+                    if (u) { carousel.innerHTML += `<div class="live-card" id="live-card-${stream.host_id}" data-action="join-stream-feed" data-target-user="${stream.host_id}"><img src="${u.avatar}" class="bg"><div class="live-card-badge">LIVE</div><div class="live-card-info"><img src="${u.avatar}"><h4>${u.name}</h4></div></div>`; }
                 });
-            } else {
-                noMsg.style.display = 'block';
-            }
+            } else { noMsg.style.display = 'block'; }
         } catch(e) { console.error(e); }
     }
 
@@ -696,7 +704,6 @@ body.is-video-fullscreen #main-nav {
             document.body.classList.remove('in-conversation', 'in-capture'); AppState.activeChatUser = null; document.getElementById('chat-sidebar').classList.remove('hidden'); document.getElementById('chat-sidebar').style.display = 'flex'; document.getElementById('chat-window').classList.remove('active'); document.getElementById('chat-window').style.display = 'none'; loadConversationsList(); 
         } else if (hash === 'capture') { 
             document.body.classList.add('in-capture'); document.body.classList.remove('in-conversation'); 
-            // Regular Camera Capture
             navigator.mediaDevices.getUserMedia({ video: { facingMode: currentFacingMode }, audio: true }).then(stream => { captureStream = stream; const videoEl = document.getElementById('reel-video-element'); videoEl.srcObject = stream; videoEl.style.display = 'block'; document.getElementById('reel-placeholder-icon').style.display = 'none'; }).catch(e=>{});
         } else if (hash === 'stream') { 
             document.body.classList.remove('in-conversation', 'in-capture'); 
@@ -802,18 +809,14 @@ body.is-video-fullscreen #main-nav {
 
                 case 'go-live-studio': closeOverlay('create-overlay'); window.location.hash = 'stream'; break;
                 
-                // --- FIX: BLACK SCREEN LOGIC ON GO LIVE ---
                 case 'go-live-alert': 
                     const title = document.getElementById('stream-setup-title').value || "UNTITLED ARENA";
                     const sDesc = document.getElementById('stream-setup-desc').value || "";
-                    
                     pushAlert("SYSTEM", "INITIALIZING LIVE BROADCAST...", true); 
-                    
                     try {
-                        // Request permissions but IMMEDIATELY disable them for "Black Screen" start
                         const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: currentFacingMode }, audio: true });
                         originalCamVideoTrack = stream.getVideoTracks()[0];
-                        stream.getTracks().forEach(t => t.enabled = false); // Black & Muted
+                        stream.getTracks().forEach(t => t.enabled = false);
                         
                         liveStreamData = stream;
                         const videoEl = document.getElementById('stream-live-feed');
@@ -826,20 +829,15 @@ body.is-video-fullscreen #main-nav {
                         document.getElementById('stream-status-badge').style.color = '#ff003c'; 
                         btn.style.display = 'none'; 
                         
-                        // Create SQL entry
                         await supabase.from('live_streams').insert([{ id: AppState.currentUser, host_id: AppState.currentUser, title: title, description: sDesc }]);
 
-                        // Auto Record for VOD
                         streamChunks = [];
                         streamRecorder = new MediaRecorder(liveStreamData);
                         streamRecorder.ondataavailable = e => { if(e.data.size > 0) streamChunks.push(e.data); };
                         streamRecorder.start();
-                    } catch (e) {
-                        pushAlert("HARDWARE ERROR", "MIC/CAM REQUIRED TO STREAM", false);
-                    }
+                    } catch (e) { pushAlert("HARDWARE ERROR", "MIC/CAM REQUIRED TO STREAM", false); }
                     break;
 
-                // --- FIX: TOGGLE LOGIC TO ENABLE/DISABLE TRACKS ---
                 case 'toggle-stream-mic': 
                     if (liveStreamData) { 
                         const audioTrack = liveStreamData.getAudioTracks()[0]; 
@@ -853,14 +851,12 @@ body.is-video-fullscreen #main-nav {
                 
                 case 'toggle-stream-cam': 
                     if (liveStreamData && originalCamVideoTrack) { 
-                        // If we are screen sharing, restore camera first
                         if(isScreenSharing) {
                             liveStreamData.removeTrack(liveStreamData.getVideoTracks()[0]);
                             liveStreamData.addTrack(originalCamVideoTrack);
                             isScreenSharing = false;
                             document.querySelector('[data-action="toggle-stream-screen"]').classList.remove('active-st');
                         }
-                        
                         originalCamVideoTrack.enabled = !originalCamVideoTrack.enabled; 
                         btn.classList.toggle('active-st', originalCamVideoTrack.enabled); 
                         pushAlert("STREAM", originalCamVideoTrack.enabled ? "CAMERA ACTIVE" : "CAMERA MUTED", true); 
@@ -873,93 +869,68 @@ body.is-video-fullscreen #main-nav {
                     try {
                         const newStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: currentFacingMode }, audio: true });
                         const newVideoTrack = newStream.getVideoTracks()[0];
-                        
-                        // Keep the enabled state of the old track
                         newVideoTrack.enabled = originalCamVideoTrack.enabled;
-                        
                         liveStreamData.removeTrack(originalCamVideoTrack); 
                         originalCamVideoTrack.stop();
-                        
                         originalCamVideoTrack = newVideoTrack;
                         liveStreamData.addTrack(originalCamVideoTrack);
                         pushAlert("STREAM", "CAMERA FLIPPED", true);
                     } catch (e) { pushAlert("ERROR", "CAMERA SWAP FAILED", false); }
                     break;
 
-                // ... inside your switch(btn.dataset.action) ...
+                case 'toggle-stream-screen': 
+                    if (!liveStreamData) { 
+                        pushAlert("ERROR", "START STREAM FIRST", false); 
+                        return; 
+                    }
+                    if (isScreenSharing) {
+                        liveStreamData.removeTrack(liveStreamData.getVideoTracks()[0]); 
+                        if(originalCamVideoTrack) liveStreamData.addTrack(originalCamVideoTrack);
+                        isScreenSharing = false; 
+                        btn.classList.remove('active-st'); 
+                        pushAlert("STREAM", "SCREEN SHARE ENDED", true);
+                    } else {
+                        try {
+                            const displayMediaOptions = {
+                                video: { frameRate: { ideal: 60, max: 60 }, displaySurface: "monitor" },
+                                audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false }
+                            };
+                            const screenStream = await navigator.mediaDevices.getDisplayMedia(displayMediaOptions); 
+                            const screenTrack = screenStream.getVideoTracks()[0];
+                            const audioTracks = screenStream.getAudioTracks();
+                            
+                            if (audioTracks.length > 0) {
+                                liveStreamData.addTrack(audioTracks[0]);
+                                pushAlert("SYSTEM", "GAME AUDIO CAPTURED", true);
+                            }
+                            
+                            liveStreamData.removeTrack(liveStreamData.getVideoTracks()[0]); 
+                            liveStreamData.addTrack(screenTrack);
+                            
+                            screenTrack.onended = () => { 
+                                const toggleBtn = document.querySelector('[data-action="toggle-stream-screen"]');
+                                if(toggleBtn) toggleBtn.click(); 
+                            };
+                            
+                            isScreenSharing = true; 
+                            btn.classList.add('active-st'); 
+                            pushAlert("STREAM", "SCREEN CAST ACTIVE", true);
+                            
+                        } catch (e) { 
+                            console.error("Screen Share Error: ", e.name, e.message);
+                            if (e.name === 'NotAllowedError') {
+                                pushAlert("DENIED", "PERMISSION BLOCKED BY DEVICE", false);
+                            } else if (e.name === 'NotSupportedError' || e.name === 'TypeError') {
+                                pushAlert("UNSUPPORTED", "USE A PC TO SHARE SCREEN", false);
+                            } else if (!window.isSecureContext) {
+                                pushAlert("INSECURE", "HTTPS REQUIRED FOR SCREEN SHARE", false);
+                            } else {
+                                pushAlert("ERROR", "SCREEN SHARE FAILED", false); 
+                            }
+                        }
+                    } 
+                    break;
 
-case 'toggle-stream-screen': 
-    if (!liveStreamData) { 
-        pushAlert("ERROR", "START STREAM FIRST", false); 
-        return; 
-    }
-    
-    if (isScreenSharing) {
-        // Switch back to Camera
-        liveStreamData.removeTrack(liveStreamData.getVideoTracks()[0]); 
-        liveStreamData.addTrack(originalCamVideoTrack);
-        isScreenSharing = false; 
-        btn.classList.remove('active-st'); 
-        pushAlert("STREAM", "SCREEN SHARE ENDED", true);
-    } else {
-        try {
-            // OPTIMIZED FOR GAMING/CASTING
-            const displayMediaOptions = {
-                video: {
-                    frameRate: { ideal: 60, max: 60 }, // Request 60 FPS for smooth gameplay
-                    displaySurface: "monitor"          // Request the entire screen
-                },
-                audio: {
-                    // Ask the browser to capture system/game audio if the OS allows it
-                    echoCancellation: false,   // Turn off to prevent game audio distortion
-                    noiseSuppression: false,   // Turn off to keep game audio pure
-                    autoGainControl: false
-                }
-            };
-
-            const screenStream = await navigator.mediaDevices.getDisplayMedia(displayMediaOptions); 
-            const screenTrack = screenStream.getVideoTracks()[0];
-            
-            // Check if we successfully got system audio
-            const audioTracks = screenStream.getAudioTracks();
-            if (audioTracks.length > 0) {
-                // If we got game audio, add it to our live stream!
-                liveStreamData.addTrack(audioTracks[0]);
-                pushAlert("SYSTEM", "GAME AUDIO CAPTURED", true);
-            }
-            
-            // Replace camera track with screen track
-            liveStreamData.removeTrack(liveStreamData.getVideoTracks()[0]); 
-            liveStreamData.addTrack(screenTrack);
-            
-            // Handle the user stopping the cast via the browser's native UI
-            screenTrack.onended = () => { 
-                document.querySelector('[data-action="toggle-stream-screen"]').click(); 
-            };
-            
-            isScreenSharing = true; 
-            btn.classList.add('active-st'); 
-            pushAlert("STREAM", "SCREEN CAST ACTIVE", true);
-            
-        } catch (e) { 
-            console.error("Screen Share Error: ", e.name, e.message);
-            
-            // Check specific error types to give the user better feedback
-            if (e.name === 'NotAllowedError') {
-                pushAlert("DENIED", "PERMISSION BLOCKED BY DEVICE", false);
-            } else if (e.name === 'NotSupportedError' || e.name === 'TypeError') {
-                pushAlert("UNSUPPORTED", "USE A PC TO SHARE SCREEN", false);
-            } else if (!window.isSecureContext) {
-                pushAlert("INSECURE", "HTTPS REQUIRED FOR SCREEN SHARE", false);
-            } else {
-                pushAlert("ERROR", "SCREEN SHARE FAILED", false); 
-            }
-        }
-
-    } 
-    break;
-
-                
                 case 'stop-stream': 
                     if (!isLive) return;
                     pushAlert("STREAM", "STREAM TERMINATED. PREPARING VOD...", true); 
@@ -968,7 +939,6 @@ case 'toggle-stream-screen':
                     document.getElementById('stream-status-badge').style.color = '#fff'; 
                     document.getElementById('btn-go-live').style.display = 'block';
                     
-                    // Remove from SQL Database
                     await supabase.from('live_streams').delete().eq('id', AppState.currentUser);
                     
                     if(streamRecorder && streamRecorder.state !== 'inactive') {
@@ -1009,7 +979,43 @@ case 'toggle-stream-screen':
                         const sArea = document.getElementById('stream-chat-area'); sArea.innerHTML += `<div class="msg"><span class="user" style="color:var(--neon);">@${AppState.usersDB[AppState.currentUser].username}:</span> ${sText}</div>`; sArea.scrollTop = sArea.scrollHeight;
                     } sInput.value = ''; break;
                 
-                case 'join-stream-feed': window.location.hash = 'stream'; document.querySelector('.stream-title').innerText = AppState.usersDB[btn.dataset.targetUser].name + "'S ARENA"; pushAlert("SYSTEM", "CONNECTING TO BROADCAST...", true); break;
+                // --- Updated join-stream-feed to trigger fullscreen instantly ---
+                case 'join-stream-feed': 
+                    window.location.hash = 'stream'; 
+                    document.querySelector('.stream-title').innerText = AppState.usersDB[btn.dataset.targetUser].name + "'S ARENA"; 
+                    pushAlert("SYSTEM", "CONNECTING TO BROADCAST...", true); 
+                    
+                    setTimeout(() => {
+                        const streamBox = document.getElementById('stream-video-box');
+                        streamBox.classList.add('is-fullscreen');
+                        document.body.classList.add('is-video-fullscreen');
+                        
+                        if (streamBox.requestFullscreen) {
+                            streamBox.requestFullscreen().then(() => {
+                                try { screen.orientation.lock("landscape").catch(e=>{}); } catch(e){}
+                            }).catch(e=>{});
+                        } else if (streamBox.webkitRequestFullscreen) {
+                            streamBox.webkitRequestFullscreen();
+                        }
+                    }, 400);
+                    break;
+                    
+                // --- New handler to exit fullscreen and return home ---
+                case 'exit-stream-fullscreen':
+                    const streamBoxFS = document.getElementById('stream-video-box');
+                    streamBoxFS.classList.remove('is-fullscreen');
+                    document.body.classList.remove('is-video-fullscreen');
+                    
+                    if (document.exitFullscreen) { 
+                        document.exitFullscreen().catch(e=>{}); 
+                    } else if (document.webkitExitFullscreen) { 
+                        document.webkitExitFullscreen(); 
+                    }
+                    try { screen.orientation.unlock(); } catch(e){}
+                    
+                    window.location.hash = 'home';
+                    break;
+
                 case 'open-upload-clip': document.getElementById('upload-modal-title').innerText = "UPLOAD MEDIA"; document.getElementById('edit-clip-mode-id').value = ""; document.getElementById('upload-file-picker-wrap').style.display = "block"; document.getElementById('thumbnail-section').style.display = "none"; document.getElementById('clip-location-input').value = ""; document.getElementById('clip-overlay-text').value = ""; document.getElementById('clip-title-input').value = ""; document.getElementById('clip-desc-input').value = ""; pendingClipFile = null; document.getElementById('clip-file-name-display').innerText = ""; openOverlay('upload-clip-overlay'); closeOverlay('create-overlay'); break;
                 
                 case 'initiate-upload': 
@@ -1061,7 +1067,6 @@ case 'toggle-stream-screen':
     function initRealtimeChats() { 
         supabase.channel('public:messages').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => { const msg = payload.new; if (msg.sender === AppState.currentUser || msg.receiver === AppState.currentUser) { loadConversationsList(); if (AppState.activeChatUser && (msg.sender === AppState.activeChatUser || msg.receiver === AppState.activeChatUser)) { const isMe = msg.sender === AppState.currentUser; const decText = decryptMessage(msg.content, AppState.currentUser, AppState.activeChatUser); let finalHTML = decText; try { const media = JSON.parse(decText); if(media.type === 'image') finalHTML = `<img src="${media.url}">`; else if(media.type === 'video') finalHTML = `<video src="${media.url}" controls></video>`; else if(media.type === 'audio') finalHTML = `<audio src="${media.url}" controls></audio>`; else if(media.type === 'document') finalHTML = `<a href="${media.url}" target="_blank" style="color:#00f2ff; text-decoration:none;"><i class="ph-fill ph-file-text"></i> VIEW DOCUMENT</a>`; else if(media.type === 'location') finalHTML = `<div class="chat-bubble-map"><i class="ph-fill ph-map-pin"></i></div><div style="font-size:0.6rem; text-align:center;">${media.url}</div>`; } catch(e) {} const area = document.getElementById('chat-messages-area'); area.innerHTML += `<div class="chat-bubble ${isMe ? 'me' : 'them'}">${finalHTML}</div>`; area.scrollTop = area.scrollHeight; vibrate([30, 30]); } else if(msg.receiver === AppState.currentUser) { pushAlert("NEW COMMS", `MESSAGE FROM ${AppState.usersDB[msg.sender]?.username || 'OPERATOR'}`, true); } } }).subscribe(); 
 
-        // Listen for active stream updates via Realtime DB table changes
         supabase.channel('public:live_streams').on('postgres_changes', { event: '*', schema: 'public', table: 'live_streams' }, payload => { loadActiveStreams(); }).subscribe();
 
         callChannel = supabase.channel('call_signaling');
@@ -1113,6 +1118,7 @@ case 'toggle-stream-screen':
 
     initApp();
 </script>
+
 
 
 </body>
