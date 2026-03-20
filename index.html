@@ -163,6 +163,18 @@ body.is-video-fullscreen #main-nav {
     }
 }
 
+
+/* --- LIVE STREAM CARDS --- */
+.live-carousel { display: flex; gap: 15px; overflow-x: auto; padding: 10px 0; margin-bottom: 20px; scroll-snap-type: x mandatory; -ms-overflow-style: none; scrollbar-width: none; pointer-events: auto; }
+.live-carousel::-webkit-scrollbar { display: none; }
+.live-card { min-width: 160px; height: 100px; border-radius: 12px; background: #111; position: relative; overflow: hidden; scroll-snap-align: start; cursor: pointer; border: 1px solid var(--neon); transition: 0.3s; }
+.live-card:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(255,0,60,0.4); }
+.live-card img.bg { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.5); }
+.live-card-badge { position: absolute; top: 8px; left: 8px; background: #ff003c; color: #fff; font-size: 0.6rem; padding: 3px 6px; border-radius: 4px; font-family: 'Orbitron'; animation: pulseBadge 1.5s infinite; }
+.live-card-info { position: absolute; bottom: 8px; left: 8px; right: 8px; display: flex; align-items: center; gap: 8px; }
+.live-card-info img { width: 25px; height: 25px; border-radius: 50%; border: 1px solid #00f2ff; }
+.live-card-info h4 { font-size: 0.7rem; color: #fff; font-family: 'Orbitron'; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
     </style>
 </head>
 <body>
@@ -407,12 +419,18 @@ body.is-video-fullscreen #main-nav {
         </header>
     
         <main id="view-home" class="home-content view-section active-view">
-            <div id="home-banner" class="welcome-banner glass-panel">
-                <div class="audio-hud-control"><div class="visualizer-bars"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div><div class="vol-slider-wrap"><input type="range" id="vol-control" min="0" max="100" value="10" step="1"></div><div class="mute-toggle" data-action="toggle-mute"><i class="ph ph-speaker-slash" id="mute-icon"></i></div></div>
-                <div class="banner-video-bg"><video id="terminal-bg-video" autoplay loop playsinline preload="auto" src="BGMI-4.2-INTRO.mp4" muted></video></div>
-                <div class="banner-content"><h2 class="animated-text">WELCOME TO <br><span>TEAM</span><span class="neon-text">X ARENA</span></h2><p class="sub-text">PREPARE FOR BATTLE.</p><a href="#stream" class="btn btn-small" style="text-decoration: none;">JOIN ARENA</a></div>
-            </div>
-        </main>
+    <h3 style="font-family: 'Orbitron'; font-size: 0.9rem; color: var(--neon); margin-bottom: 5px; text-shadow: 0 0 5px var(--neon);">ACTIVE ARENAS</h3>
+    <div class="live-carousel" id="home-live-carousel">
+        <p id="no-live-msg" style="color: #666; font-size: 0.7rem; font-family: 'Orbitron'; padding: 10px;">NO OPERATORS LIVE.</p>
+    </div>
+
+    <div id="home-banner" class="welcome-banner glass-panel">
+        <div class="audio-hud-control"><div class="visualizer-bars"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div><div class="vol-slider-wrap"><input type="range" id="vol-control" min="0" max="100" value="10" step="1"></div><div class="mute-toggle" data-action="toggle-mute"><i class="ph ph-speaker-slash" id="mute-icon"></i></div></div>
+        <div class="banner-video-bg"><video id="terminal-bg-video" autoplay loop playsinline preload="auto" src="BGMI-4.2-INTRO.mp4" muted></video></div>
+        <div class="banner-content"><h2 class="animated-text">WELCOME TO <br><span>TEAM</span><span class="neon-text">X ARENA</span></h2><p class="sub-text">PREPARE FOR BATTLE.</p><a href="#stream" class="btn btn-small" style="text-decoration: none;">JOIN ARENA</a></div>
+    </div>
+</main>
+
     
         <main id="view-search" class="home-content view-section">
             <div class="search-wrap">
@@ -450,20 +468,23 @@ body.is-video-fullscreen #main-nav {
                 <div class="stream-live-badge" id="stream-status-badge" style="transition: 0.3s;"><i class="ph-fill ph-broadcast"></i> OFFLINE</div>
                 <i class="ph ph-plugs" id="stream-placeholder-icon" style="font-size: 4rem; color: #333; z-index: 0;"></i>
             </div>
-            <div class="stream-meta glass-panel">
-                <h2 class="stream-title">TXG ARENA CHAMPIONSHIP</h2>
-                <div class="stream-category">COMPETITIVE E-SPORTS</div>
-                <div class="stream-toolbar">
-                    <div class="st-metrics"><span id="stream-viewer-count"><i class="ph-fill ph-users"></i> 0</span></div>
-                    <div class="st-controls">
-                        <div class="st-btn" data-action="toggle-stream-mic"><i class="ph ph-microphone"></i></div>
-                        <div class="st-btn" data-action="toggle-stream-cam"><i class="ph ph-video-camera"></i></div>
-                        <div class="st-btn" data-action="toggle-stream-screen"><i class="ph ph-screencast"></i></div>
-                        <div class="st-btn" style="border-color: var(--neon); color: var(--neon);" data-action="stop-stream"><i class="ph ph-stop"></i></div>
-                        <button class="btn" id="btn-go-live" style="margin: 0; padding: 10px 20px; width: auto;" data-action="go-live-alert">GO LIVE</button>
-                    </div>
-                </div>
-            </div>
+           <div class="stream-meta glass-panel">
+    <input type="text" id="stream-setup-title" value="TXG ARENA CHAMPIONSHIP" style="background:transparent; border:none; border-bottom:1px solid var(--neon); color:#fff; font-family:'Orbitron'; font-size:1.2rem; width:100%; margin-bottom:5px; outline:none; text-transform:uppercase;">
+    <input type="text" id="stream-setup-desc" value="COMPETITIVE E-SPORTS" style="background:transparent; border:none; color:#00f2ff; font-size:0.8rem; width:100%; margin-bottom:15px; outline:none; text-transform:uppercase;">
+    
+    <div class="stream-toolbar">
+        <div class="st-metrics"><span id="stream-viewer-count"><i class="ph-fill ph-users"></i> 0</span></div>
+        <div class="st-controls">
+            <div class="st-btn" data-action="toggle-stream-mic"><i class="ph ph-microphone"></i></div>
+            <div class="st-btn" data-action="toggle-stream-cam"><i class="ph ph-video-camera"></i></div>
+            <div class="st-btn" data-action="swap-stream-cam"><i class="ph ph-arrows-clockwise"></i></div>
+            <div class="st-btn" data-action="toggle-stream-screen"><i class="ph ph-screencast"></i></div>
+            <div class="st-btn" style="border-color: var(--neon); color: var(--neon);" data-action="stop-stream"><i class="ph ph-stop"></i></div>
+            <button class="btn" id="btn-go-live" style="margin: 0; padding: 10px 20px; width: auto;" data-action="go-live-alert">GO LIVE</button>
+        </div>
+    </div>
+</div>
+
         </div>
         <div class="stream-chat-container glass-panel">
             <div class="chat-header">ARENA CHAT</div>
@@ -570,49 +591,17 @@ body.is-video-fullscreen #main-nav {
     const defaultUsers = { "TEAMX@TXG.COM": { password: "BOSSKEY07", name: "TEAMX", username: "TEAMX", bio: "OFFICIAL SYSTEM ADMINISTRATOR FOR TEAMX ARENA.", gmail: "TEAMX@GMAIL.COM", links: ["https://x.com/TeamX"], profileMusic: "", followers: [], following: [], clips: [], customBannerUrl: "", avatar: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' fill='%23000' rx='20'/%3E%3Ctext x='50%25' y='55%25' font-family='Orbitron, sans-serif' font-size='38' font-weight='900' fill='%23fff' text-anchor='middle' dominant-baseline='middle' letter-spacing='2'%3ETEAM%3Ctspan fill='%23ff003c'%3EX%3C/tspan%3E%3C/text%3E%3C/svg%3E" } };
 
     window.pendingRegistrationData = null;
-    let DOM = {};
-    let alertTimeout;
-    
-    let pendingClipFile = null; 
-    let pendingClipType = 'video'; 
-    let currentFacingMode = 'user'; 
-    let currentCaptureMode = 'video'; 
-    
+    let DOM = {}; let alertTimeout;
+    let pendingClipFile = null; let pendingClipType = 'video'; let currentFacingMode = 'user'; let currentCaptureMode = 'video'; 
     let mediaRecorder; let recordedChunks = []; let capturedBlob = null; let capturedFileType = '';
 
     let peerConnection; let callChannel; let currentCallTarget = null; let isVideoCallActive = false;
     const iceServers = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }] };
 
-    // Stream Global States
-    let streamChannel; 
-    let streamViewers = 0; 
-    let isScreenSharing = false;
-
-    async function setupPeerConnection(targetUser) {
-        peerConnection = new RTCPeerConnection(iceServers);
-        if (window.localStream) { window.localStream.getTracks().forEach(track => { peerConnection.addTrack(track, window.localStream); }); }
-        peerConnection.ontrack = (event) => { const remoteVid = document.getElementById('remote-video-feed'); if (remoteVid.srcObject !== event.streams[0]) { remoteVid.srcObject = event.streams[0]; remoteVid.style.display = 'block'; remoteVid.play().catch(e => {}); } };
-        peerConnection.onicecandidate = (event) => { if (event.candidate && callChannel) { callChannel.send({ type: 'broadcast', event: 'webrtc_ice', payload: { targetUser: targetUser, candidate: event.candidate, sender: AppState.currentUser } }); } };
-    }
-
-    async function makeCall(targetUser) { await setupPeerConnection(targetUser); const offer = await peerConnection.createOffer(); await peerConnection.setLocalDescription(offer); callChannel.send({ type: 'broadcast', event: 'webrtc_offer', payload: { targetUser: targetUser, offer: offer, sender: AppState.currentUser } }); }
-    async function handleOffer(offer, sender) { await setupPeerConnection(sender); await peerConnection.setRemoteDescription(new RTCSessionDescription(offer)); const answer = await peerConnection.createAnswer(); await peerConnection.setLocalDescription(answer); callChannel.send({ type: 'broadcast', event: 'webrtc_answer', payload: { targetUser: sender, answer: answer, sender: AppState.currentUser } }); }
+    let streamChannel; let streamViewers = 0; let isScreenSharing = false; let isLive = false;
+    let streamRecorder; let streamChunks = []; let originalCamVideoTrack = null;
 
     let captureStream = null; let liveStreamData = null;
-
-    async function initHardwareStream(videoElementId, placeholderIconId, isStreamMode = false) {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: currentFacingMode }, audio: true });
-            const videoEl = document.getElementById(videoElementId); videoEl.srcObject = stream; videoEl.style.display = 'block'; document.getElementById(placeholderIconId).style.display = 'none';
-            if (isStreamMode) { liveStreamData = stream; } else { captureStream = stream; }
-        } catch (err) { pushAlert("HARDWARE ERROR", "MIC/CAM BLOCKED", false); }
-    }
-
-    function stopHardwareStream(isStreamMode = false, videoElementId, placeholderIconId) {
-        let activeStream = isStreamMode ? liveStreamData : captureStream;
-        if (activeStream) { activeStream.getTracks().forEach(track => track.stop()); if (isStreamMode) liveStreamData = null; else captureStream = null; }
-        document.getElementById(videoElementId).style.display = 'none'; document.getElementById(placeholderIconId).style.display = 'block';
-    }
 
     function generateChatKey(u1, u2) { return [u1, u2].sort().join('::'); }
     function encryptMessage(text, u1, u2) { const key = generateChatKey(u1, u2); let res = ''; for(let i=0; i<text.length; i++) res += String.fromCharCode(text.charCodeAt(i) ^ key.charCodeAt(i % key.length)); return btoa(unescape(encodeURIComponent(res))); }
@@ -633,7 +622,6 @@ body.is-video-fullscreen #main-nav {
     async function initApp() {
         if (window.emailjs) emailjs.init("9tRVwCTCF-XeYFzR8");
         initThreeJS(); cacheDOM(); initGlassParticles(); initGlassInteractions(); setupEventListeners();
-
         try {
             const { data, error } = await supabase.from('users').select('*'); if (error) throw error;
             if (!data || data.length === 0) { AppState.usersDB = defaultUsers; for (const email of Object.keys(defaultUsers)) { await supabase.from('users').insert({ id: email, data: defaultUsers[email] }); AppState.takenUsernames.push(defaultUsers[email].username); } } 
@@ -641,8 +629,7 @@ body.is-video-fullscreen #main-nav {
             const savedCurrentUser = localStorage.getItem('txg_device_auth'); if (savedCurrentUser && AppState.usersDB[savedCurrentUser]) { AppState.currentUser = savedCurrentUser; initRealtimeChats(); }
             handleRoute(); pushAlert("SYSTEM", "DATABASE CONNECTED!", true, true); document.getElementById('black-void').style.display = 'none';
         } catch (e) {
-            pushAlert("DB WARNING", "USING LOCAL CACHE.", false, false); AppState.usersDB = defaultUsers; Object.keys(defaultUsers).forEach(email => AppState.takenUsernames.push(defaultUsers[email].username));
-            handleRoute(); document.getElementById('black-void').style.display = 'none';
+            pushAlert("DB WARNING", "USING LOCAL CACHE.", false, false); AppState.usersDB = defaultUsers; Object.keys(defaultUsers).forEach(email => AppState.takenUsernames.push(defaultUsers[email].username)); handleRoute(); document.getElementById('black-void').style.display = 'none';
         }
     }
 
@@ -653,24 +640,53 @@ body.is-video-fullscreen #main-nav {
     function vibrate(pattern = [50]) { if (navigator.vibrate) navigator.vibrate(pattern); }
     function debounce(func, timeout = 300) { let timer; return (...args) => { clearTimeout(timer); timer = setTimeout(() => { func.apply(this, args); }, timeout); }; }
 
+    // --- HOME PAGE ACTIVE STREAMS LOADER ---
+    async function loadActiveStreams() {
+        const carousel = document.getElementById('home-live-carousel');
+        const noMsg = document.getElementById('no-live-msg');
+        if (!carousel) return;
+        
+        try {
+            const { data, error } = await supabase.from('live_streams').select('*').eq('is_live', true);
+            if (error) throw error;
+            
+            // Clear existing cards
+            document.querySelectorAll('.live-card').forEach(el => el.remove());
+            
+            if (data.length > 0) {
+                noMsg.style.display = 'none';
+                data.forEach(stream => {
+                    const u = AppState.usersDB[stream.host_id];
+                    if (u) {
+                        carousel.innerHTML += `<div class="live-card" id="live-card-${stream.host_id}" data-action="join-stream-feed" data-target-user="${stream.host_id}"><img src="${u.avatar}" class="bg"><div class="live-card-badge">LIVE</div><div class="live-card-info"><img src="${u.avatar}"><h4>${u.name}</h4></div></div>`;
+                    }
+                });
+            } else {
+                noMsg.style.display = 'block';
+            }
+        } catch(e) { console.error(e); }
+    }
+
     function handleRoute() {
         if (!AppState.currentUser) { DOM.pageAccess.style.display = 'flex'; DOM.appContainer.style.display = 'none'; return; }
         DOM.pageAccess.style.display = 'none'; DOM.appContainer.style.display = 'block';
 
-        let hash = window.location.hash.slice(1);
-        if (!hash || !document.getElementById(`view-${hash}`)) hash = 'home';
-
+        let hash = window.location.hash.slice(1); if (!hash || !document.getElementById(`view-${hash}`)) hash = 'home';
         if (document.fullscreenElement || document.webkitIsFullScreen) { document.querySelector('[data-action="exit-fullscreen"]')?.click(); }
 
         if (hash === 'chats') { 
-            document.body.classList.remove('in-conversation', 'in-capture'); AppState.activeChatUser = null;
-            document.getElementById('chat-sidebar').classList.remove('hidden'); document.getElementById('chat-sidebar').style.display = 'flex'; 
-            document.getElementById('chat-window').classList.remove('active'); document.getElementById('chat-window').style.display = 'none'; 
-            loadConversationsList(); 
-        } 
-        else if (hash === 'capture') { document.body.classList.add('in-capture'); document.body.classList.remove('in-conversation'); initHardwareStream('reel-video-element', 'reel-placeholder-icon', false); } 
-        else if (hash === 'stream') { document.body.classList.remove('in-conversation', 'in-capture'); }
-        else { document.body.classList.remove('in-conversation', 'in-capture'); stopHardwareStream(false, 'reel-video-element', 'reel-placeholder-icon'); stopHardwareStream(true, 'stream-live-feed', 'stream-placeholder-icon'); }
+            document.body.classList.remove('in-conversation', 'in-capture'); AppState.activeChatUser = null; document.getElementById('chat-sidebar').classList.remove('hidden'); document.getElementById('chat-sidebar').style.display = 'flex'; document.getElementById('chat-window').classList.remove('active'); document.getElementById('chat-window').style.display = 'none'; loadConversationsList(); 
+        } else if (hash === 'capture') { 
+            document.body.classList.add('in-capture'); document.body.classList.remove('in-conversation'); 
+            // Regular Camera Capture
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: currentFacingMode }, audio: true }).then(stream => { captureStream = stream; const videoEl = document.getElementById('reel-video-element'); videoEl.srcObject = stream; videoEl.style.display = 'block'; document.getElementById('reel-placeholder-icon').style.display = 'none'; }).catch(e=>{});
+        } else if (hash === 'stream') { 
+            document.body.classList.remove('in-conversation', 'in-capture'); 
+        } else { 
+            document.body.classList.remove('in-conversation', 'in-capture'); 
+            if(captureStream) { captureStream.getTracks().forEach(t=>t.stop()); captureStream = null; document.getElementById('reel-video-element').style.display='none'; document.getElementById('reel-placeholder-icon').style.display='block'; }
+            if(!isLive && liveStreamData) { liveStreamData.getTracks().forEach(t=>t.stop()); liveStreamData = null; document.getElementById('stream-live-feed').style.display='none'; document.getElementById('stream-placeholder-icon').style.display='block'; }
+        }
 
         document.querySelectorAll('.view-section').forEach(view => view.classList.remove('active-view'));
         const targetView = document.getElementById(`view-${hash}`); targetView.classList.add('active-view');
@@ -683,12 +699,10 @@ body.is-video-fullscreen #main-nav {
         if (hash === 'profile' && AppState.currentlyViewingProfile === AppState.currentUser) DOM.globalProfileActions.style.display = 'flex'; else DOM.globalProfileActions.style.display = 'none';
         
         const canvasObj = document.getElementById('canvas-container'); if (hash === 'watch' || hash === 'capture') canvasObj.style.display = 'none'; else canvasObj.style.display = 'block';
-        if (hash === 'home') { const teamxUser = AppState.usersDB["TEAMX@TXG.COM"]; if (teamxUser && teamxUser.customBannerUrl) DOM.bgVideo.src = teamxUser.customBannerUrl; DOM.bgVideo.play().catch(e => console.log("Autoplay blocked.")); } else { DOM.bgVideo.pause(); }
+        if (hash === 'home') { loadActiveStreams(); const teamxUser = AppState.usersDB["TEAMX@TXG.COM"]; if (teamxUser && teamxUser.customBannerUrl) DOM.bgVideo.src = teamxUser.customBannerUrl; DOM.bgVideo.play().catch(e => {}); } else { DOM.bgVideo.pause(); }
         if (hash === 'profile') { if (!AppState.currentlyViewingProfile) AppState.currentlyViewingProfile = AppState.currentUser; openProfileData(AppState.currentlyViewingProfile); }
         if (hash !== 'profile' && DOM.profileAudio) DOM.profileAudio.pause();
-        
-        if (hash === 'search') filterSearchData(); 
-        if (hash === 'watch') renderWatchFeed();
+        if (hash === 'search') filterSearchData(); if (hash === 'watch') renderWatchFeed();
     }
     window.addEventListener('hashchange', handleRoute);
 
@@ -701,36 +715,16 @@ body.is-video-fullscreen #main-nav {
         document.getElementById('nav-profile-btn').addEventListener('click', () => { AppState.currentlyViewingProfile = AppState.currentUser; });
         DOM.searchInput.addEventListener('input', filterSearchData);
 
-        const chatMsgInputEl = document.getElementById('chat-msg-input');
-        if (chatMsgInputEl) { chatMsgInputEl.addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.preventDefault(); const sendBtn = document.querySelector('[data-action="send-chat-message"]'); if(sendBtn) sendBtn.click(); } }); }
-        
-        // Listen to Enter key on Stream Chat
-        const streamChatInputEl = document.getElementById('stream-chat-input');
-        if (streamChatInputEl) { streamChatInputEl.addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.preventDefault(); document.querySelector('[data-action="send-stream-chat"]')?.click(); } }); }
+        const chatMsgInputEl = document.getElementById('chat-msg-input'); if (chatMsgInputEl) { chatMsgInputEl.addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.preventDefault(); const sendBtn = document.querySelector('[data-action="send-chat-message"]'); if(sendBtn) sendBtn.click(); } }); }
+        const streamChatInputEl = document.getElementById('stream-chat-input'); if (streamChatInputEl) { streamChatInputEl.addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.preventDefault(); document.querySelector('[data-action="send-stream-chat"]')?.click(); } }); }
 
-        let newChatSearchTimer;
-        const newChatSearchEl = document.getElementById('new-chat-search');
-        if (newChatSearchEl) {
-            newChatSearchEl.addEventListener('input', (e) => {
-                clearTimeout(newChatSearchTimer);
-                newChatSearchTimer = setTimeout(() => {
-                    const query = e.target.value.toLowerCase(); const resultsContainer = document.getElementById('new-chat-results'); resultsContainer.innerHTML = '';
-                    if (!query) return;
-                    Object.keys(AppState.usersDB).forEach(email => {
-                        if (email === AppState.currentUser) return; 
-                        const user = AppState.usersDB[email];
-                        if (user.name.toLowerCase().includes(query) || user.username.toLowerCase().includes(query)) {
-                            resultsContainer.innerHTML += `<div class="search-result-item glass-panel" data-action="start-new-chat" data-target-user="${email}"><img src="${user.avatar}" class="search-avatar"><div class="search-info"><h4>${user.name}</h4><p>@${user.username}</p></div></div>`;
-                        }
-                    });
-                }, 300);
-            });
-        }
+        let newChatSearchTimer; const newChatSearchEl = document.getElementById('new-chat-search');
+        if (newChatSearchEl) { newChatSearchEl.addEventListener('input', (e) => { clearTimeout(newChatSearchTimer); newChatSearchTimer = setTimeout(() => { const query = e.target.value.toLowerCase(); const resultsContainer = document.getElementById('new-chat-results'); resultsContainer.innerHTML = ''; if (!query) return; Object.keys(AppState.usersDB).forEach(email => { if (email === AppState.currentUser) return; const user = AppState.usersDB[email]; if (user.name.toLowerCase().includes(query) || user.username.toLowerCase().includes(query)) { resultsContainer.innerHTML += `<div class="search-result-item glass-panel" data-action="start-new-chat" data-target-user="${email}"><img src="${user.avatar}" class="search-avatar"><div class="search-info"><h4>${user.name}</h4><p>@${user.username}</p></div></div>`; } }); }, 300); }); }
 
         DOM.volSlider.addEventListener('input', (e) => { const vol = e.target.value / 100; DOM.bgVideo.volume = vol; if (vol > 0 && DOM.bgVideo.muted) { DOM.bgVideo.muted = false; DOM.muteIcon.classList.replace('ph-speaker-slash', 'ph-speaker-high'); DOM.muteIcon.style.color = "var(--neon)"; } else if (vol === 0 && !DOM.bgVideo.muted) { DOM.bgVideo.muted = true; DOM.muteIcon.classList.replace('ph-speaker-high', 'ph-speaker-slash'); DOM.muteIcon.style.color = "#fff"; } });
 
         document.getElementById('clip-file-input')?.addEventListener('change', (e) => { const file = e.target.files[0]; if (file) { pendingClipFile = file; pendingClipType = file.type.startsWith('image') ? 'image' : 'video'; document.getElementById('clip-file-name-display').innerText = file.name; } });
-        document.querySelectorAll('input[data-chat-attach]').forEach(input => { input.addEventListener('change', async (e) => { const file = e.target.files[0]; if (!file) return; const type = e.target.dataset.chatAttach; document.getElementById('chat-attach-menu').classList.remove('show'); try { const url = await uploadFileToCloudStorage(file, `${AppState.currentUser}_chat_${type}_${Date.now()}`, `CHAT ${type.toUpperCase()}`); sendChatMessage(url, type); } catch(err) { console.error(err); } e.target.value = ""; }); });
+        document.querySelectorAll('input[data-chat-attach]').forEach(input => { input.addEventListener('change', async (e) => { const file = e.target.files[0]; if (!file) return; const type = e.target.dataset.chatAttach; document.getElementById('chat-attach-menu').classList.remove('show'); try { const url = await uploadFileToCloudStorage(file, `${AppState.currentUser}_chat_${type}_${Date.now()}`, `CHAT ${type.toUpperCase()}`); sendChatMessage(url, type); } catch(err) {} e.target.value = ""; }); });
 
         document.addEventListener('click', async (e) => {
             const btn = e.target.closest('[data-action]');
@@ -752,40 +746,23 @@ body.is-video-fullscreen #main-nav {
                 case 'apply-dob': AppState.finalDOB = `${document.getElementById('day-in').value}/${document.getElementById('month-in').value}/${document.getElementById('year-in').value}`; document.getElementById('dob-trigger').innerText = AppState.finalDOB; closeOverlay('dob-overlay'); break;
                 case 'logout-user': closeOverlay('menu-overlay'); AppState.currentUser = null; AppState.currentlyViewingProfile = null; localStorage.removeItem('txg_device_auth'); document.getElementById('form-login').reset(); gsap.to('#app-container', {scale: 0.8, opacity: 0, duration: 0.5, onComplete: () => { window.location.hash = ''; handleRoute(); gsap.fromTo('#page-access', {scale: 1.5, opacity: 0}, {scale: 1, opacity: 1, duration: 0.5}); gsap.set('#app-container', {scale: 1, opacity: 1}); }}); pushAlert("SYSTEM", "DEVICE CREDENTIALS WIPED.", true); break;
                 case 'open-user-profile': AppState.currentlyViewingProfile = btn.dataset.email; window.location.hash = 'profile'; break;
-                
-                case 'profile-action-primary':
-                    if (AppState.currentlyViewingProfile === AppState.currentUser) {
-                        const me = AppState.usersDB[AppState.currentUser]; document.getElementById('edit-avatar-preview').src = me.avatar; const nameParts = me.name.split(' '); document.getElementById('edit-name').value = nameParts[0] || ''; document.getElementById('edit-surname').value = nameParts.slice(1).join(' ') || ''; document.getElementById('edit-username').value = me.username || ''; document.getElementById('edit-bio').value = me.bio || ''; document.getElementById('edit-gmail').value = me.gmail || ''; document.getElementById('edit-txg').value = AppState.currentUser;
-                        const linksList = document.getElementById('dynamic-links-list'); linksList.innerHTML = ''; (me.links || []).forEach(link => { linksList.insertAdjacentHTML('beforeend', `<div class="dynamic-link-row"><input type="text" value="${link}"><button type="button" class="remove-link-btn" data-action="remove-link-row"><i class="ph ph-trash"></i></button></div>`); });
-                        document.getElementById('edit-music-url').value = me.profileMusic || ''; document.getElementById('edit-music-file').value = ""; document.getElementById('music-file-name').innerText = "NO FILE SELECTED"; openOverlay('edit-profile-overlay');
-                    } else {
-                        const targetUser = AppState.usersDB[AppState.currentlyViewingProfile]; const me = AppState.usersDB[AppState.currentUser]; const idx = targetUser.followers.indexOf(AppState.currentUser);
-                        if(idx > -1) { targetUser.followers.splice(idx, 1); me.following.splice(me.following.indexOf(AppState.currentlyViewingProfile), 1); } else { targetUser.followers.push(AppState.currentUser); me.following.push(AppState.currentlyViewingProfile); }
-                        syncUserToCloud(AppState.currentlyViewingProfile); syncUserToCloud(AppState.currentUser); openProfileData(AppState.currentlyViewingProfile);
-                    } break;
-                
-                case 'profile-action-secondary': 
-                    if (AppState.currentlyViewingProfile === AppState.currentUser) { navigator.clipboard.writeText(window.location.href); pushAlert("SYSTEM", "PROFILE LINK COPIED", true); } else { const targetProfile = AppState.currentlyViewingProfile; window.location.hash = 'chats'; setTimeout(() => { loadActiveChat(targetProfile); }, 150); } break;
-
+                case 'profile-action-primary': if (AppState.currentlyViewingProfile === AppState.currentUser) { const me = AppState.usersDB[AppState.currentUser]; document.getElementById('edit-avatar-preview').src = me.avatar; const nameParts = me.name.split(' '); document.getElementById('edit-name').value = nameParts[0] || ''; document.getElementById('edit-surname').value = nameParts.slice(1).join(' ') || ''; document.getElementById('edit-username').value = me.username || ''; document.getElementById('edit-bio').value = me.bio || ''; document.getElementById('edit-gmail').value = me.gmail || ''; document.getElementById('edit-txg').value = AppState.currentUser; const linksList = document.getElementById('dynamic-links-list'); linksList.innerHTML = ''; (me.links || []).forEach(link => { linksList.insertAdjacentHTML('beforeend', `<div class="dynamic-link-row"><input type="text" value="${link}"><button type="button" class="remove-link-btn" data-action="remove-link-row"><i class="ph ph-trash"></i></button></div>`); }); document.getElementById('edit-music-url').value = me.profileMusic || ''; document.getElementById('edit-music-file').value = ""; document.getElementById('music-file-name').innerText = "NO FILE SELECTED"; openOverlay('edit-profile-overlay'); } else { const targetUser = AppState.usersDB[AppState.currentlyViewingProfile]; const me = AppState.usersDB[AppState.currentUser]; const idx = targetUser.followers.indexOf(AppState.currentUser); if(idx > -1) { targetUser.followers.splice(idx, 1); me.following.splice(me.following.indexOf(AppState.currentlyViewingProfile), 1); } else { targetUser.followers.push(AppState.currentUser); me.following.push(AppState.currentlyViewingProfile); } syncUserToCloud(AppState.currentlyViewingProfile); syncUserToCloud(AppState.currentUser); openProfileData(AppState.currentlyViewingProfile); } break;
+                case 'profile-action-secondary': if (AppState.currentlyViewingProfile === AppState.currentUser) { navigator.clipboard.writeText(window.location.href); pushAlert("SYSTEM", "PROFILE LINK COPIED", true); } else { const targetProfile = AppState.currentlyViewingProfile; window.location.hash = 'chats'; setTimeout(() => { loadActiveChat(targetProfile); }, 150); } break;
                 case 'trigger-avatar-upload': document.getElementById('avatar-upload').click(); break;
                 case 'add-link-input': document.getElementById('dynamic-links-list').insertAdjacentHTML('beforeend', `<div class="dynamic-link-row"><input type="text" placeholder="https://..."><button type="button" class="remove-link-btn" data-action="remove-link-row"><i class="ph ph-trash"></i></button></div>`); break;
                 case 'remove-link-row': btn.closest('.dynamic-link-row').remove(); break;
-                case 'save-profile':
-                    const user = AppState.usersDB[AppState.currentUser]; user.name = document.getElementById('edit-name').value + " " + document.getElementById('edit-surname').value; user.bio = document.getElementById('edit-bio').value; user.gmail = document.getElementById('edit-gmail').value; user.links = Array.from(document.querySelectorAll('#dynamic-links-list input')).map(inp => inp.value.trim()).filter(val => val !== "");
-                    syncUserToCloud(AppState.currentUser); pushAlert("SUCCESS", "CREDENTIALS UPDATED", true); closeOverlay('edit-profile-overlay'); openProfileData(AppState.currentUser); break;
-
+                case 'save-profile': const user = AppState.usersDB[AppState.currentUser]; user.name = document.getElementById('edit-name').value + " " + document.getElementById('edit-surname').value; user.bio = document.getElementById('edit-bio').value; user.gmail = document.getElementById('edit-gmail').value; user.links = Array.from(document.querySelectorAll('#dynamic-links-list input')).map(inp => inp.value.trim()).filter(val => val !== ""); syncUserToCloud(AppState.currentUser); pushAlert("SUCCESS", "CREDENTIALS UPDATED", true); closeOverlay('edit-profile-overlay'); openProfileData(AppState.currentUser); break;
                 case 'save-preferences': pushAlert("SYSTEM", "PREFERENCES SAVED", true); break;
                 case 'save-security': pushAlert("SYSTEM", "SECURITY PROTOCOLS UPDATED", true); break;
 
                 case 'open-capture-reel': closeOverlay('create-overlay'); window.location.hash = 'capture'; break;
                 case 'close-capture': window.location.hash = 'home'; break;
-                
-                case 'swap-capture-mode':
-                    currentCaptureMode = currentCaptureMode === 'video' ? 'image' : 'video'; const recBtn = document.getElementById('btn-record-reel');
-                    btn.innerHTML = currentCaptureMode === 'video' ? '<i class="ph ph-image"></i>' : '<i class="ph ph-video-camera"></i>'; recBtn.innerHTML = currentCaptureMode === 'video' ? '<i class="ph-fill ph-record"></i>' : '<i class="ph-fill ph-camera"></i>'; pushAlert("MODE CHANGED", `NOW IN ${currentCaptureMode.toUpperCase()} MODE`, true); break;
-
-                case 'flip-camera': currentFacingMode = currentFacingMode === 'user' ? 'environment' : 'user'; stopHardwareStream(false, 'reel-video-element', 'reel-placeholder-icon'); initHardwareStream('reel-video-element', 'reel-placeholder-icon', false); pushAlert("CAPTURE", "CAMERA FLIPPED", true); break;
-                
+                case 'swap-capture-mode': currentCaptureMode = currentCaptureMode === 'video' ? 'image' : 'video'; const recBtn = document.getElementById('btn-record-reel'); btn.innerHTML = currentCaptureMode === 'video' ? '<i class="ph ph-image"></i>' : '<i class="ph ph-video-camera"></i>'; recBtn.innerHTML = currentCaptureMode === 'video' ? '<i class="ph-fill ph-record"></i>' : '<i class="ph-fill ph-camera"></i>'; pushAlert("MODE CHANGED", `NOW IN ${currentCaptureMode.toUpperCase()} MODE`, true); break;
+                case 'flip-camera': 
+                    currentFacingMode = currentFacingMode === 'user' ? 'environment' : 'user'; 
+                    if (captureStream) captureStream.getTracks().forEach(t=>t.stop());
+                    navigator.mediaDevices.getUserMedia({ video: { facingMode: currentFacingMode }, audio: true }).then(stream => { captureStream = stream; document.getElementById('reel-video-element').srcObject = stream; pushAlert("CAPTURE", "CAMERA FLIPPED", true); }).catch(e=>{});
+                    break;
                 case 'record-reel': 
                     if (currentCaptureMode === 'video') {
                         if (mediaRecorder && mediaRecorder.state === 'recording') {
@@ -799,82 +776,211 @@ body.is-video-fullscreen #main-nav {
                         const canvas = document.createElement('canvas'); const videoEl = document.getElementById('reel-video-element'); canvas.width = videoEl.videoWidth; canvas.height = videoEl.videoHeight; canvas.getContext('2d').drawImage(videoEl, 0, 0);
                         canvas.toBlob((blob) => { capturedBlob = blob; capturedFileType = 'image'; document.getElementById('capture-preview-img').src = URL.createObjectURL(blob); document.getElementById('capture-preview-img').style.display = 'block'; document.getElementById('capture-preview-vid').style.display = 'none'; openOverlay('capture-confirm-overlay'); }, 'image/jpeg'); pushAlert("CAPTURE", "PHOTO TAKEN", true);
                     } break;
-                
                 case 'discard-capture': capturedBlob = null; closeOverlay('capture-confirm-overlay'); break;
-                
                 case 'proceed-with-capture':
                     closeOverlay('capture-confirm-overlay'); const ext = capturedFileType === 'video' ? '.webm' : '.jpg'; const file = new File([capturedBlob], "capture_" + Date.now() + ext, { type: capturedBlob.type });
                     pendingClipFile = file; pendingClipType = capturedFileType; window.location.hash = 'home';
                     setTimeout(() => { document.getElementById('upload-modal-title').innerText = "UPLOAD MEDIA"; document.getElementById('upload-file-picker-wrap').style.display = "block"; document.getElementById('clip-file-name-display').innerText = file.name; document.getElementById('clip-title-input').value = "MY CAPTURE"; document.getElementById('clip-desc-input').value = ""; openOverlay('upload-clip-overlay'); }, 400); break;
 
-                // --- NEW STREAM LOGIC ---
+                case 'go-live-studio': closeOverlay('create-overlay'); window.location.hash = 'stream'; break;
+                
+                // --- FIX: BLACK SCREEN LOGIC ON GO LIVE ---
                 case 'go-live-alert': 
+                    const title = document.getElementById('stream-setup-title').value || "UNTITLED ARENA";
+                    const sDesc = document.getElementById('stream-setup-desc').value || "";
+                    
                     pushAlert("SYSTEM", "INITIALIZING LIVE BROADCAST...", true); 
-                    await initHardwareStream('stream-live-feed', 'stream-placeholder-icon', true); 
-                    document.getElementById('stream-status-badge').innerHTML = '<i class="ph-fill ph-broadcast"></i> LIVE';
-                    document.getElementById('stream-status-badge').style.color = '#ff003c';
-                    btn.style.display = 'none'; 
+                    
+                    try {
+                        // Request permissions but IMMEDIATELY disable them for "Black Screen" start
+                        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: currentFacingMode }, audio: true });
+                        originalCamVideoTrack = stream.getVideoTracks()[0];
+                        stream.getTracks().forEach(t => t.enabled = false); // Black & Muted
+                        
+                        liveStreamData = stream;
+                        const videoEl = document.getElementById('stream-live-feed');
+                        videoEl.srcObject = liveStreamData;
+                        videoEl.style.display = 'block';
+                        document.getElementById('stream-placeholder-icon').style.display = 'none';
+                        
+                        isLive = true; 
+                        document.getElementById('stream-status-badge').innerHTML = '<i class="ph-fill ph-broadcast"></i> LIVE'; 
+                        document.getElementById('stream-status-badge').style.color = '#ff003c'; 
+                        btn.style.display = 'none'; 
+                        
+                        // Create SQL entry
+                        await supabase.from('live_streams').insert([{ id: AppState.currentUser, host_id: AppState.currentUser, title: title, description: sDesc }]);
 
-                    if(streamChannel) {
-                        streamChannel.send({type: 'broadcast', event: 'stream_started', payload: { user: AppState.currentUser }});
+                        // Auto Record for VOD
+                        streamChunks = [];
+                        streamRecorder = new MediaRecorder(liveStreamData);
+                        streamRecorder.ondataavailable = e => { if(e.data.size > 0) streamChunks.push(e.data); };
+                        streamRecorder.start();
+                    } catch (e) {
+                        pushAlert("HARDWARE ERROR", "MIC/CAM REQUIRED TO STREAM", false);
                     }
                     break;
-                
-                case 'toggle-stream-mic': if (liveStreamData) { const audioTrack = liveStreamData.getAudioTracks()[0]; if (audioTrack) { audioTrack.enabled = !audioTrack.enabled; btn.classList.toggle('active-st', audioTrack.enabled); pushAlert("STREAM", audioTrack.enabled ? "MIC ACTIVE" : "MIC MUTED", true); } } else { pushAlert("ERROR", "START STREAM FIRST", false); } break;
-                case 'toggle-stream-cam': if (liveStreamData) { const videoTrack = liveStreamData.getVideoTracks()[0]; if (videoTrack) { videoTrack.enabled = !videoTrack.enabled; btn.classList.toggle('active-st', videoTrack.enabled); pushAlert("STREAM", videoTrack.enabled ? "CAMERA ACTIVE" : "CAMERA MUTED", true); } } else { pushAlert("ERROR", "START STREAM FIRST", false); } break;
-                
-                case 'toggle-stream-screen': 
-                    if (!liveStreamData) { pushAlert("ERROR", "START STREAM FIRST", false); return; }
-                    if (isScreenSharing) {
-                        try {
-                            const camStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: currentFacingMode } });
-                            const videoTrack = camStream.getVideoTracks()[0];
-                            liveStreamData.removeTrack(liveStreamData.getVideoTracks()[0]);
-                            liveStreamData.addTrack(videoTrack);
-                            document.getElementById('stream-live-feed').srcObject = liveStreamData;
-                            isScreenSharing = false; btn.classList.remove('active-st'); pushAlert("STREAM", "CAMERA RESTORED", true);
-                        } catch (e) { pushAlert("ERROR", "CAM ACCESS DENIED", false); }
-                    } else {
-                        try {
-                            const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
-                            const screenTrack = screenStream.getVideoTracks()[0];
-                            liveStreamData.removeTrack(liveStreamData.getVideoTracks()[0]);
-                            liveStreamData.addTrack(screenTrack);
-                            document.getElementById('stream-live-feed').srcObject = liveStreamData;
-                            
-                            screenTrack.onended = () => { isScreenSharing = false; btn.classList.remove('active-st'); };
-                            isScreenSharing = true; btn.classList.add('active-st'); pushAlert("STREAM", "SCREEN SHARE ACTIVE", true);
-                        } catch (e) { pushAlert("ERROR", "SCREEN SHARE DENIED", false); }
-                    }
+
+                // --- FIX: TOGGLE LOGIC TO ENABLE/DISABLE TRACKS ---
+                case 'toggle-stream-mic': 
+                    if (liveStreamData) { 
+                        const audioTrack = liveStreamData.getAudioTracks()[0]; 
+                        if (audioTrack) { 
+                            audioTrack.enabled = !audioTrack.enabled; 
+                            btn.classList.toggle('active-st', audioTrack.enabled); 
+                            pushAlert("STREAM", audioTrack.enabled ? "MIC ACTIVE" : "MIC MUTED", true); 
+                        } 
+                    } else { pushAlert("ERROR", "START STREAM FIRST", false); } 
                     break;
+                
+                case 'toggle-stream-cam': 
+                    if (liveStreamData && originalCamVideoTrack) { 
+                        // If we are screen sharing, restore camera first
+                        if(isScreenSharing) {
+                            liveStreamData.removeTrack(liveStreamData.getVideoTracks()[0]);
+                            liveStreamData.addTrack(originalCamVideoTrack);
+                            isScreenSharing = false;
+                            document.querySelector('[data-action="toggle-stream-screen"]').classList.remove('active-st');
+                        }
+                        
+                        originalCamVideoTrack.enabled = !originalCamVideoTrack.enabled; 
+                        btn.classList.toggle('active-st', originalCamVideoTrack.enabled); 
+                        pushAlert("STREAM", originalCamVideoTrack.enabled ? "CAMERA ACTIVE" : "CAMERA MUTED", true); 
+                    } else { pushAlert("ERROR", "START STREAM FIRST", false); } 
+                    break;
+                
+                case 'swap-stream-cam': 
+                    if (!isLive || isScreenSharing) return pushAlert("ERROR", "CAMERA MUST BE ACTIVE", false);
+                    currentFacingMode = currentFacingMode === 'user' ? 'environment' : 'user';
+                    try {
+                        const newStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: currentFacingMode }, audio: true });
+                        const newVideoTrack = newStream.getVideoTracks()[0];
+                        
+                        // Keep the enabled state of the old track
+                        newVideoTrack.enabled = originalCamVideoTrack.enabled;
+                        
+                        liveStreamData.removeTrack(originalCamVideoTrack); 
+                        originalCamVideoTrack.stop();
+                        
+                        originalCamVideoTrack = newVideoTrack;
+                        liveStreamData.addTrack(originalCamVideoTrack);
+                        pushAlert("STREAM", "CAMERA FLIPPED", true);
+                    } catch (e) { pushAlert("ERROR", "CAMERA SWAP FAILED", false); }
+                    break;
+
+                // ... inside your switch(btn.dataset.action) ...
+
+case 'toggle-stream-screen': 
+    if (!liveStreamData) { 
+        pushAlert("ERROR", "START STREAM FIRST", false); 
+        return; 
+    }
+    
+    if (isScreenSharing) {
+        // Switch back to Camera
+        liveStreamData.removeTrack(liveStreamData.getVideoTracks()[0]); 
+        liveStreamData.addTrack(originalCamVideoTrack);
+        isScreenSharing = false; 
+        btn.classList.remove('active-st'); 
+        pushAlert("STREAM", "SCREEN SHARE ENDED", true);
+    } else {
+        try {
+            // OPTIMIZED FOR GAMING/CASTING
+            const displayMediaOptions = {
+                video: {
+                    frameRate: { ideal: 60, max: 60 }, // Request 60 FPS for smooth gameplay
+                    displaySurface: "monitor"          // Request the entire screen
+                },
+                audio: {
+                    // Ask the browser to capture system/game audio if the OS allows it
+                    echoCancellation: false,   // Turn off to prevent game audio distortion
+                    noiseSuppression: false,   // Turn off to keep game audio pure
+                    autoGainControl: false
+                }
+            };
+
+            const screenStream = await navigator.mediaDevices.getDisplayMedia(displayMediaOptions); 
+            const screenTrack = screenStream.getVideoTracks()[0];
+            
+            // Check if we successfully got system audio
+            const audioTracks = screenStream.getAudioTracks();
+            if (audioTracks.length > 0) {
+                // If we got game audio, add it to our live stream!
+                liveStreamData.addTrack(audioTracks[0]);
+                pushAlert("SYSTEM", "GAME AUDIO CAPTURED", true);
+            }
+            
+            // Replace camera track with screen track
+            liveStreamData.removeTrack(liveStreamData.getVideoTracks()[0]); 
+            liveStreamData.addTrack(screenTrack);
+            
+            // Handle the user stopping the cast via the browser's native UI
+            screenTrack.onended = () => { 
+                document.querySelector('[data-action="toggle-stream-screen"]').click(); 
+            };
+            
+            isScreenSharing = true; 
+            btn.classList.add('active-st'); 
+            pushAlert("STREAM", "SCREEN CAST ACTIVE", true);
+            
+        } catch (e) { 
+            console.error(e);
+            pushAlert("ERROR", "SCREEN SHARE DENIED OR UNSUPPORTED", false); 
+        }
+    } 
+    break;
+
                 
                 case 'stop-stream': 
-                    pushAlert("STREAM", "STREAM TERMINATED", false); 
-                    stopHardwareStream(true, 'stream-live-feed', 'stream-placeholder-icon'); 
-                    document.getElementById('stream-status-badge').innerHTML = '<i class="ph-fill ph-broadcast"></i> OFFLINE';
-                    document.getElementById('stream-status-badge').style.color = '#fff';
+                    if (!isLive) return;
+                    pushAlert("STREAM", "STREAM TERMINATED. PREPARING VOD...", true); 
+                    isLive = false;
+                    document.getElementById('stream-status-badge').innerHTML = '<i class="ph-fill ph-broadcast"></i> OFFLINE'; 
+                    document.getElementById('stream-status-badge').style.color = '#fff'; 
                     document.getElementById('btn-go-live').style.display = 'block';
-                    if(streamChannel) { streamChannel.send({type: 'broadcast', event: 'stream_ended', payload: { user: AppState.currentUser }}); }
+                    
+                    // Remove from SQL Database
+                    await supabase.from('live_streams').delete().eq('id', AppState.currentUser);
+                    
+                    if(streamRecorder && streamRecorder.state !== 'inactive') {
+                        streamRecorder.onstop = () => {
+                            if(originalCamVideoTrack) originalCamVideoTrack.stop();
+                            if(liveStreamData) liveStreamData.getTracks().forEach(t=>t.stop());
+                            document.getElementById('stream-live-feed').style.display='none'; 
+                            document.getElementById('stream-placeholder-icon').style.display='block';
+                            
+                            if (streamChunks.length === 0) { pushAlert("ERROR", "STREAM WAS TOO SHORT", false); return; }
+                            
+                            const blob = new Blob(streamChunks, { type: 'video/webm' });
+                            const file = new File([blob], "vod_" + Date.now() + ".webm", { type: 'video/webm' });
+                            
+                            pendingClipFile = file; pendingClipType = 'video'; window.location.hash = 'home';
+                            
+                            setTimeout(() => {
+                                document.getElementById('upload-modal-title').innerText = "PUBLISH VOD";
+                                document.getElementById('upload-file-picker-wrap').style.display = "block";
+                                document.getElementById('clip-file-name-display').innerText = file.name;
+                                document.getElementById('clip-title-input').value = document.getElementById('stream-setup-title').value;
+                                document.getElementById('clip-desc-input').value = document.getElementById('stream-setup-desc').value + " #VOD";
+                                openOverlay('upload-clip-overlay');
+                            }, 400);
+                        };
+                        streamRecorder.stop();
+                    } else { 
+                        if(originalCamVideoTrack) originalCamVideoTrack.stop();
+                        if(liveStreamData) liveStreamData.getTracks().forEach(t=>t.stop());
+                        document.getElementById('stream-live-feed').style.display='none'; document.getElementById('stream-placeholder-icon').style.display='block'; 
+                    }
                     break;
 
                 case 'send-stream-chat':
-                    const sInput = document.getElementById('stream-chat-input');
-                    const sText = sInput.value.trim();
-                    if (!sText) return;
+                    const sInput = document.getElementById('stream-chat-input'); const sText = sInput.value.trim(); if (!sText) return;
                     if(streamChannel) {
-                        streamChannel.send({
-                            type: 'broadcast', event: 'stream_chat_msg',
-                            payload: { username: AppState.usersDB[AppState.currentUser].username, text: sText }
-                        });
-                        // Append locally instantly
-                        const sArea = document.getElementById('stream-chat-area');
-                        sArea.innerHTML += `<div class="msg"><span class="user">@${AppState.usersDB[AppState.currentUser].username}:</span> ${sText}</div>`;
-                        sArea.scrollTop = sArea.scrollHeight;
-                    }
-                    sInput.value = '';
-                    break;
-                // -----------------------------
-
+                        streamChannel.send({ type: 'broadcast', event: 'stream_chat_msg', payload: { username: AppState.usersDB[AppState.currentUser].username, text: sText } });
+                        const sArea = document.getElementById('stream-chat-area'); sArea.innerHTML += `<div class="msg"><span class="user" style="color:var(--neon);">@${AppState.usersDB[AppState.currentUser].username}:</span> ${sText}</div>`; sArea.scrollTop = sArea.scrollHeight;
+                    } sInput.value = ''; break;
+                
+                case 'join-stream-feed': window.location.hash = 'stream'; document.querySelector('.stream-title').innerText = AppState.usersDB[btn.dataset.targetUser].name + "'S ARENA"; pushAlert("SYSTEM", "CONNECTING TO BROADCAST...", true); break;
                 case 'open-upload-clip': document.getElementById('upload-modal-title').innerText = "UPLOAD MEDIA"; document.getElementById('edit-clip-mode-id').value = ""; document.getElementById('upload-file-picker-wrap').style.display = "block"; document.getElementById('thumbnail-section').style.display = "none"; document.getElementById('clip-location-input').value = ""; document.getElementById('clip-overlay-text').value = ""; document.getElementById('clip-title-input').value = ""; document.getElementById('clip-desc-input').value = ""; pendingClipFile = null; document.getElementById('clip-file-name-display').innerText = ""; openOverlay('upload-clip-overlay'); closeOverlay('create-overlay'); break;
                 
                 case 'initiate-upload': 
@@ -887,22 +993,8 @@ body.is-video-fullscreen #main-nav {
                 case 'delete-clip-prompt': document.getElementById('delete-clip-id').value = btn.dataset.clipId; openOverlay('delete-clip-overlay'); break;
                 case 'confirm-delete-clip': const delId = document.getElementById('delete-clip-id').value; AppState.usersDB[AppState.currentUser].clips = AppState.usersDB[AppState.currentUser].clips.filter(c => c.id !== delId); syncUserToCloud(AppState.currentUser); pushAlert('SYSTEM', 'MEDIA DELETED', true); closeOverlay('delete-clip-overlay'); renderWatchFeed(); if (window.location.hash === '#profile') openProfileData(AppState.currentUser); break;
                 case 'watch-clip': window.location.hash = 'watch'; setTimeout(() => { const el = document.getElementById(btn.dataset.clipId); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 600); break;
-                
-                case 'enter-fullscreen':
-                    document.getElementById('feed-opt-' + btn.dataset.clipId).classList.remove('show'); const clipContainer = document.getElementById(btn.dataset.clipId);
-                    if(clipContainer) {
-                        clipContainer.classList.add('is-fullscreen'); document.body.classList.add('is-video-fullscreen'); 
-                        const vid = clipContainer.querySelector('video');
-                        if (vid && vid.webkitEnterFullscreen) { vid.webkitEnterFullscreen(); } else {
-                            const reqFS = clipContainer.requestFullscreen || clipContainer.webkitRequestFullscreen || clipContainer.msRequestFullscreen;
-                            if (reqFS) { reqFS.call(clipContainer).then(() => { try { screen.orientation.lock("landscape").catch(e=>{}); } catch(e){} }).catch(e=>{ try { screen.orientation.lock("landscape").catch(e=>{}); } catch(e){} }); }
-                        }
-                    } break;
-                    
-                case 'exit-fullscreen':
-                    document.querySelectorAll('.is-fullscreen').forEach(el => el.classList.remove('is-fullscreen')); document.body.classList.remove('is-video-fullscreen'); 
-                    if (document.exitFullscreen) { document.exitFullscreen().catch(e=>{}); } else if (document.webkitExitFullscreen) { document.webkitExitFullscreen(); } try { screen.orientation.unlock(); } catch(e){} break;
-
+                case 'enter-fullscreen': document.getElementById('feed-opt-' + btn.dataset.clipId).classList.remove('show'); const clipContainer = document.getElementById(btn.dataset.clipId); if(clipContainer) { clipContainer.classList.add('is-fullscreen'); document.body.classList.add('is-video-fullscreen'); const vid = clipContainer.querySelector('video'); if (vid && vid.webkitEnterFullscreen) { vid.webkitEnterFullscreen(); } else { const reqFS = clipContainer.requestFullscreen || clipContainer.webkitRequestFullscreen || clipContainer.msRequestFullscreen; if (reqFS) { reqFS.call(clipContainer).then(() => { try { screen.orientation.lock("landscape").catch(e=>{}); } catch(e){} }).catch(e=>{ try { screen.orientation.lock("landscape").catch(e=>{}); } catch(e){} }); } } } break;
+                case 'exit-fullscreen': document.querySelectorAll('.is-fullscreen').forEach(el => el.classList.remove('is-fullscreen')); document.body.classList.remove('is-video-fullscreen'); if (document.exitFullscreen) { document.exitFullscreen().catch(e=>{}); } else if (document.webkitExitFullscreen) { document.webkitExitFullscreen(); } try { screen.orientation.unlock(); } catch(e){} break;
                 case 'toggle-feed-options': document.getElementById('feed-opt-' + btn.dataset.clipId).classList.toggle('show'); break;
                 case 'toggle-like': const likeAuthor = btn.dataset.author; const likeClipId = btn.dataset.clipId; const likeClip = AppState.usersDB[likeAuthor].clips.find(c => c.id === likeClipId); if(likeClip) { const isLiked = likeClip.likedBy.includes(AppState.currentUser); if(isLiked) { likeClip.likedBy = likeClip.likedBy.filter(u => u !== AppState.currentUser); document.getElementById('like-icon-'+likeClipId).className = "ph ph-heart"; document.getElementById('like-icon-'+likeClipId).style.color = "#fff"; } else { likeClip.likedBy.push(AppState.currentUser); document.getElementById('like-icon-'+likeClipId).className = "ph-fill ph-heart"; document.getElementById('like-icon-'+likeClipId).style.color = "var(--neon)"; const anim = document.getElementById('heart-anim-'+likeClipId); anim.style.opacity = '1'; gsap.fromTo(anim, {scale: 0}, {scale: 1.5, opacity: 0, duration: 1, ease: "power2.out"}); } document.getElementById('like-count-'+likeClipId).innerText = likeClip.likedBy.length; syncUserToCloud(likeAuthor); } break;
                 case 'open-comments': const commAuthor = btn.dataset.author; const commClipId = btn.dataset.clipId; document.getElementById('active-comment-clip-id').value = commClipId; document.getElementById('active-comment-author-id').value = commAuthor; const commClip = AppState.usersDB[commAuthor].clips.find(c => c.id === commClipId); const commList = document.getElementById('comments-list'); commList.innerHTML = ''; if(!commClip.comments || commClip.comments.length === 0) { commList.innerHTML = '<p style="color:#888; font-size:0.7rem; text-align:center; padding: 20px;">NO COMMENTS YET.</p>'; } else { commClip.comments.forEach(c => { const u = AppState.usersDB[c.user] || AppState.usersDB["TEAMX@TXG.COM"]; commList.innerHTML += `<div style="display:flex; gap:10px; margin-bottom:15px; align-items:flex-start;"><img src="${u.avatar}" style="width:30px; height:30px; border-radius:50%; object-fit:cover; border:1px solid var(--neon);"><div><h5 style="font-family:'Orbitron'; font-size:0.7rem; color:var(--neon); margin-bottom:2px;">@${u.username}</h5><p style="font-size:0.7rem; color:#ccc;">${c.text}</p></div></div>`; }); } openOverlay('comments-overlay'); break;
@@ -937,9 +1029,11 @@ body.is-video-fullscreen #main-nav {
     async function loadConversationsList() { if (!AppState.currentUser) return; const { data, error } = await supabase.from('messages').select('*').or(`sender.eq.${AppState.currentUser},receiver.eq.${AppState.currentUser}`).order('created_at', { ascending: false }); if (error) return console.error(error); const recentChats = {}; data.forEach(msg => { const otherUser = msg.sender === AppState.currentUser ? msg.receiver : msg.sender; if (!recentChats[otherUser]) recentChats[otherUser] = msg; }); if (AppState.activeChatUser && !recentChats[AppState.activeChatUser]) recentChats[AppState.activeChatUser] = { dummy: true }; const listEl = document.getElementById('chat-conversation-list'); listEl.innerHTML = ''; if (Object.keys(recentChats).length === 0) { listEl.innerHTML = `<p style="text-align:center; color:#888; font-size:0.8rem; margin-top:20px;">NO SECURE CHANNELS FOUND.</p>`; return; } Object.keys(recentChats).forEach(uid => { const u = AppState.usersDB[uid]; if(!u) return; let latestText = "NEW CONVERSATION..."; if(!recentChats[uid].dummy) { const dec = decryptMessage(recentChats[uid].content, AppState.currentUser, uid); try { const parsed = JSON.parse(dec); latestText = `[${parsed.type.toUpperCase()}]`; } catch(e) { latestText = dec; } } listEl.innerHTML += `<div class="chat-list-item" data-action="open-chat-window" data-target-user="${uid}"><img src="${u.avatar}"><div class="info"><h5>${u.name}</h5><p>${latestText}</p></div></div>`; }); }
     async function loadActiveChat(uid) { AppState.activeChatUser = uid; document.body.classList.add('in-conversation'); document.getElementById('chat-sidebar').classList.add('hidden'); document.getElementById('chat-window').classList.add('active'); document.getElementById('chat-window').style.display = 'flex'; const u = AppState.usersDB[uid]; document.getElementById('active-chat-avatar').src = u.avatar; document.getElementById('active-chat-name').innerText = u.name; const { data, error } = await supabase.from('messages').select('*').or(`and(sender.eq.${AppState.currentUser},receiver.eq.${uid}),and(sender.eq.${uid},receiver.eq.${AppState.currentUser})`).order('created_at', { ascending: true }); const area = document.getElementById('chat-messages-area'); area.innerHTML = ''; if (data) { data.forEach(msg => { const isMe = msg.sender === AppState.currentUser; const decText = decryptMessage(msg.content, AppState.currentUser, uid); let finalHTML = decText; try { const media = JSON.parse(decText); if(media.type === 'image') finalHTML = `<img src="${media.url}">`; else if(media.type === 'video') finalHTML = `<video src="${media.url}" controls></video>`; else if(media.type === 'audio') finalHTML = `<audio src="${media.url}" controls></audio>`; else if(media.type === 'document') finalHTML = `<a href="${media.url}" target="_blank" style="color:#00f2ff; text-decoration:none;"><i class="ph-fill ph-file-text"></i> VIEW DOCUMENT</a>`; else if(media.type === 'location') finalHTML = `<div class="chat-bubble-map"><i class="ph-fill ph-map-pin"></i></div><div style="font-size:0.6rem; text-align:center;">${media.url}</div>`; } catch(e) {} area.innerHTML += `<div class="chat-bubble ${isMe ? 'me' : 'them'}">${finalHTML}</div>`; }); } area.scrollTop = area.scrollHeight; }
     
-    // --- UPDATED REALTIME & STREAM BROADCASTING ---
     function initRealtimeChats() { 
         supabase.channel('public:messages').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => { const msg = payload.new; if (msg.sender === AppState.currentUser || msg.receiver === AppState.currentUser) { loadConversationsList(); if (AppState.activeChatUser && (msg.sender === AppState.activeChatUser || msg.receiver === AppState.activeChatUser)) { const isMe = msg.sender === AppState.currentUser; const decText = decryptMessage(msg.content, AppState.currentUser, AppState.activeChatUser); let finalHTML = decText; try { const media = JSON.parse(decText); if(media.type === 'image') finalHTML = `<img src="${media.url}">`; else if(media.type === 'video') finalHTML = `<video src="${media.url}" controls></video>`; else if(media.type === 'audio') finalHTML = `<audio src="${media.url}" controls></audio>`; else if(media.type === 'document') finalHTML = `<a href="${media.url}" target="_blank" style="color:#00f2ff; text-decoration:none;"><i class="ph-fill ph-file-text"></i> VIEW DOCUMENT</a>`; else if(media.type === 'location') finalHTML = `<div class="chat-bubble-map"><i class="ph-fill ph-map-pin"></i></div><div style="font-size:0.6rem; text-align:center;">${media.url}</div>`; } catch(e) {} const area = document.getElementById('chat-messages-area'); area.innerHTML += `<div class="chat-bubble ${isMe ? 'me' : 'them'}">${finalHTML}</div>`; area.scrollTop = area.scrollHeight; vibrate([30, 30]); } else if(msg.receiver === AppState.currentUser) { pushAlert("NEW COMMS", `MESSAGE FROM ${AppState.usersDB[msg.sender]?.username || 'OPERATOR'}`, true); } } }).subscribe(); 
+
+        // Listen for active stream updates via Realtime DB table changes
+        supabase.channel('public:live_streams').on('postgres_changes', { event: '*', schema: 'public', table: 'live_streams' }, payload => { loadActiveStreams(); }).subscribe();
 
         callChannel = supabase.channel('call_signaling');
         callChannel.on('broadcast', { event: 'incoming_call' }, payload => { if (payload.payload.targetUser === AppState.currentUser) { const caller = AppState.usersDB[payload.payload.callerId]; if(caller) { document.getElementById('incoming-caller-avatar').src = caller.avatar; document.getElementById('incoming-caller-name').innerText = caller.name; currentCallTarget = payload.payload.callerId; isVideoCallActive = payload.payload.isVideo; openOverlay('incoming-call-overlay'); vibrate([500, 200, 500, 200, 500]); } }
@@ -952,15 +1046,10 @@ body.is-video-fullscreen #main-nav {
         }).subscribe();
 
         streamChannel = supabase.channel('arena_global_stream');
-        streamChannel.on('broadcast', { event: 'stream_started' }, payload => {
-            if (payload.payload.user !== AppState.currentUser) { pushAlert("LIVE STREAM", `@${AppState.usersDB[payload.payload.user].username} WENT LIVE!`, true); }
-        }).on('broadcast', { event: 'stream_chat_msg' }, payload => {
+        streamChannel.on('broadcast', { event: 'stream_chat_msg' }, payload => {
             if (payload.payload.username !== AppState.usersDB[AppState.currentUser].username) {
                 const sArea = document.getElementById('stream-chat-area');
-                if(sArea) {
-                    sArea.innerHTML += `<div class="msg"><span class="user">@${payload.payload.username}:</span> ${payload.payload.text}</div>`;
-                    sArea.scrollTop = sArea.scrollHeight;
-                }
+                if(sArea) { sArea.innerHTML += `<div class="msg"><span class="user">@${payload.payload.username}:</span> ${payload.payload.text}</div>`; sArea.scrollTop = sArea.scrollHeight; }
             }
         }).subscribe();
     }
@@ -982,126 +1071,19 @@ body.is-video-fullscreen #main-nav {
         let feedHtml = ''; 
         allClips.forEach(clip => { 
             const author = AppState.usersDB[clip.author]; const likesCount = clip.likedBy ? clip.likedBy.length : 0; const isLiked = clip.likedBy && clip.likedBy.includes(AppState.currentUser); const likeIconClass = isLiked ? "ph-fill ph-heart" : "ph ph-heart"; const likeColorClass = isLiked ? "color: var(--neon);" : "color: #fff;"; const viewsCount = clip.viewedBy ? clip.viewedBy.length : (clip.views || 0); const commentsCount = clip.comments ? clip.comments.length : 0; 
-            
-            let optionsMenu = `
-                <div class="action-btn" data-action="toggle-feed-options" data-clip-id="${clip.id}">
-                    <i class="ph ph-dots-three-vertical"></i>
-                    <div class="feed-options-dropdown" id="feed-opt-${clip.id}">
-                        <div class="feed-opt-item" data-action="enter-fullscreen" data-clip-id="${clip.id}"><i class="ph ph-corners-out"></i> FULL SCREEN</div>
-                        ${clip.author === AppState.currentUser ? `
-                            <div class="feed-opt-item" data-action="edit-clip" data-clip-id="${clip.id}"><i class="ph ph-pencil-simple"></i> EDIT</div>
-                            <div class="feed-opt-item" style="color:var(--neon);" data-action="delete-clip-prompt" data-clip-id="${clip.id}"><i class="ph ph-trash"></i> DELETE</div>
-                        ` : ''}
-                    </div>
-                </div>
-            `;
-
+            let optionsMenu = `<div class="action-btn" data-action="toggle-feed-options" data-clip-id="${clip.id}"><i class="ph ph-dots-three-vertical"></i><div class="feed-options-dropdown" id="feed-opt-${clip.id}"><div class="feed-opt-item" data-action="enter-fullscreen" data-clip-id="${clip.id}"><i class="ph ph-corners-out"></i> FULL SCREEN</div>${clip.author === AppState.currentUser ? `<div class="feed-opt-item" data-action="edit-clip" data-clip-id="${clip.id}"><i class="ph ph-pencil-simple"></i> EDIT</div><div class="feed-opt-item" style="color:var(--neon);" data-action="delete-clip-prompt" data-clip-id="${clip.id}"><i class="ph ph-trash"></i> DELETE</div>` : ''}</div></div>`;
             let mediaElement = clip.type === 'image' ? `<img src="${clip.url}" class="feed-media">` : `<video src="${clip.url}" poster="${clip.thumbnail || ''}" loop playsinline preload="metadata"></video>`; 
-            
-            feedHtml += `
-                <div class="watch-clip-container" id="${clip.id}" data-author="${clip.author}"> 
-                    ${mediaElement} 
-                    <i class="ph-fill ph-heart heart-animation" id="heart-anim-${clip.id}"></i> 
-                    <div class="exit-fullscreen-btn" data-action="exit-fullscreen"><i class="ph ph-arrow-left" style="font-size: 1.2rem;"></i> BACK</div>
-                    <div class="watch-clip-actions"> 
-                        <div class="action-btn" data-action="toggle-like" data-clip-id="${clip.id}" data-author="${clip.author}"> <i class="${likeIconClass}" style="${likeColorClass}" id="like-icon-${clip.id}"></i><span id="like-count-${clip.id}">${likesCount}</span> </div> 
-                        <div class="action-btn" data-action="open-comments" data-clip-id="${clip.id}" data-author="${clip.author}"><i class="ph-fill ph-chat-circle"></i><span>${commentsCount}</span></div> 
-                        <div class="action-btn"><i class="ph-fill ph-share-network"></i><span>SHARE</span></div> 
-                        ${optionsMenu} 
-                    </div> 
-                    <div class="watch-clip-info"> 
-                        ${clip.location ? `<div class="clip-location"><i class="ph-fill ph-map-pin"></i> ${clip.location}</div>` : ''} 
-                        <div class="clip-author-row"> 
-                            <img src="${author.avatar}" alt="Avatar"> <h4 style="color:#fff; font-family:'Orbitron'; font-size: 1rem;">@${author.username}</h4> 
-                            ${clip.author !== AppState.currentUser ? `<button class="btn btn-outline" style="padding: 4px 12px; font-size: 0.6rem; border-radius: 20px; width: auto; margin:0; border-color: var(--neon); color: var(--neon);">FOLLOW</button>` : ''} 
-                        </div> 
-                        <h4 style="color:#fff; font-size: 1rem;">${clip.title}</h4> 
-                        <p style="font-size:0.7rem; color:#ccc; margin-bottom: 5px;">${clip.description || ''}</p> 
-                        <p id="views-${clip.id}" style="font-size:0.7rem; color:#aaa; font-family: 'Orbitron';"><i class="ph-fill ph-play"></i> ${viewsCount} VIEWS</p> 
-                    </div> 
-                </div>`; 
-        }); 
-        feed.innerHTML = feedHtml; 
-
+            feedHtml += `<div class="watch-clip-container" id="${clip.id}" data-author="${clip.author}"> ${mediaElement} <i class="ph-fill ph-heart heart-animation" id="heart-anim-${clip.id}"></i> <div class="exit-fullscreen-btn" data-action="exit-fullscreen"><i class="ph ph-arrow-left" style="font-size: 1.2rem;"></i> BACK</div><div class="watch-clip-actions"> <div class="action-btn" data-action="toggle-like" data-clip-id="${clip.id}" data-author="${clip.author}"> <i class="${likeIconClass}" style="${likeColorClass}" id="like-icon-${clip.id}"></i><span id="like-count-${clip.id}">${likesCount}</span> </div> <div class="action-btn" data-action="open-comments" data-clip-id="${clip.id}" data-author="${clip.author}"><i class="ph-fill ph-chat-circle"></i><span>${commentsCount}</span></div> <div class="action-btn"><i class="ph-fill ph-share-network"></i><span>SHARE</span></div> ${optionsMenu} </div> <div class="watch-clip-info"> ${clip.location ? `<div class="clip-location"><i class="ph-fill ph-map-pin"></i> ${clip.location}</div>` : ''} <div class="clip-author-row"> <img src="${author.avatar}" alt="Avatar"> <h4 style="color:#fff; font-family:'Orbitron'; font-size: 1rem;">@${author.username}</h4> ${clip.author !== AppState.currentUser ? `<button class="btn btn-outline" style="padding: 4px 12px; font-size: 0.6rem; border-radius: 20px; width: auto; margin:0; border-color: var(--neon); color: var(--neon);">FOLLOW</button>` : ''} </div> <h4 style="color:#fff; font-size: 1rem;">${clip.title}</h4> <p style="font-size:0.7rem; color:#ccc; margin-bottom: 5px;">${clip.description || ''}</p> <p id="views-${clip.id}" style="font-size:0.7rem; color:#aaa; font-family: 'Orbitron';"><i class="ph-fill ph-play"></i> ${viewsCount} VIEWS</p> </div> </div>`; 
+        }); feed.innerHTML = feedHtml; 
         const containers = feed.querySelectorAll('.watch-clip-container'); 
-        const observer = new IntersectionObserver((entries) => { 
-            entries.forEach(entry => { 
-                const vid = entry.target.querySelector('video'); 
-                if (entry.isIntersecting) { 
-                    if (vid) vid.play().catch(e => {}); 
-                    const cId = entry.target.id; const aId = entry.target.dataset.author; const cData = AppState.usersDB[aId]?.clips.find(c => c.id === cId);
-                    if (cData && cData.viewedBy && !cData.viewedBy.includes(AppState.currentUser)) {
-                        cData.viewedBy.push(AppState.currentUser);
-                        const vEl = document.getElementById(`views-${cId}`); if(vEl) vEl.innerHTML = `<i class="ph-fill ph-play"></i> ${cData.viewedBy.length} VIEWS`;
-                        syncUserToCloud(aId);
-                    }
-                } else { 
-                    if (vid) { vid.pause(); vid.currentTime = 0; } 
-                } 
-            }); 
-        }, { root: feed, threshold: 0.6 }); 
-        containers.forEach(c => observer.observe(c)); 
+        const observer = new IntersectionObserver((entries) => { entries.forEach(entry => { const vid = entry.target.querySelector('video'); if (entry.isIntersecting) { if (vid) vid.play().catch(e => {}); const cId = entry.target.id; const aId = entry.target.dataset.author; const cData = AppState.usersDB[aId]?.clips.find(c => c.id === cId); if (cData && cData.viewedBy && !cData.viewedBy.includes(AppState.currentUser)) { cData.viewedBy.push(AppState.currentUser); const vEl = document.getElementById(`views-${cId}`); if(vEl) vEl.innerHTML = `<i class="ph-fill ph-play"></i> ${cData.viewedBy.length} VIEWS`; syncUserToCloud(aId); } } else { if (vid) { vid.pause(); vid.currentTime = 0; } } }); }, { root: feed, threshold: 0.6 }); containers.forEach(c => observer.observe(c)); 
     }
 
     function initThreeJS() { 
-        const canvasContainer = document.getElementById('canvas-container'); 
-        if (!canvasContainer) return; 
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); 
-        renderer.setPixelRatio(window.devicePixelRatio); renderer.setSize(window.innerWidth, window.innerHeight); 
-        canvasContainer.appendChild(renderer.domElement); 
-        const sceneMain = new THREE.Scene(); 
-        const cameraMain = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000); 
-        cameraMain.position.z = 6; 
-        
-        const glassMat = new THREE.MeshPhysicalMaterial({ color: 0xffffff, metalness: 0, roughness: 0.0005, transmission: 1, ior: 1.5, transparent: true, opacity: 1 }); 
-        const glowMat = new THREE.MeshBasicMaterial({ color: 0xff003c, wireframe: true, transparent: true, opacity: 0.4 }); 
-        const character = new THREE.Group(); 
-        const headGeom = new THREE.IcosahedronGeometry(0.8, 4); const head = new THREE.Mesh(headGeom, glassMat); const headGlow = new THREE.Mesh(headGeom, glowMat); 
-        headGlow.scale.setScalar(1.); head.position.y = 1.3; headGlow.position.y = 1.3001; 
-        const bodyGeom = new THREE.TorusKnotGeometry(0.7, 0.25, 128, 32); const body = new THREE.Mesh(bodyGeom, glassMat); const bodyGlow = new THREE.Mesh(bodyGeom, glowMat); 
-        bodyGlow.scale.setScalar(1); body.position.y = -0.4; bodyGlow.position.y = -0.4001; 
-        character.add(head, headGlow, body, bodyGlow); sceneMain.add(character); 
-        
-        const redLight = new THREE.PointLight(0xff003c, 10, 0); redLight.position.set(5, 5, 5); sceneMain.add(redLight); 
-        const cyanLight = new THREE.PointLight(0x00f2ff, 5, 0); cyanLight.position.set(-5, -5, 5); sceneMain.add(cyanLight); 
-        sceneMain.add(new THREE.AmbientLight(0xffffff, 0.5)); 
-        
-        const starCount = 6000; const starPositions = new Float32Array(starCount * 3); 
-        for (let i = 0; i < starCount * 3; i += 3) { 
-            const r = 50 + Math.random() * 100; const th = Math.random() * Math.PI * 2; const ph = Math.acos(2 * Math.random() - 1); 
-            starPositions[i] = r * Math.sin(ph) * Math.cos(th); starPositions[i+1] = r * Math.sin(ph) * Math.sin(th); starPositions[i+2] = r * Math.cos(ph); 
-        } 
-        const starGeo = new THREE.BufferGeometry(); starGeo.setAttribute('position', new THREE.BufferAttribute(starPositions, 3)); 
-        const starField = new THREE.Points(starGeo, new THREE.PointsMaterial({color: 0xffffff, size: 0.1, transparent: true, opacity: 0.8, blending: THREE.AdditiveBlending})); 
-        sceneMain.add(starField); 
-
-        let isDragging = false, prevX = 0, hoverTweenChar, hoverTweenStars;
-        const startDragging = (x) => { isDragging = true; prevX = x; if (hoverTweenChar) hoverTweenChar.kill(); if (hoverTweenStars) hoverTweenStars.kill(); };
-        window.addEventListener('mousedown', (e) => startDragging(e.clientX));
-        window.addEventListener('touchstart', (e) => startDragging(e.touches[0].clientX), {passive: false});
-        window.addEventListener('mouseup', () => isDragging = false);
-        window.addEventListener('touchend', () => isDragging = false);
-        window.addEventListener('mousemove', (e) => {
-            if (isDragging) { const dX = e.clientX - prevX; character.rotation.y += dX * 0.005; starField.rotation.y += dX * 0.002; prevX = e.clientX; }
-            else if (window.gsap) { const tY = (e.clientX / window.innerWidth - 0.5) * 1.5; hoverTweenChar = gsap.to(character.rotation, { y: tY, duration: 1.5, ease: "power2.out" }); hoverTweenStars = gsap.to(starField.rotation, { y: tY * 0.2, duration: 2, ease: "power2.out" }); }
-        });
-        window.addEventListener('touchmove', (e) => { if (isDragging) { const dX = e.touches[0].clientX - prevX; character.rotation.y += dX * 0.01; starField.rotation.y += dX * 0.004; prevX = e.touches[0].clientX; } }, {passive: false});
-
-        function animate() { 
-            requestAnimationFrame(animate); 
-            if(!isDragging) { character.rotation.y += 0.005; starField.rotation.y += 0.0005; }
-            character.position.y = Math.sin(Date.now()*0.001)*0.2; 
-            renderer.render(sceneMain, cameraMain); 
-        } 
-        animate(); 
-        window.addEventListener('resize', () => { renderer.setSize(window.innerWidth, window.innerHeight); cameraMain.aspect = window.innerWidth / window.innerHeight; cameraMain.updateProjectionMatrix(); }); 
-    }
+        const canvasContainer = document.getElementById('canvas-container'); if (!canvasContainer) return; const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); renderer.setPixelRatio(window.devicePixelRatio); renderer.setSize(window.innerWidth, window.innerHeight); canvasContainer.appendChild(renderer.domElement); const sceneMain = new THREE.Scene(); const cameraMain = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000); cameraMain.position.z = 6; const glassMat = new THREE.MeshPhysicalMaterial({ color: 0xffffff, metalness: 0, roughness: 0.0005, transmission: 1, ior: 1.5, transparent: true, opacity: 1 }); const glowMat = new THREE.MeshBasicMaterial({ color: 0xff003c, wireframe: true, transparent: true, opacity: 0.4 }); const character = new THREE.Group(); const headGeom = new THREE.IcosahedronGeometry(0.8, 4); const head = new THREE.Mesh(headGeom, glassMat); const headGlow = new THREE.Mesh(headGeom, glowMat); headGlow.scale.setScalar(1.); head.position.y = 1.3; headGlow.position.y = 1.3001; const bodyGeom = new THREE.TorusKnotGeometry(0.7, 0.25, 128, 32); const body = new THREE.Mesh(bodyGeom, glassMat); const bodyGlow = new THREE.Mesh(bodyGeom, glowMat); bodyGlow.scale.setScalar(1); body.position.y = -0.4; bodyGlow.position.y = -0.4001; character.add(head, headGlow, body, bodyGlow); sceneMain.add(character); const redLight = new THREE.PointLight(0xff003c, 10, 0); redLight.position.set(5, 5, 5); sceneMain.add(redLight); const cyanLight = new THREE.PointLight(0x00f2ff, 5, 0); cyanLight.position.set(-5, -5, 5); sceneMain.add(cyanLight); sceneMain.add(new THREE.AmbientLight(0xffffff, 0.5)); const starCount = 6000; const starPositions = new Float32Array(starCount * 3); for (let i = 0; i < starCount * 3; i += 3) { const r = 50 + Math.random() * 100; const th = Math.random() * Math.PI * 2; const ph = Math.acos(2 * Math.random() - 1); starPositions[i] = r * Math.sin(ph) * Math.cos(th); starPositions[i+1] = r * Math.sin(ph) * Math.sin(th); starPositions[i+2] = r * Math.cos(ph); } const starGeo = new THREE.BufferGeometry(); starGeo.setAttribute('position', new THREE.BufferAttribute(starPositions, 3)); const starField = new THREE.Points(starGeo, new THREE.PointsMaterial({color: 0xffffff, size: 0.1, transparent: true, opacity: 0.8, blending: THREE.AdditiveBlending})); sceneMain.add(starField); let isDragging = false, prevX = 0, hoverTweenChar, hoverTweenStars; const startDragging = (x) => { isDragging = true; prevX = x; if (hoverTweenChar) hoverTweenChar.kill(); if (hoverTweenStars) hoverTweenStars.kill(); }; window.addEventListener('mousedown', (e) => startDragging(e.clientX)); window.addEventListener('touchstart', (e) => startDragging(e.touches[0].clientX), {passive: false}); window.addEventListener('mouseup', () => isDragging = false); window.addEventListener('touchend', () => isDragging = false); window.addEventListener('mousemove', (e) => { if (isDragging) { const dX = e.clientX - prevX; character.rotation.y += dX * 0.005; starField.rotation.y += dX * 0.002; prevX = e.clientX; } else if (window.gsap) { const tY = (e.clientX / window.innerWidth - 0.5) * 1.5; hoverTweenChar = gsap.to(character.rotation, { y: tY, duration: 1.5, ease: "power2.out" }); hoverTweenStars = gsap.to(starField.rotation, { y: tY * 0.2, duration: 2, ease: "power2.out" }); } }); window.addEventListener('touchmove', (e) => { if (isDragging) { const dX = e.touches[0].clientX - prevX; character.rotation.y += dX * 0.01; starField.rotation.y += dX * 0.004; prevX = e.touches[0].clientX; } }, {passive: false}); function animate() { requestAnimationFrame(animate); if(!isDragging) { character.rotation.y += 0.005; starField.rotation.y += 0.0005; } character.position.y = Math.sin(Date.now()*0.001)*0.2; renderer.render(sceneMain, cameraMain); } animate(); window.addEventListener('resize', () => { renderer.setSize(window.innerWidth, window.innerHeight); cameraMain.aspect = window.innerWidth / window.innerHeight; cameraMain.updateProjectionMatrix(); }); }
 
     initApp();
 </script>
-
-
-
 
 
 </body>
