@@ -619,11 +619,29 @@ body.is-video-fullscreen #main-nav {
         });
     }
 
-    async function initApp() {
+        async function initApp() {
         if (window.emailjs) emailjs.init("9tRVwCTCF-XeYFzR8");
-        initThreeJS(); cacheDOM(); initGlassParticles(); initGlassInteractions(); setupEventListeners();
+        initThreeJS(); 
+        cacheDOM(); 
+        initGlassParticles(); 
+        initGlassInteractions(); 
+        setupEventListeners();
+
+        // --- NEW CODE: Check for Screen Share Support ---
+        const screenShareBtn = document.querySelector('[data-action="toggle-stream-screen"]');
+        // If the browser doesn't have the getDisplayMedia API, hide the button
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
+            if (screenShareBtn) {
+                screenShareBtn.style.display = 'none';
+                console.log("Screen sharing not supported on this device. Button hidden.");
+            }
+        }
+        // -------------------------------------------------
+
         try {
-            const { data, error } = await supabase.from('users').select('*'); if (error) throw error;
+            const { data, error } = await supabase.from('users').select('*'); 
+            // ... (rest of your existing initApp code)
+ if (error) throw error;
             if (!data || data.length === 0) { AppState.usersDB = defaultUsers; for (const email of Object.keys(defaultUsers)) { await supabase.from('users').insert({ id: email, data: defaultUsers[email] }); AppState.takenUsernames.push(defaultUsers[email].username); } } 
             else { data.forEach((row) => { AppState.usersDB[row.id] = row.data; AppState.takenUsernames.push(row.data.username); }); }
             const savedCurrentUser = localStorage.getItem('txg_device_auth'); if (savedCurrentUser && AppState.usersDB[savedCurrentUser]) { AppState.currentUser = savedCurrentUser; initRealtimeChats(); }
@@ -924,9 +942,20 @@ case 'toggle-stream-screen':
             pushAlert("STREAM", "SCREEN CAST ACTIVE", true);
             
         } catch (e) { 
-            console.error(e);
-            pushAlert("ERROR", "SCREEN SHARE DENIED OR UNSUPPORTED", false); 
+            console.error("Screen Share Error: ", e.name, e.message);
+            
+            // Check specific error types to give the user better feedback
+            if (e.name === 'NotAllowedError') {
+                pushAlert("DENIED", "PERMISSION BLOCKED BY DEVICE", false);
+            } else if (e.name === 'NotSupportedError' || e.name === 'TypeError') {
+                pushAlert("UNSUPPORTED", "USE A PC TO SHARE SCREEN", false);
+            } else if (!window.isSecureContext) {
+                pushAlert("INSECURE", "HTTPS REQUIRED FOR SCREEN SHARE", false);
+            } else {
+                pushAlert("ERROR", "SCREEN SHARE FAILED", false); 
+            }
         }
+
     } 
     break;
 
