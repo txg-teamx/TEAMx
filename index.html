@@ -661,6 +661,17 @@ body.is-video-fullscreen #main-nav {
         });
     }
 
+    // Helper to find an email by username
+    function getUserByUsername(targetUser) {
+        const cleanUser = targetUser.toLowerCase();
+        for (let email in AppState.usersDB) {
+            if (AppState.usersDB[email].username.toLowerCase() === cleanUser) {
+                return email;
+            }
+        }
+        return null;
+    }
+
     async function initApp() {
         if (window.emailjs) emailjs.init("9tRVwCTCF-XeYFzR8");
         initThreeJS(); cacheDOM(); initGlassParticles(); initGlassInteractions(); setupEventListeners();
@@ -669,6 +680,11 @@ body.is-video-fullscreen #main-nav {
         if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
             const screenShareBtn = document.querySelector('[data-action="toggle-stream-screen"]');
             if (screenShareBtn) screenShareBtn.style.display = 'none';
+        }
+
+        // --- Ask device for notification permissions ---
+        if ('Notification' in window && Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+            Notification.requestPermission();
         }
 
         try {
@@ -706,53 +722,38 @@ body.is-video-fullscreen #main-nav {
             } else { noMsg.style.display = 'block'; }
         } catch(e) { console.error(e); }
     }
-    
-        // Helper to find an email by username
-    function getUserByUsername(targetUser) {
-        const cleanUser = targetUser.toLowerCase();
-        for (let email in AppState.usersDB) {
-            if (AppState.usersDB[email].username.toLowerCase() === cleanUser) {
-                return email;
-            }
-        }
-        return null;
-    }
 
-
-        function handleRoute() {
+    function handleRoute() {
         if (!AppState.currentUser) { DOM.pageAccess.style.display = 'flex'; DOM.appContainer.style.display = 'none'; return; }
         DOM.pageAccess.style.display = 'none'; DOM.appContainer.style.display = 'block';
 
         let hash = window.location.hash.slice(1); 
         if (!hash) hash = 'home';
         
-        let viewId = hash; // Default view is the hash
+        let viewId = hash; 
 
-        // --- NEW DYNAMIC ROUTING LOGIC ---
+        // --- DYNAMIC ROUTING LOGIC ---
         if (hash.startsWith('@')) {
             const targetUsername = hash.slice(1);
             const targetEmail = getUserByUsername(targetUsername);
             
             if (targetEmail) {
                 AppState.currentlyViewingProfile = targetEmail;
-                viewId = 'profile'; // The HTML section is still id="view-profile"
+                viewId = 'profile'; 
             } else {
                 pushAlert("404", "OPERATOR NOT FOUND", false);
                 window.location.replace('#home');
                 return;
             }
         } else if (hash === 'profile') {
-            // Auto-redirect generic #profile to the user's actual #@username
             const myUsername = AppState.usersDB[AppState.currentUser].username;
             window.location.replace('#@' + myUsername);
             return;
         }
-        // ----------------------------------
 
         if (!document.getElementById(`view-${viewId}`)) viewId = 'home';
         if (document.fullscreenElement || document.webkitIsFullScreen) { document.querySelector('[data-action="exit-fullscreen"]')?.click(); }
 
-        // Sidebar & Capture resets based on viewId
         if (viewId === 'chats') { 
             document.body.classList.remove('in-conversation', 'in-capture'); AppState.activeChatUser = null; document.getElementById('chat-sidebar').classList.remove('hidden'); document.getElementById('chat-sidebar').style.display = 'flex'; document.getElementById('chat-window').classList.remove('active'); document.getElementById('chat-window').style.display = 'none'; loadConversationsList(); 
         } else if (viewId === 'capture') { 
@@ -766,49 +767,57 @@ body.is-video-fullscreen #main-nav {
             if(!isLive && liveStreamData) { liveStreamData.getTracks().forEach(t=>t.stop()); liveStreamData = null; document.getElementById('stream-live-feed').style.display='none'; document.getElementById('stream-placeholder-icon').style.display='block'; }
         }
 
-        // View Toggling
         document.querySelectorAll('.view-section').forEach(view => view.classList.remove('active-view'));
         const targetView = document.getElementById(`view-${viewId}`); targetView.classList.add('active-view');
         gsap.fromTo(targetView, {opacity: 0, y: 30, scale:0.98}, {opacity: 1, y: 0, scale:1, duration: 0.5, ease: "power3.out"});
         
-        // Nav Highlighting
         document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
         const activeNav = document.querySelector(`.nav-item[data-nav="${viewId}"]`); if (activeNav) activeNav.classList.add('active');
 
-        // Headers & Video BG
         DOM.dynamicLogo.innerHTML = viewId === 'home' ? `TEAM<span>X</span>` : `${viewId.charAt(0).toUpperCase() + viewId.slice(1)}<span>X</span>`;
         DOM.headerChatsBtn.style.display = (viewId === 'home') ? 'inline-flex' : 'none';
-        
-        // Profile Action buttons visibility
         if (viewId === 'profile' && AppState.currentlyViewingProfile === AppState.currentUser) DOM.globalProfileActions.style.display = 'flex'; else DOM.globalProfileActions.style.display = 'none';
         
         const canvasObj = document.getElementById('canvas-container'); if (viewId === 'watch' || viewId === 'capture') canvasObj.style.display = 'none'; else canvasObj.style.display = 'block';
         if (viewId === 'home') { loadActiveStreams(); const teamxUser = AppState.usersDB["TEAMX@TXG.COM"]; if (teamxUser && teamxUser.customBannerUrl) DOM.bgVideo.src = teamxUser.customBannerUrl; DOM.bgVideo.play().catch(e => {}); } else { DOM.bgVideo.pause(); }
-        
-        // Open the loaded profile
         if (viewId === 'profile') { openProfileData(AppState.currentlyViewingProfile); }
         if (viewId !== 'profile' && DOM.profileAudio) DOM.profileAudio.pause();
-        
         if (viewId === 'search') filterSearchData(); 
         if (viewId === 'watch') renderWatchFeed();
     }
-
     window.addEventListener('hashchange', handleRoute);
 
     function setupEventListeners() {
         const resetFullscreenState = () => { if (!document.fullscreenElement && !document.webkitIsFullScreen) { document.querySelectorAll('.is-fullscreen').forEach(el => el.classList.remove('is-fullscreen')); document.body.classList.remove('is-video-fullscreen'); try { screen.orientation.unlock().catch(e=>{}); } catch(e){} } };
         document.addEventListener('fullscreenchange', resetFullscreenState); document.addEventListener('webkitfullscreenchange', resetFullscreenState);
 
-        document.getElementById('form-login').addEventListener('submit', (e) => { e.preventDefault(); const m = document.getElementById('login-mail').value.toUpperCase(); const p = document.getElementById('login-pass').value.toUpperCase(); if (!AppState.usersDB[m]) return pushAlert("DENIED", "USER NOT FOUND"); if (AppState.usersDB
-        [m].password === p) { AppState.currentUser = m; localStorage.setItem
-                    // Tell OneSignal exactly who this user is
-        if (window.OneSignalDeferred) {
-            OneSignalDeferred.push(function(OneSignal) {
-                OneSignal.login(AppState.currentUser); // Links their email/ID to their device
-            });
-        }
+        document.getElementById('form-login').addEventListener('submit', (e) => { 
+            e.preventDefault(); 
+            const m = document.getElementById('login-mail').value.toUpperCase(); 
+            const p = document.getElementById('login-pass').value.toUpperCase(); 
+            
+            if (!AppState.usersDB[m]) return pushAlert("DENIED", "USER NOT FOUND"); 
+            
+            if (AppState.usersDB[m].password === p) { 
+                AppState.currentUser = m; 
+                localStorage.setItem('txg_device_auth', AppState.currentUser); 
+                
+                // --- FIXED ONESIGNAL LOGIN PLACEMENT ---
+                if (window.OneSignalDeferred) {
+                    OneSignalDeferred.push(function(OneSignal) {
+                        OneSignal.login(AppState.currentUser); 
+                    });
+                }
+                // ----------------------------------------
 
-            ('txg_device_auth', AppState.currentUser); initRealtimeChats(); pushAlert("GRANTED", "SYNCING CHANNELS...", true); gsap.to('#page-access', {scale: 1.5, opacity: 0, duration: 1, ease: "power2.inOut", onComplete: () => { window.location.hash = 'home'; gsap.set('#page-access', {scale: 1, opacity: 1}); }}); } else { pushAlert("DENIED", "INCORRECT PASSWORD"); } });
+                initRealtimeChats(); 
+                pushAlert("GRANTED", "SYNCING CHANNELS...", true); 
+                gsap.to('#page-access', {scale: 1.5, opacity: 0, duration: 1, ease: "power2.inOut", onComplete: () => { window.location.hash = 'home'; gsap.set('#page-access', {scale: 1, opacity: 1}); }}); 
+            } else { 
+                pushAlert("DENIED", "INCORRECT PASSWORD"); 
+            } 
+        });
+
         document.getElementById('form-register').addEventListener('submit', (e) => { e.preventDefault(); const n = document.getElementById('reg-name').value, s = document.getElementById('reg-surname').value; const u = document.getElementById('reg-username').value, g = document.getElementById('reg-mail').value; const t = document.getElementById('txg-mail').value.toUpperCase(), p = document.getElementById('reg-pass').value.toUpperCase(); if(!n || !s || !u || !AppState.finalDOB || !g || !t || !p) return pushAlert("ERROR", "FILL ALL FIELDS"); if(AppState.takenUsernames.includes(u)) return pushAlert("CONFLICT", "USERNAME TAKEN"); if(AppState.usersDB[t]) return pushAlert("CONFLICT", "MAIL ALREADY REGISTERED"); window.pendingRegistrationData = { id: t, password: p, name: n + " " + s, username: u, gmail: g, bio: "NEW OPERATOR IN THE TXG ARENA.", links: [], profileMusic: "", followers: [], following: [], clips: [], avatar: "https://images.unsplash.com/photo-1511367461989-f85a21fda167?w=400&h=400&fit=crop", otp: Math.floor(1000 + Math.random() * 9000).toString() }; pushAlert("SYSTEM", "SENDING OTP...", true, false); emailjs.send("TEAMx-txg-OTP", "TEAMx-txg-OTP", { to_email: g, to_name: n, otp: window.pendingRegistrationData.otp }).then(function(response) { pushAlert("OTP SENT", `CHECK YOUR INBOX`, true); openOverlay('otp-overlay'); document.getElementById('otp-input').value = ""; }, function(error) { pushAlert("EMAIL ERROR", "FAILED TO SEND OTP.", false); }); });
         
         DOM.searchInput.addEventListener('input', filterSearchData);
@@ -843,11 +852,7 @@ body.is-video-fullscreen #main-nav {
                 case 'apply-gender': AppState.finalGender = btn.dataset.value; document.getElementById('gender-trigger').innerText = AppState.finalGender; closeOverlay('gender-overlay'); break;
                 case 'apply-dob': AppState.finalDOB = `${document.getElementById('day-in').value}/${document.getElementById('month-in').value}/${document.getElementById('year-in').value}`; document.getElementById('dob-trigger').innerText = AppState.finalDOB; closeOverlay('dob-overlay'); break;
                 case 'logout-user': closeOverlay('menu-overlay'); AppState.currentUser = null; AppState.currentlyViewingProfile = null; localStorage.removeItem('txg_device_auth'); document.getElementById('form-login').reset(); gsap.to('#app-container', {scale: 0.8, opacity: 0, duration: 0.5, onComplete: () => { window.location.hash = ''; handleRoute(); gsap.fromTo('#page-access', {scale: 1.5, opacity: 0}, {scale: 1, opacity: 1, duration: 0.5}); gsap.set('#app-container', {scale: 1, opacity: 1}); }}); pushAlert("SYSTEM", "DEVICE CREDENTIALS WIPED.", true); break;
-              case 'open-user-profile': 
-    const targetUsername = AppState.usersDB[btn.dataset.email].username;
-    window.location.hash = '@' + targetUsername; 
-    break;
-
+                case 'open-user-profile': const targetUsername = AppState.usersDB[btn.dataset.email].username; window.location.hash = '@' + targetUsername; break;
                 case 'profile-action-primary': if (AppState.currentlyViewingProfile === AppState.currentUser) { const me = AppState.usersDB[AppState.currentUser]; document.getElementById('edit-avatar-preview').src = me.avatar; const nameParts = me.name.split(' '); document.getElementById('edit-name').value = nameParts[0] || ''; document.getElementById('edit-surname').value = nameParts.slice(1).join(' ') || ''; document.getElementById('edit-username').value = me.username || ''; document.getElementById('edit-bio').value = me.bio || ''; document.getElementById('edit-gmail').value = me.gmail || ''; document.getElementById('edit-txg').value = AppState.currentUser; const linksList = document.getElementById('dynamic-links-list'); linksList.innerHTML = ''; (me.links || []).forEach(link => { linksList.insertAdjacentHTML('beforeend', `<div class="dynamic-link-row"><input type="text" value="${link}"><button type="button" class="remove-link-btn" data-action="remove-link-row"><i class="ph ph-trash"></i></button></div>`); }); document.getElementById('edit-music-url').value = me.profileMusic || ''; document.getElementById('edit-music-file').value = ""; document.getElementById('music-file-name').innerText = "NO FILE SELECTED"; openOverlay('edit-profile-overlay'); } else { const targetUser = AppState.usersDB[AppState.currentlyViewingProfile]; const me = AppState.usersDB[AppState.currentUser]; const idx = targetUser.followers.indexOf(AppState.currentUser); if(idx > -1) { targetUser.followers.splice(idx, 1); me.following.splice(me.following.indexOf(AppState.currentlyViewingProfile), 1); } else { targetUser.followers.push(AppState.currentUser); me.following.push(AppState.currentlyViewingProfile); } syncUserToCloud(AppState.currentlyViewingProfile); syncUserToCloud(AppState.currentUser); openProfileData(AppState.currentlyViewingProfile); } break;
                 case 'profile-action-secondary': if (AppState.currentlyViewingProfile === AppState.currentUser) { navigator.clipboard.writeText(window.location.href); pushAlert("SYSTEM", "PROFILE LINK COPIED", true); } else { const targetProfile = AppState.currentlyViewingProfile; window.location.hash = 'chats'; setTimeout(() => { loadActiveChat(targetProfile); }, 150); } break;
                 case 'trigger-avatar-upload': document.getElementById('avatar-upload').click(); break;
@@ -1056,7 +1061,6 @@ body.is-video-fullscreen #main-nav {
                         const sArea = document.getElementById('stream-chat-area'); sArea.innerHTML += `<div class="msg"><span class="user" style="color:var(--neon);">@${AppState.usersDB[AppState.currentUser].username}:</span> ${sText}</div>`; sArea.scrollTop = sArea.scrollHeight;
                     } sInput.value = ''; break;
                 
-                // --- Updated join-stream-feed to trigger fullscreen instantly ---
                 case 'join-stream-feed': 
                     window.location.hash = 'stream'; 
                     document.querySelector('.stream-title').innerText = AppState.usersDB[btn.dataset.targetUser].name + "'S ARENA"; 
@@ -1077,7 +1081,6 @@ body.is-video-fullscreen #main-nav {
                     }, 400);
                     break;
                     
-                // --- New handler to exit fullscreen and return home ---
                 case 'exit-stream-fullscreen':
                     const streamBoxFS = document.getElementById('stream-video-box');
                     streamBoxFS.classList.remove('is-fullscreen');
@@ -1139,10 +1142,95 @@ body.is-video-fullscreen #main-nav {
 
     async function sendChatMessage(content, type = 'text') { if (!AppState.activeChatUser || !AppState.currentUser) return; let finalContent = content; if(type !== 'text') { finalContent = JSON.stringify({ type: type, url: content }); } const encryptedContent = encryptMessage(finalContent, AppState.currentUser, AppState.activeChatUser); try { const { error } = await supabase.from('messages').insert([{ sender: AppState.currentUser, receiver: AppState.activeChatUser, content: encryptedContent }]); if (error) throw error; } catch (err) { pushAlert("COMMS ERROR", "FAILED TO SEND", false); } }
     async function loadConversationsList() { if (!AppState.currentUser) return; const { data, error } = await supabase.from('messages').select('*').or(`sender.eq.${AppState.currentUser},receiver.eq.${AppState.currentUser}`).order('created_at', { ascending: false }); if (error) return console.error(error); const recentChats = {}; data.forEach(msg => { const otherUser = msg.sender === AppState.currentUser ? msg.receiver : msg.sender; if (!recentChats[otherUser]) recentChats[otherUser] = msg; }); if (AppState.activeChatUser && !recentChats[AppState.activeChatUser]) recentChats[AppState.activeChatUser] = { dummy: true }; const listEl = document.getElementById('chat-conversation-list'); listEl.innerHTML = ''; if (Object.keys(recentChats).length === 0) { listEl.innerHTML = `<p style="text-align:center; color:#888; font-size:0.8rem; margin-top:20px;">NO SECURE CHANNELS FOUND.</p>`; return; } Object.keys(recentChats).forEach(uid => { const u = AppState.usersDB[uid]; if(!u) return; let latestText = "NEW CONVERSATION..."; if(!recentChats[uid].dummy) { const dec = decryptMessage(recentChats[uid].content, AppState.currentUser, uid); try { const parsed = JSON.parse(dec); latestText = `[${parsed.type.toUpperCase()}]`; } catch(e) { latestText = dec; } } listEl.innerHTML += `<div class="chat-list-item" data-action="open-chat-window" data-target-user="${uid}"><img src="${u.avatar}"><div class="info"><h5>${u.name}</h5><p>${latestText}</p></div></div>`; }); }
-    async function loadActiveChat(uid) { AppState.activeChatUser = uid; document.body.classList.add('in-conversation'); document.getElementById('chat-sidebar').classList.add('hidden'); document.getElementById('chat-window').classList.add('active'); document.getElementById('chat-window').style.display = 'flex'; const u = AppState.usersDB[uid]; document.getElementById('active-chat-avatar').src = u.avatar; document.getElementById('active-chat-name').innerText = u.name; const { data, error } = await supabase.from('messages').select('*').or(`and(sender.eq.${AppState.currentUser},receiver.eq.${uid}),and(sender.eq.${uid},receiver.eq.${AppState.currentUser})`).order('created_at', { ascending: true }); const area = document.getElementById('chat-messages-area'); area.innerHTML = ''; if (data) { data.forEach(msg => { const isMe = msg.sender === AppState.currentUser; const decText = decryptMessage(msg.content, AppState.currentUser, uid); let finalHTML = decText; try { const media = JSON.parse(decText); if(media.type === 'image') finalHTML = `<img src="${media.url}">`; else if(media.type === 'video') finalHTML = `<video src="${media.url}" controls></video>`; else if(media.type === 'audio') finalHTML = `<audio src="${media.url}" controls></audio>`; else if(media.type === 'document') finalHTML = `<a href="${media.url}" target="_blank" style="color:#00f2ff; text-decoration:none;"><i class="ph-fill ph-file-text"></i> VIEW DOCUMENT</a>`; else if(media.type === 'location') finalHTML = `<div class="chat-bubble-map"><i class="ph-fill ph-map-pin"></i></div><div style="font-size:0.6rem; text-align:center;">${media.url}</div>`; } catch(e) {} area.innerHTML += `<div class="chat-bubble ${isMe ? 'me' : 'them'}">${finalHTML}</div>`; }); } area.scrollTop = area.scrollHeight; }
+    
+    async function loadActiveChat(uid) { 
+        AppState.activeChatUser = uid; 
+        document.body.classList.add('in-conversation'); 
+        document.getElementById('chat-sidebar').classList.add('hidden'); 
+        document.getElementById('chat-window').classList.add('active'); 
+        document.getElementById('chat-window').style.display = 'flex'; 
+        
+        const u = AppState.usersDB[uid]; 
+        document.getElementById('active-chat-avatar').src = u.avatar; 
+        document.getElementById('active-chat-name').innerText = u.name; 
+        
+        const { data, error } = await supabase.from('messages').select('*').or(`and(sender.eq.${AppState.currentUser},receiver.eq.${uid}),and(sender.eq.${uid},receiver.eq.${AppState.currentUser})`).order('created_at', { ascending: true }); 
+        const area = document.getElementById('chat-messages-area'); 
+        area.innerHTML = ''; 
+        
+        if (data) { 
+            data.forEach(msg => { 
+                const isMe = msg.sender === AppState.currentUser; 
+                const decText = decryptMessage(msg.content, AppState.currentUser, uid); 
+                let finalHTML = decText; 
+                
+                const msgDate = new Date(msg.created_at);
+                const timeStr = msgDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                try { 
+                    const media = JSON.parse(decText); 
+                    if(media.type === 'image') finalHTML = `<img src="${media.url}">`; 
+                    else if(media.type === 'video') finalHTML = `<video src="${media.url}" controls></video>`; 
+                    else if(media.type === 'audio') finalHTML = `<audio src="${media.url}" controls></audio>`; 
+                    else if(media.type === 'document') finalHTML = `<a href="${media.url}" target="_blank" style="color:#00f2ff; text-decoration:none;"><i class="ph-fill ph-file-text"></i> VIEW DOCUMENT</a>`; 
+                    else if(media.type === 'location') finalHTML = `<div class="chat-bubble-map"><i class="ph-fill ph-map-pin"></i></div><div style="font-size:0.6rem; text-align:center;">${media.url}</div>`; 
+                } catch(e) {} 
+                
+                finalHTML += `<div style="font-size: 0.55rem; opacity: 0.6; text-align: right; margin-top: 5px; font-family: 'Orbitron';">${timeStr}</div>`;
+                
+                area.innerHTML += `<div class="chat-bubble ${isMe ? 'me' : 'them'}">${finalHTML}</div>`; 
+            }); 
+        } 
+        area.scrollTop = area.scrollHeight; 
+    }
     
     function initRealtimeChats() { 
-        supabase.channel('public:messages').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => { const msg = payload.new; if (msg.sender === AppState.currentUser || msg.receiver === AppState.currentUser) { loadConversationsList(); if (AppState.activeChatUser && (msg.sender === AppState.activeChatUser || msg.receiver === AppState.activeChatUser)) { const isMe = msg.sender === AppState.currentUser; const decText = decryptMessage(msg.content, AppState.currentUser, AppState.activeChatUser); let finalHTML = decText; try { const media = JSON.parse(decText); if(media.type === 'image') finalHTML = `<img src="${media.url}">`; else if(media.type === 'video') finalHTML = `<video src="${media.url}" controls></video>`; else if(media.type === 'audio') finalHTML = `<audio src="${media.url}" controls></audio>`; else if(media.type === 'document') finalHTML = `<a href="${media.url}" target="_blank" style="color:#00f2ff; text-decoration:none;"><i class="ph-fill ph-file-text"></i> VIEW DOCUMENT</a>`; else if(media.type === 'location') finalHTML = `<div class="chat-bubble-map"><i class="ph-fill ph-map-pin"></i></div><div style="font-size:0.6rem; text-align:center;">${media.url}</div>`; } catch(e) {} const area = document.getElementById('chat-messages-area'); area.innerHTML += `<div class="chat-bubble ${isMe ? 'me' : 'them'}">${finalHTML}</div>`; area.scrollTop = area.scrollHeight; vibrate([30, 30]); } else if(msg.receiver === AppState.currentUser) { pushAlert("NEW COMMS", `MESSAGE FROM ${AppState.usersDB[msg.sender]?.username || 'OPERATOR'}`, true); } } }).subscribe(); 
+        supabase.channel('public:messages').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => { 
+            const msg = payload.new; 
+            if (msg.sender === AppState.currentUser || msg.receiver === AppState.currentUser) { 
+                loadConversationsList(); 
+                if (AppState.activeChatUser && (msg.sender === AppState.activeChatUser || msg.receiver === AppState.activeChatUser)) { 
+                    const isMe = msg.sender === AppState.currentUser; 
+                    const decText = decryptMessage(msg.content, AppState.currentUser, AppState.activeChatUser); 
+                    let finalHTML = decText; 
+                    
+                    const msgDate = new Date(msg.created_at);
+                    const timeStr = msgDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                    try { 
+                        const media = JSON.parse(decText); 
+                        if(media.type === 'image') finalHTML = `<img src="${media.url}">`; 
+                        else if(media.type === 'video') finalHTML = `<video src="${media.url}" controls></video>`; 
+                        else if(media.type === 'audio') finalHTML = `<audio src="${media.url}" controls></audio>`; 
+                        else if(media.type === 'document') finalHTML = `<a href="${media.url}" target="_blank" style="color:#00f2ff; text-decoration:none;"><i class="ph-fill ph-file-text"></i> VIEW DOCUMENT</a>`; 
+                        else if(media.type === 'location') finalHTML = `<div class="chat-bubble-map"><i class="ph-fill ph-map-pin"></i></div><div style="font-size:0.6rem; text-align:center;">${media.url}</div>`; 
+                    } catch(e) {} 
+                    
+                    finalHTML += `<div style="font-size: 0.55rem; opacity: 0.6; text-align: right; margin-top: 5px; font-family: 'Orbitron';">${timeStr}</div>`;
+
+                    const area = document.getElementById('chat-messages-area'); 
+                    area.innerHTML += `<div class="chat-bubble ${isMe ? 'me' : 'them'}">${finalHTML}</div>`; 
+                    area.scrollTop = area.scrollHeight; 
+                    vibrate([30, 30]); 
+                } else if(msg.receiver === AppState.currentUser) { 
+                    pushAlert("NEW COMMS", `MESSAGE FROM ${AppState.usersDB[msg.sender]?.username || 'OPERATOR'}`, true); 
+                    if ('Notification' in window && Notification.permission === 'granted') {
+                        if (document.hidden) {
+                            const senderName = AppState.usersDB[msg.sender]?.username || 'OPERATOR';
+                            const notification = new Notification('TEAMx ARENA', {
+                                body: `New encrypted message from @${senderName}`,
+                                icon: AppState.usersDB[msg.sender]?.avatar || '',
+                                badge: AppState.usersDB["TEAMX@TXG.COM"].avatar
+                            });
+                            notification.onclick = function() {
+                                window.focus();
+                                this.close();
+                            };
+                        }
+                    }
+                } 
+            } 
+        }).subscribe(); 
 
         supabase.channel('public:live_streams').on('postgres_changes', { event: '*', schema: 'public', table: 'live_streams' }, payload => { loadActiveStreams(); }).subscribe();
 
@@ -1195,6 +1283,7 @@ body.is-video-fullscreen #main-nav {
 
     initApp();
 </script>
+
 
 
 
