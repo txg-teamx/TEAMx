@@ -14,6 +14,20 @@
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+        <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+    <script>
+      window.OneSignalDeferred = window.OneSignalDeferred || [];
+      OneSignalDeferred.push(async function(OneSignal) {
+        await OneSignal.init({
+          appId: "YOUR-ONESIGNAL-APP-ID-GOES-HERE", // Paste your App ID here!
+          safari_web_id: "web.onesignal.auto.xxxxxx", // Optional: OneSignal provides this for iOS/Mac support
+          notifyButton: {
+            enable: true, // Shows a small bell icon so users can opt-in
+          },
+        });
+      });
+    </script>
+
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
     <style>
@@ -785,7 +799,16 @@ body.is-video-fullscreen #main-nav {
         const resetFullscreenState = () => { if (!document.fullscreenElement && !document.webkitIsFullScreen) { document.querySelectorAll('.is-fullscreen').forEach(el => el.classList.remove('is-fullscreen')); document.body.classList.remove('is-video-fullscreen'); try { screen.orientation.unlock().catch(e=>{}); } catch(e){} } };
         document.addEventListener('fullscreenchange', resetFullscreenState); document.addEventListener('webkitfullscreenchange', resetFullscreenState);
 
-        document.getElementById('form-login').addEventListener('submit', (e) => { e.preventDefault(); const m = document.getElementById('login-mail').value.toUpperCase(); const p = document.getElementById('login-pass').value.toUpperCase(); if (!AppState.usersDB[m]) return pushAlert("DENIED", "USER NOT FOUND"); if (AppState.usersDB[m].password === p) { AppState.currentUser = m; localStorage.setItem('txg_device_auth', AppState.currentUser); initRealtimeChats(); pushAlert("GRANTED", "SYNCING CHANNELS...", true); gsap.to('#page-access', {scale: 1.5, opacity: 0, duration: 1, ease: "power2.inOut", onComplete: () => { window.location.hash = 'home'; gsap.set('#page-access', {scale: 1, opacity: 1}); }}); } else { pushAlert("DENIED", "INCORRECT PASSWORD"); } });
+        document.getElementById('form-login').addEventListener('submit', (e) => { e.preventDefault(); const m = document.getElementById('login-mail').value.toUpperCase(); const p = document.getElementById('login-pass').value.toUpperCase(); if (!AppState.usersDB[m]) return pushAlert("DENIED", "USER NOT FOUND"); if (AppState.usersDB
+        [m].password === p) { AppState.currentUser = m; localStorage.setItem
+                    // Tell OneSignal exactly who this user is
+        if (window.OneSignalDeferred) {
+            OneSignalDeferred.push(function(OneSignal) {
+                OneSignal.login(AppState.currentUser); // Links their email/ID to their device
+            });
+        }
+
+            ('txg_device_auth', AppState.currentUser); initRealtimeChats(); pushAlert("GRANTED", "SYNCING CHANNELS...", true); gsap.to('#page-access', {scale: 1.5, opacity: 0, duration: 1, ease: "power2.inOut", onComplete: () => { window.location.hash = 'home'; gsap.set('#page-access', {scale: 1, opacity: 1}); }}); } else { pushAlert("DENIED", "INCORRECT PASSWORD"); } });
         document.getElementById('form-register').addEventListener('submit', (e) => { e.preventDefault(); const n = document.getElementById('reg-name').value, s = document.getElementById('reg-surname').value; const u = document.getElementById('reg-username').value, g = document.getElementById('reg-mail').value; const t = document.getElementById('txg-mail').value.toUpperCase(), p = document.getElementById('reg-pass').value.toUpperCase(); if(!n || !s || !u || !AppState.finalDOB || !g || !t || !p) return pushAlert("ERROR", "FILL ALL FIELDS"); if(AppState.takenUsernames.includes(u)) return pushAlert("CONFLICT", "USERNAME TAKEN"); if(AppState.usersDB[t]) return pushAlert("CONFLICT", "MAIL ALREADY REGISTERED"); window.pendingRegistrationData = { id: t, password: p, name: n + " " + s, username: u, gmail: g, bio: "NEW OPERATOR IN THE TXG ARENA.", links: [], profileMusic: "", followers: [], following: [], clips: [], avatar: "https://images.unsplash.com/photo-1511367461989-f85a21fda167?w=400&h=400&fit=crop", otp: Math.floor(1000 + Math.random() * 9000).toString() }; pushAlert("SYSTEM", "SENDING OTP...", true, false); emailjs.send("TEAMx-txg-OTP", "TEAMx-txg-OTP", { to_email: g, to_name: n, otp: window.pendingRegistrationData.otp }).then(function(response) { pushAlert("OTP SENT", `CHECK YOUR INBOX`, true); openOverlay('otp-overlay'); document.getElementById('otp-input').value = ""; }, function(error) { pushAlert("EMAIL ERROR", "FAILED TO SEND OTP.", false); }); });
         
         DOM.searchInput.addEventListener('input', filterSearchData);
